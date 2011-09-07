@@ -1,10 +1,7 @@
-package com.fearke.app.genetic0;
+package com.fearke.app.leg;
 
 import processing.core.PApplet;
 
-import com.fearke.app.leg.DrawLeg;
-import com.fearke.app.leg.Leg;
-import com.fearke.app.leg.LegFactory;
 import com.fearke.genetic.algorithm.Algorithm;
 import com.fearke.genetic.model.IPhenotypeFactory;
 import com.fearke.util.Vector2d;
@@ -12,14 +9,14 @@ import com.fearke.util.Vector2d;
 /**
  * Genetic leg
  */
-public class GeneticLeg extends PApplet {
+public class App extends PApplet {
 
 	/** */
 	private static final long serialVersionUID = 1L;
 
 	public static void main(String[] args) {
 		// "--present",
-		PApplet.main(new String[] { GeneticLeg.class.getName() });
+		PApplet.main(new String[] { App.class.getName() });
 	}
 
 	private Algorithm<Leg> algorithm;

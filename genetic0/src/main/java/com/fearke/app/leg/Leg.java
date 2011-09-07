@@ -3,7 +3,6 @@ package com.fearke.app.leg;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fearke.app.genetic0.GeneticLeg;
 import com.fearke.genetic.model.IChromosome;
 import com.fearke.genetic.model.IPhenotype;
 import com.fearke.util.Polygon2d;
@@ -37,7 +36,7 @@ public class Leg implements IPhenotype {
 
 	@Override
 	public double getFitness() {
-		this.p0 = GeneticLeg.p0;
+		this.p0 = App.p0;
 
 		double sumR = getFitnessStartEnd();
 		double sumV = getFitnessDistance();
