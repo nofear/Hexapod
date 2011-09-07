@@ -21,6 +21,12 @@ public class DrawBody {
 		this.body = body;
 	}
 
+	/**
+	 * Draw our body on given applet.
+	 * 
+	 * @param g
+	 *            applet.
+	 */
 	public void draw(PApplet g) {
 		Vector3d c = body.getCenter();
 

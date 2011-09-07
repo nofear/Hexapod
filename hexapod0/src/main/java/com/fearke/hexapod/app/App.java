@@ -11,7 +11,20 @@ import com.fearke.hexapod.Leg;
 import com.fearke.hexapod.LegConfig;
 import com.fearke.util.Vector3d;
 
+/**
+ * Extends the processing PApplet, you need to have processing installed and
+ * configure the native libraries correctly:
+ * 
+ * gluegen-rt.jar, jogl.jar & opengl.jar :
+ * /Applications/Processing.app/Contents/Resources/Java/libraries/opengl/library
+ * 
+ * (right mouse click on jar -> properties -> native library)
+ * 
+ * @author Patrick
+ * 
+ */
 public class App extends PApplet {
+
 	private static final long serialVersionUID = 1L;
 
 	public static void main(String args[]) {
