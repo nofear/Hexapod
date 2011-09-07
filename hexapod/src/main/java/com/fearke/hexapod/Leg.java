@@ -5,8 +5,13 @@ import com.fearke.util.Vector3d;
 
 public class Leg {
 
+	/** hip length. */
 	public final static int h = 27;
+
+	/** tibia length. */
 	public final static int t = 107;
+
+	/** femur length. */
 	public final static int f = 77;
 
 	public Vector3d p1;
@@ -18,6 +23,9 @@ public class Leg {
 	private double rb = 0;
 	private double rc = 0;
 
+	/**
+	 * Constructor.
+	 */
 	public Leg() {
 		p1 = new Vector3d(0, 0, 0);
 		p2 = new Vector3d(0, 0, 0);
@@ -25,33 +33,61 @@ public class Leg {
 		p4 = new Vector3d(0, 0, 0);
 	}
 
+	/**
+	 * Initialize leg start/end points.
+	 * 
+	 * @param v
+	 *            start point
+	 * @param x
+	 *            x offset for end point
+	 * @param y
+	 *            y offset for end point
+	 * @param z
+	 *            z for end point
+	 */
 	public void init(Vector3d v, double x, double y, double z) {
 		p1 = new Vector3d(v);
 		p4 = new Vector3d(v);
 		p4.x += x;
 		p4.y += y;
 		p4.z = z;
+
 		updateInverse(0);
 	}
 
-	public void setP1(double x, double y, double z) {
-		setP1(new Vector3d(x, y, z));
-	}
-
+	/**
+	 * Set leg start point.
+	 * 
+	 * @param p
+	 *            start point
+	 */
 	public void setP1(Vector3d p) {
 		this.p1 = p;
 	}
 
+	/**
+	 * Set leg end point.
+	 * 
+	 * @param p
+	 *            end point
+	 */
 	public void setP4(Vector3d p) {
 		this.p4 = p;
 	}
 
+	/**
+	 * @param r
+	 *            angle array
+	 */
 	public void setR(double[] r) {
 		this.ra = r[0];
 		this.rb = r[1];
 		this.rc = r[2];
 	}
 
+	/**
+	 * @return angle array
+	 */
 	public double[] getR() {
 		return new double[] { ra, rb, rc };
 	}
@@ -68,6 +104,13 @@ public class Leg {
 		return rc;
 	}
 
+	/**
+	 * Inverse kinematic calculation of the leg. Given the start and end point
+	 * of the leg, calculate the angles of the three servos.
+	 * 
+	 * @param roll
+	 *            roll angle of the body
+	 */
 	public void updateInverse(double roll) {
 		double dx = p4.x - p1.x;
 		double dy = p4.y - p1.y;

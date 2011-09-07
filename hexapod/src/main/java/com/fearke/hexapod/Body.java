@@ -93,8 +93,9 @@ public class Body {
 
 	private void initLeg(double x, double y, double z) {
 		final int off = 50;
-		final double[][] o = new double[][] { { x + off, y }, { x, y }, { x - 2 * off, y }, { x - 2 * off, -y },
-				{ x, -y }, { x + off, -y } };
+		final double[][] o = new double[][] { { x + off, y }, { x, y },
+				{ x - 2 * off, y }, { x - 2 * off, -y }, { x, -y },
+				{ x + off, -y } };
 		for (int i = 0; i < count; ++i) {
 			legs[i].init(offset[i], o[i][0], o[i][1], z);
 		}
@@ -122,7 +123,7 @@ public class Body {
 	public void stabalize() {
 		updateLegConfig();
 
-		Plane3d p = legConfig.plane;
+		Plane3d p = legConfig.getPlane();
 		double distance = p.distance(center);
 		double[] r = Matrix.getRotation(p.n);
 
@@ -140,10 +141,16 @@ public class Body {
 		}
 	}
 
+	/**
+	 * Update most stable leg configuration.
+	 */
 	public void updateLegConfig() {
 		legConfig = calculateLegConfig();
 	}
 
+	/**
+	 * @return most stable leg configuration.
+	 */
 	private LegConfig calculateLegConfig() {
 		int[][] indices = {
 
@@ -162,7 +169,7 @@ public class Body {
 		for (int i = 0; i < indices.length; ++i) {
 			LegConfig lc = new LegConfig(this, indices[i]);
 			lc.update();
-			if (!lc.inside || lc.distanceNeg) {
+			if (!lc.isStable()) {
 				continue;
 			}
 			return lc;
