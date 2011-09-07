@@ -102,7 +102,7 @@ public class DrawBody {
 	private void drawLegs(PApplet g) {
 		LegConfig lc = body.getLegConfig();
 		for (int i = 0; i < Body.count; ++i) {
-			g.fill(lc.ground[i] ? Color.green.getRGB() : Color.orange.getRGB());
+			g.fill((lc.touchGround(i) ? Color.green : Color.orange).getRGB());
 
 			drawJoints(g, i);
 			drawLeg(g, i);
@@ -170,14 +170,14 @@ public class DrawBody {
 		LegConfig lc = body.getLegConfig();
 		for (int i = 0; i < Body.count; ++i) {
 			Leg leg = body.getLeg(i);
-			if (lc.ground[i]) {
+			if (lc.touchGround(i)) {
 				vertex(g, leg.p4, o);
 			}
 		}
 		g.endShape();
 
 		Vector3d c = body.getCenter();
-		Vector3d t = body.getLegConfig().plane.project(c);
+		Vector3d t = body.getLegConfig().getPlane().project(c);
 
 		g.translate((float) t.x, (float) t.y, (float) t.z);
 		g.fill(Color.yellow.getRGB());
@@ -187,7 +187,7 @@ public class DrawBody {
 	}
 
 	public void drawPlane(PApplet g) {
-		Plane3d plane = body.getLegConfig().plane;
+		Plane3d plane = body.getLegConfig().getPlane();
 		double[] r = Matrix.getRotation(plane.n);
 
 		g.pushMatrix();

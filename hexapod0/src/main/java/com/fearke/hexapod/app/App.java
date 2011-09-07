@@ -134,7 +134,6 @@ public class App extends PApplet {
 		body.stabalize();
 
 		if (stabalize) {
-
 			double[] r = body.getRotation();
 			if (r[2] != 0) {
 				LegConfig lc = body.getLegConfig();
@@ -150,7 +149,7 @@ public class App extends PApplet {
 
 				body.updateP1();
 				for (int i = 0; i < Body.count; ++i) {
-					if (lc.ground[i]) {
+					if (lc.touchGround(i)) {
 						body.getLeg(i).updateInverse(r[2]);
 					}
 				}
@@ -178,11 +177,11 @@ public class App extends PApplet {
 		text("pitch: " + fmt(r[1]), 0, 60);
 		text("roll:  " + fmt(r[2]), 0, 80);
 
-		text("l: " + Arrays.toString(lc.index), 0, 120);
+		text("l: " + Arrays.toString(lc.getIndex()), 0, 120);
 		text("c:  " + center.toString(), 0, 140);
 
 		float leg_x0 = 250;
-		float leg_y0 = 120;
+		// float leg_y0 = 120;
 		float leg_d = 150;
 		for (int i = 0; i < Body.count; ++i) {
 			Leg leg = body.getLeg(i);
@@ -190,7 +189,7 @@ public class App extends PApplet {
 			text("ra " + fmt(leg.getRa()), leg_x0 + i * leg_d, 40);
 			text("rb " + fmt(leg.getRb()), leg_x0 + i * leg_d, 60);
 			text("rc " + fmt(leg.getRc()), leg_x0 + i * leg_d, 80);
-			text("d  " + fmt(lc.distance[i]), leg_x0 + i * leg_d, 100);
+			text("d  " + fmt(lc.getDistance(i)), leg_x0 + i * leg_d, 100);
 		}
 
 		translate(MID_X, HEIGHT / 2 + 50);
