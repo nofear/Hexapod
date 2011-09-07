@@ -8,7 +8,7 @@ public interface IPhenotype {
 	IChromosome getChromosome();
 
 	/**
-	 * @return fitness
+	 * @return fitness for this instance.
 	 */
 	double getFitness();
 

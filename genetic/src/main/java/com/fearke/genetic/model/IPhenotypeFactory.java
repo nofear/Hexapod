@@ -1,5 +1,14 @@
 package com.fearke.genetic.model;
 
+/**
+ * Phenotype factor, creates our little critters, either new ones or new ones
+ * based on a given chromosome.
+ * 
+ * @author Patrick
+ * 
+ * @param <T>
+ *            Phenotype.
+ */
 public interface IPhenotypeFactory<T extends IPhenotype> {
 
 	/**
