@@ -2,23 +2,8 @@
 <classpath>
 	<classpathentry kind="src" output="target/classes" path="src/main/java"/>
 	<classpathentry kind="src" output="target/test-classes" path="src/test/java"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.launching.macosx.MacOSXType/JDK1.6"/>
 	<classpathentry kind="con" path="org.maven.ide.eclipse.MAVEN2_CLASSPATH_CONTAINER"/>
-	<classpathentry kind="lib" path="core.jar"/>
-	<classpathentry kind="lib" path="opengl.jar">
-		<attributes>
-			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="/Applications/Processing.app/Contents/Resources/Java/modes/java/libraries/opengl/library/macosx"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="jogl.jar">
-		<attributes>
-			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="/Applications/Processing.app/Contents/Resources/Java/modes/java/libraries/opengl/library/macosx"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="gluegen-rt.jar">
-		<attributes>
-			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="/Applications/Processing.app/Contents/Resources/Java/modes/java/libraries/opengl/library/macosx"/>
-		</attributes>
-	</classpathentry>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Processing 2.0a4"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
