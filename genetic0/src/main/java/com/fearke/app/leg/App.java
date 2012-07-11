@@ -3,6 +3,7 @@ package com.fearke.app.leg;
 import processing.core.PApplet;
 
 import com.fearke.genetic.algorithm.Algorithm;
+import com.fearke.genetic.model.IAlgorithm;
 import com.fearke.genetic.model.IPhenotypeFactory;
 import com.fearke.util.Vector2d;
 
@@ -19,7 +20,7 @@ public class App extends PApplet {
 		PApplet.main(new String[] { App.class.getName() });
 	}
 
-	private Algorithm<Leg> algorithm;
+	private IAlgorithm<Leg> algorithm;
 	private DrawLeg draw;
 
 	public static Vector2d p0 = new Vector2d(25, 100);

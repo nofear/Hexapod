@@ -2,22 +2,21 @@ package com.fearke.app.gait;
 
 import java.awt.Color;
 
-import processing.core.PApplet;
-
-import com.fearke.app.base.DrawPhenotype;
-import com.fearke.genetic.model.IAlgorithm;
+import com.fearke.app.base.DrawBase;
 import com.fearke.util.Vector2d;
 
-public class DrawGait extends DrawPhenotype<Gait> {
+import processing.core.PApplet;
 
-	public DrawGait(PApplet g, IAlgorithm<Gait> algorithm) {
-		super(g, algorithm);
+public class DrawGait extends DrawBase {
+
+	public DrawGait(PApplet g) {
+		super(g);
 
 		this.width = 1000;
 		this.height = 250;
 	}
 
-	protected void draw(Gait p) {
+	public void draw(Gait p) {
 		g.fill(255);
 		g.text(Double.toString(p.getFitness()), 80, height - 2);
 
@@ -34,8 +33,10 @@ public class DrawGait extends DrawPhenotype<Gait> {
 			text(p.getDistance(i), -25, -offset + 15);
 
 			Ant a0 = p.getAnt(i);
+			Ant a1 = p.getAnt((i + 1) % Gait.count);
+
 			drawGroundPlane(a0);
-			draw(a0);
+			draw(a0, a1);
 
 			g.translate(Ant.width + 20, 0);
 		}
@@ -47,32 +48,36 @@ public class DrawGait extends DrawPhenotype<Gait> {
 		for (int i = 0; i < Gait.count * 2; ++i) {
 			int index = i % Gait.count;
 			Ant a0 = p.getAnt(index);
-			draw(a0);
+			draw(a0, a0);
 
 			g.translate((float) p.getDistance(index), 0);
 		}
 		g.popMatrix();
 	}
 
-	protected void draw(Ant a) {
+	private void draw(Ant a0, Ant a1) {
 		g.stroke(255);
 		g.fill(Color.yellow.getRGB());
 		g.rect(-Ant.width / 2, -Ant.height / 2, Ant.width, Ant.height);
 
 		for (int i = 0; i < Ant.count; ++i) {
-			g.stroke(255);
-			line(a.p0[i], a.p1[i]);
+			g.stroke(a0.ground[i] ? Color.green.getRGB() : Color.red.getRGB());
+			line(a0.p0[i], a0.p1[i]);
+
+			g.stroke(a0.ground[i] ? Color.blue.getRGB() : Color.orange.getRGB());
+			line(a1.p0[i], a1.p1[i]);
 
 			g.fill(Color.yellow.getRGB());
-			rect(a.p0[i], 3);
+			rect(a0.p0[i], 3);
 
-			g.fill(a.ground[i] ? Color.green.getRGB() : Color.red.getRGB());
+			g.fill(a0.ground[i] ? Color.green.getRGB() : Color.red.getRGB());
 			g.noStroke();
-			rect(a.p1[i], 3);
+			rect(a0.p1[i], 3);
 
-			// g.fill(Color.blue.getRGB());
-			// g.noStroke();
-			// rect(a.poly.centroid(), 3);
+			g.fill(a0.poly.inside(new Vector2d(0, 0)) ? Color.blue.getRGB()
+					: Color.red.getRGB());
+			g.noStroke();
+			rect(new Vector2d(0, 0), 3);
 		}
 	}
 
@@ -85,4 +90,5 @@ public class DrawGait extends DrawPhenotype<Gait> {
 		}
 		g.endShape();
 	}
+
 }

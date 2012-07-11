@@ -19,16 +19,16 @@ public class App extends PApplet {
 	}
 
 	private Algorithm<Gait> algorithm;
-	private DrawGait draw;
+	private DrawGaitPhenotype draw;
 
 	public void setup() {
 		IPhenotypeFactory<Gait> factory = new GaitFactory();
 
 		algorithm = new Algorithm<Gait>(factory);
-		algorithm.init(new int[] { 24 });
+		algorithm.init(new int[] { 36 });
 		algorithm.start();
 
-		draw = new DrawGait(this, algorithm);
+		draw = new DrawGaitPhenotype(this, algorithm);
 
 		size(1024, 800);
 		background(0);

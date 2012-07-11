@@ -41,13 +41,14 @@ public class Algorithm<T extends IPhenotype> implements IAlgorithm<T> {
 		}
 	}
 
-	public Algorithm(IPhenotypeFactory<T> factory) {
+	public Algorithm(final IPhenotypeFactory<T> factory) {
 		this.factory = factory;
 		this.population = new ArrayList<IPopulation<T>>();
 		this.threads = new ArrayList<Thread>();
 	}
 
-	public void init(int[] populationSize) {
+	@Override
+	public void init(final int[] populationSize) {
 		for (int size : populationSize) {
 			Population<T> p = new Population<T>(factory);
 			p.setCount(size);
@@ -57,6 +58,7 @@ public class Algorithm<T extends IPhenotype> implements IAlgorithm<T> {
 		}
 	}
 
+	@Override
 	public void start() {
 		for (IPopulation<T> p : population) {
 			Thread thread = new Thread(new RunPopulation(p));
@@ -66,6 +68,7 @@ public class Algorithm<T extends IPhenotype> implements IAlgorithm<T> {
 		}
 	}
 
+	@Override
 	public List<IPopulation<T>> getPopulation() {
 		return population;
 	}

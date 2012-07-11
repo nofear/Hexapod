@@ -27,48 +27,55 @@ public class Gait implements IPhenotype {
 	public double getFitness() {
 		double fitness = 0;
 		fitness += getFitnessMotion();
-		fitness += getFitnessMaxRotation();
+		// fitness += getFitnessMaxRotation();
 		return fitness;
 	}
 
+	/**
+	 * - move 1 leg (otherwise unbalanced)<br>
+	 * - up legs moves foward<br>
+	 * - down legs move backward<br>
+	 * - move 3 legs backward<br>
+	 * - move legs consecutive times<br>
+	 * - move each of 4 legs, move each leg equal steps ?<br>
+	 * - 3 legs must be balanced (COG)<br>
+	 * 
+	 * 
+	 * @return
+	 */
 	private double getFitnessMotion() {
 		double fitness = 0;
+
+		updateDistance();
+
 		for (int i = 0; i < count; ++i) {
 			Ant a0 = ants[i];
 			Ant a1 = ants[(i + 1) % count];
-
-			int g = a0.getGroundSet() & a1.getGroundSet();
-			int gbc = Integer.bitCount(g);
-			if (gbc == 3) {
-				Polygon2d gp0 = a0.getGroundPlane(g);
-				Polygon2d gp1 = a1.getGroundPlane(g);
-
-				Vector2d[] pts0 = gp0.getPoints();
-				Vector2d[] pts1 = gp1.getPoints();
-
-				double d = gp0.centroid().x - gp1.centroid().x;
-				distance[i] = d;
-				if (d > 0) {
-					d += 1;
-					d *= 10;
-					fitness += 50000 - Math.abs(d * d);
-				} else {
-					d -= 1;
-					d *= 100;
-					fitness += 50000 + Math.abs(d * d);
-				}
-
-				for (int j = 0; j < pts0.length; ++j) {
-					double dt = pts0[j].x - pts1[j].x;
-					double diff = Math.abs(dt - distance[i]);
-					diff += 1;
-					fitness += diff * diff;
-				}
+			double d = distance[i];
+			if (d > 0) {
+				d += 1;
+				d *= 10;
+				fitness += 5000 - Math.abs(d * d);
 			} else {
-				int f[] = { 4, 3, 2, 1, 3 };
-				fitness += 50000 * f[gbc];
+				d -= 1;
+				d *= 100;
+				fitness += 5000 + Math.abs(d * d);
+			}
+
+			if (Integer.bitCount(a0.getGroundSet() & a1.getGroundSet()) <= 2) {
+				fitness += 20000;
+			}
+
+			Vector2d p0 = new Vector2d(0, 0);
+			int g = a0.getGroundSet();
+			int gbc = Integer.bitCount(g);
+			if (gbc >= 3) {
+				if (!a0.poly.inside(p0)) {
+					fitness += 50000 * a0.poly.project(p0).distanceSquared(p0);
+				}
 			}
 		}
+
 		return fitness;
 	}
 
@@ -93,6 +100,20 @@ public class Gait implements IPhenotype {
 		return fitness;
 	}
 
+	public void updateDistance() {
+		for (int i = 0; i < count; ++i) {
+			Ant a0 = ants[i];
+			Ant a1 = ants[(i + 1) % count];
+
+			int g = a1.getGroundSet();
+
+			Polygon2d gp0 = a0.getGroundPlane(g);
+			Polygon2d gp1 = a1.getGroundPlane(g);
+
+			distance[i] = gp0.centroid().x - gp1.centroid().x;
+		}
+	}
+
 	public void update() {
 		distance = new double[count];
 		ants = new Ant[count];
@@ -109,6 +130,14 @@ public class Gait implements IPhenotype {
 		return distance[idx];
 	}
 
+	public double getDistance() {
+		double dist = 0;
+		for (int i = 0; i < Ant.size; ++i) {
+			dist += getDistance(i);
+		}
+		return dist;
+	}
+
 	private Ant createAnt(int idx) {
 		double[] c = getStep(idx);
 		Ant a = new Ant();
@@ -117,7 +146,7 @@ public class Gait implements IPhenotype {
 		return a;
 	}
 
-	private double[] getStep(int idx) {
+	public double[] getStep(int idx) {
 		double[] c = new double[Ant.size];
 		for (int i = 0; i < Ant.size; ++i) {
 			c[i] = chromosome.getGene(i + idx * Ant.size);
@@ -125,4 +154,9 @@ public class Gait implements IPhenotype {
 		return c;
 	}
 
+	public void setStep(int idx, double[] c) {
+		for (int i = 0; i < Ant.size; ++i) {
+			chromosome.setGene(i + idx * Ant.size, c[i]);
+		}
+	}
 }

@@ -60,8 +60,8 @@ public class Ant {
 
 	public int getGroundCount() {
 		int c = 0;
-		for (int i = 0; i < count; ++i) {
-			if (ground[i]) {
+		for (boolean g : ground) {
+			if (g) {
 				++c;
 			}
 		}
@@ -85,9 +85,11 @@ public class Ant {
 			double r = rotation[i];
 			double a = (i < count / 2 ? r : Math.PI - r);
 			if (i < count / 2) {
-				p1[i] = Vector2d.add(p0[i], new Vector2d(Math.sin(a) * length, length));
+				p1[i] = Vector2d.add(p0[i], new Vector2d(Math.sin(a) * length,
+						length));
 			} else {
-				p1[i] = Vector2d.add(p0[i], new Vector2d(Math.sin(a) * length, -length));
+				p1[i] = Vector2d.add(p0[i], new Vector2d(Math.sin(a) * length,
+						-length));
 			}
 		}
 
