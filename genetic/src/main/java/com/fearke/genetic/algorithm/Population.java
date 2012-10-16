@@ -19,6 +19,8 @@ public class Population<T extends IPhenotype> implements IPopulation<T> {
 	private Random rnd;
 
 	private IPhenotypeFactory<T> factory;
+	private ICrossover crossover;
+	private IMutate mutate;
 
 	private boolean stop;
 
@@ -35,9 +37,11 @@ public class Population<T extends IPhenotype> implements IPopulation<T> {
 	 * @param factory
 	 *            phenotype factory
 	 */
-	public Population(final IPhenotypeFactory<T> factory) {
-		this.rnd = new Random();
+	public Population(final IPhenotypeFactory<T> factory, final ICrossover crossover, final IMutate mutate) {
+		this.rnd = new Random(0);
 		this.factory = factory;
+		this.crossover = crossover;
+		this.mutate = mutate;
 		this.population = new ArrayList<T>();
 		this.history = new ArrayList<Double>();
 		this.count = 0;
@@ -49,6 +53,7 @@ public class Population<T extends IPhenotype> implements IPopulation<T> {
 		population.clear();
 		for (int i = 0; i < count; ++i) {
 			T phenotype = factory.create();
+			
 			population.add(phenotype);
 		}
 		sort();
@@ -133,9 +138,6 @@ public class Population<T extends IPhenotype> implements IPopulation<T> {
 			fitness[i] /= sumFitness;
 		}
 
-		ICrossover crossover = factory.getCrossover();
-		IMutate mutate = factory.getMutate();
-
 		int countCrossover = count - countElite;
 		for (int i = 0; i < countCrossover / 2; ++i) {
 			int idx1 = Arrays.binarySearch(fitness, rnd.nextDouble());
@@ -159,7 +161,7 @@ public class Population<T extends IPhenotype> implements IPopulation<T> {
 
 		history.add(population.get(0).getFitness());
 
-		//test();
+		// test();
 	}
 
 	private void sort() {

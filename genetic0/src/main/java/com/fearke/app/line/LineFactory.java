@@ -20,9 +20,6 @@ public class LineFactory implements IPhenotypeFactory<Line> {
 
 	private int count = 50;
 
-	private ICrossover crossover = new Crossover(Type.Uniform, 0.80);
-	private IMutate mutate = new Mutate(0.05, 0.05);
-
 	public LineFactory() {
 		this.rnd = new Random();
 	}
@@ -47,16 +44,6 @@ public class LineFactory implements IPhenotypeFactory<Line> {
 			double v = c.getGene(i - 1) + rnd.nextDouble() * maxDiff - maxDiff / 2;
 			c.setGene(i, Math.min(Math.max(-maxY / 2, v), maxY / 2));
 		}
-	}
-
-	@Override
-	public ICrossover getCrossover() {
-		return crossover;
-	}
-
-	@Override
-	public IMutate getMutate() {
-		return mutate;
 	}
 
 };

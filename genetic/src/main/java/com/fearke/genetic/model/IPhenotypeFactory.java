@@ -26,14 +26,4 @@ public interface IPhenotypeFactory<T extends IPhenotype> {
 	 * @return phenotype
 	 */
 	T create(IChromosome c);
-
-	/**
-	 * @return cross over function
-	 */
-	ICrossover getCrossover();
-
-	/**
-	 * @return mutation function
-	 */
-	IMutate getMutate();
 }

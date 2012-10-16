@@ -3,7 +3,12 @@ package com.fearke.app.leg;
 import processing.core.PApplet;
 
 import com.fearke.genetic.algorithm.Algorithm;
+import com.fearke.genetic.algorithm.Crossover;
+import com.fearke.genetic.algorithm.Mutate;
+import com.fearke.genetic.algorithm.Crossover.Type;
 import com.fearke.genetic.model.IAlgorithm;
+import com.fearke.genetic.model.ICrossover;
+import com.fearke.genetic.model.IMutate;
 import com.fearke.genetic.model.IPhenotypeFactory;
 import com.fearke.util.Vector2d;
 
@@ -27,8 +32,10 @@ public class App extends PApplet {
 
 	public void setup() {
 		IPhenotypeFactory<Leg> factory = new LegFactory();
+		ICrossover crossover = new Crossover(Type.Uniform, 0.80);
+		IMutate mutate = new Mutate(0.05, 0.025);
 
-		algorithm = new Algorithm<Leg>(factory);
+		algorithm = new Algorithm<Leg>(factory, crossover, mutate);
 		algorithm.init(new int[] { 12, 16, 24 });
 		algorithm.start();
 

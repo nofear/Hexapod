@@ -17,9 +17,6 @@ public class LegFactory implements IPhenotypeFactory<Leg> {
 
 	private int count = 10 * 2;
 
-	private ICrossover crossover = new Crossover(Type.Uniform, 0.80);
-	private IMutate mutate = new Mutate(0.05, 0.025);
-
 	public LegFactory() {
 		this.rnd = new Random(0);
 	}
@@ -47,16 +44,6 @@ public class LegFactory implements IPhenotypeFactory<Leg> {
 			c.setGene(i * 2, ra);
 			c.setGene(i * 2 + 1, rb);
 		}
-	}
-
-	@Override
-	public ICrossover getCrossover() {
-		return crossover;
-	}
-
-	@Override
-	public IMutate getMutate() {
-		return mutate;
 	}
 
 };
