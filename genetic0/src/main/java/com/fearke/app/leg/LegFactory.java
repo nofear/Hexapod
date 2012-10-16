@@ -3,12 +3,7 @@ package com.fearke.app.leg;
 import java.util.Random;
 
 import com.fearke.genetic.algorithm.Chromosome;
-import com.fearke.genetic.algorithm.Crossover;
-import com.fearke.genetic.algorithm.Crossover.Type;
-import com.fearke.genetic.algorithm.Mutate;
 import com.fearke.genetic.model.IChromosome;
-import com.fearke.genetic.model.ICrossover;
-import com.fearke.genetic.model.IMutate;
 import com.fearke.genetic.model.IPhenotypeFactory;
 
 public class LegFactory implements IPhenotypeFactory<Leg> {
@@ -31,19 +26,18 @@ public class LegFactory implements IPhenotypeFactory<Leg> {
 	@Override
 	public Leg create(final IChromosome c) {
 		Leg o = new Leg(c);
-		o.update();
+		o.init();
 		return o;
 	}
 
 	private void init(final Chromosome c) {
 		int count = c.getCount() / 2;
-		double ra = rnd.nextDouble() * Math.PI;
-		double rb = rnd.nextDouble() * Math.PI;
+		int ra = rnd.nextInt(Leg.stepSize);
+		int rb = rnd.nextInt(Leg.stepSize);
 
 		for (int i = 0; i < count; ++i) {
 			c.setGene(i * 2, ra);
 			c.setGene(i * 2 + 1, rb);
 		}
 	}
-
 };

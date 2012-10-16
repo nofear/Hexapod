@@ -8,6 +8,11 @@ public interface IPhenotype {
 	IChromosome getChromosome();
 
 	/**
+	 * update fitness.
+	 */
+	void update();
+
+	/**
 	 * @return fitness for this instance.
 	 */
 	double getFitness();

@@ -3,21 +3,15 @@ package com.fearke.app.line;
 import java.util.Random;
 
 import com.fearke.genetic.algorithm.Chromosome;
-import com.fearke.genetic.algorithm.Crossover;
-import com.fearke.genetic.algorithm.Crossover.Type;
-import com.fearke.genetic.algorithm.Mutate;
 import com.fearke.genetic.model.IChromosome;
-import com.fearke.genetic.model.ICrossover;
-import com.fearke.genetic.model.IMutate;
 import com.fearke.genetic.model.IPhenotypeFactory;
 
 public class LineFactory implements IPhenotypeFactory<Line> {
 
 	private Random rnd;
 
-	private static double maxY = 50;
-	private static double maxDiff = 5;
-
+	private static int maxY = 50;
+	
 	private int count = 50;
 
 	public LineFactory() {
@@ -39,10 +33,8 @@ public class LineFactory implements IPhenotypeFactory<Line> {
 	}
 
 	private void init(final Chromosome c) {
-		c.setGene(0, 0);
-		for (int i = 1; i < c.getCount(); ++i) {
-			double v = c.getGene(i - 1) + rnd.nextDouble() * maxDiff - maxDiff / 2;
-			c.setGene(i, Math.min(Math.max(-maxY / 2, v), maxY / 2));
+		for (int i = 0; i < c.getCount(); ++i) {
+			c.setGene(i, rnd.nextInt(maxY) - maxY / 2);
 		}
 	}
 

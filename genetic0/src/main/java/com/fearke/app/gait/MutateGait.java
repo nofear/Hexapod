@@ -9,9 +9,9 @@ class MutateGait implements IMutate {
 
 	private Random rnd;
 
-	private double deviation = Math.PI / 100;
-	private double min = -0.3;
-	private double max = 0.3;
+	private double deviation = 10;
+	private int min = -50;
+	private int max = 50;
 	private double probability = 0.1;
 
 	public MutateGait() {
@@ -39,9 +39,9 @@ class MutateGait implements IMutate {
 					double value = o.getGene(i) + rnd.nextDouble() * deviation - deviation2;
 					value = Math.min(value, max);
 					value = Math.max(value, min);
-					o.setGene(i, value);
+					o.setGene(i, (int) value);
 				} else {
-					o.setGene(i, rnd.nextDouble() < 0.5 ? 0 : 1);
+					o.setGene(i, rnd.nextInt(100) < 50 ? 0 : 1);
 				}
 			}
 		}

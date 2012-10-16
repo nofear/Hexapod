@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Random;
 
 import com.fearke.genetic.model.IChromosome;
+import com.fearke.genetic.model.ICondition;
 import com.fearke.genetic.model.ICrossover;
 import com.fearke.genetic.model.IMutate;
 import com.fearke.genetic.model.IPhenotype;
@@ -21,6 +22,7 @@ public class Population<T extends IPhenotype> implements IPopulation<T> {
 	private IPhenotypeFactory<T> factory;
 	private ICrossover crossover;
 	private IMutate mutate;
+	private ICondition condition;
 
 	private boolean stop;
 
@@ -30,6 +32,7 @@ public class Population<T extends IPhenotype> implements IPopulation<T> {
 	private double[] fitness;
 	private List<T> population;
 	private List<Double> history;
+	private int generation;
 
 	/**
 	 * Constructor.
@@ -37,13 +40,16 @@ public class Population<T extends IPhenotype> implements IPopulation<T> {
 	 * @param factory
 	 *            phenotype factory
 	 */
-	public Population(final IPhenotypeFactory<T> factory, final ICrossover crossover, final IMutate mutate) {
+	public Population(final IPhenotypeFactory<T> factory, final ICrossover crossover, final IMutate mutate,
+			final ICondition condition) {
 		this.rnd = new Random(0);
 		this.factory = factory;
 		this.crossover = crossover;
 		this.mutate = mutate;
+		this.condition = condition;
 		this.population = new ArrayList<T>();
 		this.history = new ArrayList<Double>();
+		this.generation = 0;
 		this.count = 0;
 		this.countElite = 0;
 		this.stop = false;
@@ -53,7 +59,7 @@ public class Population<T extends IPhenotype> implements IPopulation<T> {
 		population.clear();
 		for (int i = 0; i < count; ++i) {
 			T phenotype = factory.create();
-			
+
 			population.add(phenotype);
 		}
 		sort();
@@ -93,7 +99,7 @@ public class Population<T extends IPhenotype> implements IPopulation<T> {
 	 * {@inheritDoc}
 	 */
 	public int getGeneration() {
-		return history.size();
+		return generation;
 	}
 
 	/**
@@ -101,7 +107,9 @@ public class Population<T extends IPhenotype> implements IPopulation<T> {
 	 */
 	@Override
 	public List<Double> getFitnessHistory() {
-		return Collections.unmodifiableList(history);
+		synchronized (history) {
+			return new ArrayList<Double>(history);
+		}
 	}
 
 	/**
@@ -128,9 +136,15 @@ public class Population<T extends IPhenotype> implements IPopulation<T> {
 		double a = (up - low) / (maxFitness - minFitness);
 		double b = (up + low) / 2 - ((up - low) / 2) * ((minFitness + maxFitness) / (maxFitness - minFitness));
 
+		for (int i = 0; i < count; ++i) {
+			T t = population.get(i);
+			t.update();
+		}
+
 		double sumFitness = 0;
 		for (int i = 0; i < count; ++i) {
-			sumFitness += population.get(i).getFitness() * a + b;
+			T t = population.get(i);
+			sumFitness += t.getFitness() * a + b;
 			fitness[i] = sumFitness;
 		}
 
@@ -159,9 +173,18 @@ public class Population<T extends IPhenotype> implements IPopulation<T> {
 
 		sort();
 
-		history.add(population.get(0).getFitness());
+		synchronized (history) {
+			history.add(0, population.get(0).getFitness());
+			if (history.size() > 1000) {
+				history.remove(1000);
+			}
+		}
 
-		// test();
+		++generation;
+
+		if (condition != null) {
+			stop = condition.check(history, generation);
+		}
 	}
 
 	private void sort() {
@@ -179,17 +202,6 @@ public class Population<T extends IPhenotype> implements IPopulation<T> {
 
 		};
 		Collections.sort(population, cmp);
-	}
-
-	public void test() {
-		int generation = history.size();
-		if (generation > 100) {
-			double f0 = history.get(generation - 100);
-			double f1 = history.get(generation - 1);
-			if (Math.abs(f0 - f1) <= 0.0001) {
-				stop = true;
-			}
-		}
 	}
 
 }

@@ -5,14 +5,14 @@ import com.fearke.genetic.model.IChromosome;
 public class Chromosome implements IChromosome {
 
 	private int count;
-	private double[] genes;
+	private int[] genes;
 
 	public Chromosome(int count) {
 		this.count = count;
-		this.genes = new double[count];
+		this.genes = new int[count];
 	}
 
-	private Chromosome(int count, double[] genes) {
+	private Chromosome(int count, int[] genes) {
 		this.count = count;
 		this.genes = genes;
 	}
@@ -37,7 +37,7 @@ public class Chromosome implements IChromosome {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public double getGene(int idx) {
+	public int getGene(int idx) {
 		return genes[idx];
 	}
 
@@ -45,7 +45,7 @@ public class Chromosome implements IChromosome {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setGene(int idx, double gene) {
+	public void setGene(int idx, int gene) {
 		genes[idx] = gene;
 	}
 

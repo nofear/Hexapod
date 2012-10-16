@@ -10,6 +10,7 @@ import com.fearke.util.Vector2d;
 
 public class Leg implements IPhenotype {
 
+	public static int stepSize = 90;
 	public static double epsilon = 1E-05;
 	public static double force = 2000.0;
 
@@ -22,11 +23,13 @@ public class Leg implements IPhenotype {
 	public Vector2d block[] = new Vector2d[] { new Vector2d(40, 155), new Vector2d(95, 135), new Vector2d(110, 160) };
 
 	private IChromosome chromosome;
+	private double fitness;
 	private List<Vector2d[]> path;
 
 	public Leg(IChromosome chromosome) {
 		super();
 		this.chromosome = chromosome;
+		this.fitness = Double.MAX_VALUE;
 	}
 
 	@Override
@@ -35,14 +38,20 @@ public class Leg implements IPhenotype {
 	}
 
 	@Override
-	public double getFitness() {
+	public void update() {
 		this.p0 = App.p0;
 
 		double sumR = getFitnessStartEnd();
 		double sumV = getFitnessDistance();
 		double sumS = getFitnessPoly();
 
-		return sumV + sumS + sumR;
+		fitness = sumV + sumS + sumR;
+	}
+
+	@Override
+	public double getFitness() {
+		update();
+		return fitness;
 	}
 
 	private double getFitnessStartEnd() {
@@ -104,13 +113,13 @@ public class Leg implements IPhenotype {
 		return path;
 	}
 
-	public void update() {
+	public void init() {
 		path = new ArrayList<Vector2d[]>();
 
 		int count = chromosome.getCount() / 2;
 		for (int i = 0; i < count; ++i) {
-			double ra = chromosome.getGene(i * 2);
-			double rb = chromosome.getGene(i * 2 + 1);
+			double ra = Math.PI / stepSize * chromosome.getGene(i * 2);
+			double rb = Math.PI / stepSize * chromosome.getGene(i * 2 + 1);
 
 			Vector2d v0 = new Vector2d(150, 50);
 			Vector2d v1 = Vector2d.add(v0, new Vector2d(Leg.l1, 0).rotate(ra));

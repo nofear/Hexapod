@@ -6,7 +6,7 @@ public interface IChromosome {
 
 	int getCount();
 
-	double getGene(int index);
+	int getGene(int index);
 
-	void setGene(int index, double gene);
+	void setGene(int index, int gene);
 }

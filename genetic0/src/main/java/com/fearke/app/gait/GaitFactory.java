@@ -22,23 +22,23 @@ public class GaitFactory implements IPhenotypeFactory<Gait> {
 		Gait gait = create(c);
 		// initGait(gait);
 		initGait0(gait);
-		gait.update();
+		gait.init();
 		return gait;
 	}
 
 	private void initGait0(Gait gait) {
 		for (int i = 0; i < Gait.count; ++i) {
-			gait.setStep(i, new double[] { 0, 0, 0, 0, 1, 1, 1, 1 });
+			gait.setStep(i, new int[] { 0, 0, 0, 0, 1, 1, 1, 1 });
 		}
 	}
 
 	private void initGait(Gait gait) {
 		double r = 0.6;
 
-		double r0 = rnd.nextDouble() - 0.5;
-		double r1 = rnd.nextDouble() - 0.5;
-		double r2 = rnd.nextDouble() - 0.5;
-		double r3 = rnd.nextDouble() - 0.5;
+		int r0 = nextInt();
+		int r1 = nextInt();
+		int r2 = nextInt();
+		int r3 = nextInt();
 
 		int l[] = { 0, 1, 2, 3 };
 
@@ -48,7 +48,7 @@ public class GaitFactory implements IPhenotypeFactory<Gait> {
 		int i0 = 0;
 		for (int ll : l) {
 			for (int i = 0; i < 4; ++i) {
-				gait.setStep(i0 + i, new double[] { r0, r1, r2, r3, ll == 0 ? 0 : 1, ll == 1 ? 0 : 1, ll == 2 ? 0 : 1,
+				gait.setStep(i0 + i, new int[] { r0, r1, r2, r3, ll == 0 ? 0 : 1, ll == 1 ? 0 : 1, ll == 2 ? 0 : 1,
 						ll == 3 ? 0 : 1 });
 
 				r0 += ll == 0 ? s : q;
@@ -60,10 +60,14 @@ public class GaitFactory implements IPhenotypeFactory<Gait> {
 		}
 	}
 
+	private int nextInt() {
+		return rnd.nextInt(Ant.stepSize) - Ant.stepSize / 2;
+	}
+
 	@Override
 	public Gait create(IChromosome c) {
 		Gait gait = new Gait(c);
-		gait.update();
+		gait.init();
 		return gait;
 	}
 

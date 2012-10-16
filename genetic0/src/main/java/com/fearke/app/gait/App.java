@@ -30,7 +30,7 @@ public class App extends PApplet {
 		ICrossover crossover = new Crossover(Type.Uniform, 0.80);
 		IMutate mutate = new MutateGait();
 
-		algorithm = new Algorithm<Gait>(factory, crossover, mutate);
+		algorithm = new Algorithm<Gait>(factory, crossover, mutate, null);
 		algorithm.init(new int[] { 36 });
 		algorithm.start();
 

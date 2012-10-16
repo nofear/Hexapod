@@ -61,13 +61,12 @@ public abstract class DrawPhenotype<T extends IPhenotype> extends DrawBase {
 		g.rect(0, 0, w, h);
 
 		List<Double> l = p.getFitnessHistory();
-		float scale = (float) w / l.size();
+
 		double y1 = h;
 		for (int i = 0; i < l.size(); ++i) {
-			double f0 = l.get(0);
+			double f0 = l.get(l.size() - 1);
 			double fi = l.get(i);
-			g.line(i * scale, (float) y1, i * scale, (float) (y1 - (fi / f0)
-					* h));
+			g.line(i, (float) y1, i, (float) (y1 - (fi / f0) * h));
 		}
 	}
 

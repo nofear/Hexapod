@@ -14,14 +14,17 @@ public class Line implements IPhenotype {
 		this.fitness = 0;
 	}
 
+	@Override
 	public IChromosome getChromosome() {
 		return chromosome;
 	}
 
+	@Override
 	public double getFitness() {
 		return fitness;
 	}
 
+	@Override
 	public void update() {
 		fitness = 0;
 		int count = chromosome.getCount();

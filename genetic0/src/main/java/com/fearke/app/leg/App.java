@@ -33,10 +33,10 @@ public class App extends PApplet {
 	public void setup() {
 		IPhenotypeFactory<Leg> factory = new LegFactory();
 		ICrossover crossover = new Crossover(Type.Uniform, 0.80);
-		IMutate mutate = new Mutate(0.05, 0.025);
+		IMutate mutate = new Mutate(0.02, 5);
 
-		algorithm = new Algorithm<Leg>(factory, crossover, mutate);
-		algorithm.init(new int[] { 12, 16, 24 });
+		algorithm = new Algorithm<Leg>(factory, crossover, mutate, null);
+		algorithm.init(new int[] { 12, 16 });
 		algorithm.start();
 
 		draw = new DrawLeg(this, algorithm);

@@ -10,12 +10,14 @@ public class Gait implements IPhenotype {
 	public static int count = 16;
 
 	private IChromosome chromosome;
+	private double fitness;
 
 	private Ant[] ants;
 	private double[] distance;
 
 	public Gait(final IChromosome c) {
 		this.chromosome = c;
+		this.fitness = Double.MAX_VALUE;
 	}
 
 	@Override
@@ -24,10 +26,12 @@ public class Gait implements IPhenotype {
 	}
 
 	@Override
+	public void update() {
+		fitness = getFitnessMotion();
+	}
+
+	@Override
 	public double getFitness() {
-		double fitness = 0;
-		fitness += getFitnessMotion();
-		// fitness += getFitnessMaxRotation();
 		return fitness;
 	}
 
@@ -114,7 +118,7 @@ public class Gait implements IPhenotype {
 		}
 	}
 
-	public void update() {
+	public void init() {
 		distance = new double[count];
 		ants = new Ant[count];
 		for (int i = 0; i < count; ++i) {
@@ -149,12 +153,12 @@ public class Gait implements IPhenotype {
 	public double[] getStep(int idx) {
 		double[] c = new double[Ant.size];
 		for (int i = 0; i < Ant.size; ++i) {
-			c[i] = chromosome.getGene(i + idx * Ant.size);
+			c[i] = Math.PI / Ant.stepSize * chromosome.getGene(i + idx * Ant.size);
 		}
 		return c;
 	}
 
-	public void setStep(int idx, double[] c) {
+	public void setStep(int idx, int[] c) {
 		for (int i = 0; i < Ant.size; ++i) {
 			chromosome.setGene(i + idx * Ant.size, c[i]);
 		}

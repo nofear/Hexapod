@@ -9,15 +9,15 @@ public class Mutate implements IMutate {
 
 	private Random rnd;
 	private double probability;
-	private double deviation;
-	private double min;
-	private double max;
+	private int deviation;
+	private int min;
+	private int max;
 
-	public Mutate(double probability, double deviation) {
-		this(probability, deviation, Double.MIN_VALUE, Double.MAX_VALUE);
+	public Mutate(double probability, int deviation) {
+		this(probability, deviation, Integer.MIN_VALUE, Integer.MAX_VALUE);
 	}
 
-	public Mutate(double probability, double deviation, double min, double max) {
+	public Mutate(double probability, int deviation, int min, int max) {
 		this.rnd = new Random();
 		this.probability = probability;
 		this.deviation = deviation;
@@ -51,7 +51,9 @@ public class Mutate implements IMutate {
 				double value = o.getGene(i) + rnd.nextDouble() * deviation - deviation2;
 				value = Math.min(value, max);
 				value = Math.max(value, min);
-				o.setGene(i, value);
+
+				//value = rnd.nextInt(max - min) + min;
+				o.setGene(i, (int) value);
 			}
 		}
 	}

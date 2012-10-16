@@ -33,12 +33,12 @@ public class App extends PApplet {
 		gait = new Gait(c);
 		drawGait = new DrawGait(this);
 
-		double r = 0.6;
+		double r = 60;
 
-		double r0 = -0.4;
-		double r1 = 0.2;
-		double r2 = 0;
-		double r3 = -0.2;
+		int r0 = -40;
+		int r1 = 20;
+		int r2 = 0;
+		int r3 = -20;
 
 		int l[] = { 0, 3, 2, 1 };
 
@@ -48,8 +48,7 @@ public class App extends PApplet {
 		int i0 = 0;
 		for (int ll : l) {
 			for (int i = 0; i < 4; ++i) {
-				gait.setStep(i0 + i, new double[] { r0, r1, r2, r3,
-						ll == 0 ? 0 : 1, ll == 1 ? 0 : 1, ll == 2 ? 0 : 1,
+				gait.setStep(i0 + i, new int[] { r0, r1, r2, r3, ll == 0 ? 0 : 1, ll == 1 ? 0 : 1, ll == 2 ? 0 : 1,
 						ll == 3 ? 0 : 1 });
 
 				r0 += ll == 0 ? s : q;
@@ -60,7 +59,7 @@ public class App extends PApplet {
 			i0 += 4;
 		}
 
-		gait.update();
+		gait.init();
 		gait.updateDistance();
 	}
 

@@ -7,6 +7,8 @@ import com.fearke.util.Vector2d;
 
 public class Ant {
 
+	public static int stepSize = 100;
+
 	public static int count = 4;
 	public static int size = count * 2;
 
@@ -85,11 +87,9 @@ public class Ant {
 			double r = rotation[i];
 			double a = (i < count / 2 ? r : Math.PI - r);
 			if (i < count / 2) {
-				p1[i] = Vector2d.add(p0[i], new Vector2d(Math.sin(a) * length,
-						length));
+				p1[i] = Vector2d.add(p0[i], new Vector2d(Math.sin(a) * length, length));
 			} else {
-				p1[i] = Vector2d.add(p0[i], new Vector2d(Math.sin(a) * length,
-						-length));
+				p1[i] = Vector2d.add(p0[i], new Vector2d(Math.sin(a) * length, -length));
 			}
 		}
 
