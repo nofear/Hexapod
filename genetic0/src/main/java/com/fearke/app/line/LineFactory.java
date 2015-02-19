@@ -18,14 +18,12 @@ public class LineFactory implements IPhenotypeFactory<Line> {
 		this.rnd = new Random();
 	}
 
-	@Override
 	public Line create() {
 		Chromosome c = new Chromosome(count);
 		init(c);
 		return create(c);
 	}
 
-	@Override
 	public Line create(final IChromosome c) {
 		Line o = new Line(c);
 		o.update();

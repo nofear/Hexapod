@@ -32,12 +32,10 @@ public class Leg implements IPhenotype {
 		this.fitness = Double.MAX_VALUE;
 	}
 
-	@Override
 	public IChromosome getChromosome() {
 		return chromosome;
 	}
 
-	@Override
 	public void update() {
 		this.p0 = App.p0;
 
@@ -48,7 +46,6 @@ public class Leg implements IPhenotype {
 		fitness = sumV + sumS + sumR;
 	}
 
-	@Override
 	public double getFitness() {
 		update();
 		return fitness;

@@ -25,17 +25,14 @@ public class Gait2 implements IPhenotype {
 		fitness = Double.MAX_VALUE;
 	}
 
-	@Override
 	public IChromosome getChromosome() {
 		return chromosome;
 	}
 
-	@Override
 	public double getFitness() {
 		return fitness;
 	}
 
-	@Override
 	public void update() {
 		// TODO Auto-generated method stub
 

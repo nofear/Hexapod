@@ -37,7 +37,6 @@ public class App extends PApplet {
 		IMutate mutate = new Mutate(0.05, 5);
 
 		ICondition condition = new ICondition() {
-			@Override
 			public boolean check(List<Double> history, int generation) {
 				return history.get(0) == 0 || generation > 10000;
 			}

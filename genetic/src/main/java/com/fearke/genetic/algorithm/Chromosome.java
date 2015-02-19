@@ -20,7 +20,7 @@ public class Chromosome implements IChromosome {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
+	
 	public IChromosome clone() {
 		return new Chromosome(count, genes.clone());
 	}
@@ -28,7 +28,7 @@ public class Chromosome implements IChromosome {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
+	
 	public int getCount() {
 		return count;
 	}
@@ -36,7 +36,7 @@ public class Chromosome implements IChromosome {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
+	
 	public int getGene(int idx) {
 		return genes[idx];
 	}
@@ -44,7 +44,7 @@ public class Chromosome implements IChromosome {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
+	
 	public void setGene(int idx, int gene) {
 		genes[idx] = gene;
 	}

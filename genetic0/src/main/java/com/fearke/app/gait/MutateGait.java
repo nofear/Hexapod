@@ -20,17 +20,14 @@ class MutateGait implements IMutate {
 		this.rnd = new Random(0);
 	}
 
-	@Override
 	public void setProbabitliy(double probability) {
 		this.probability = probability;
 	}
 
-	@Override
 	public double getProbability() {
 		return probability;
 	}
 
-	@Override
 	public void mutate(final IChromosome o) {
 		final double deviation2 = deviation / 2;
 		for (int i = 0; i < o.getCount(); ++i) {

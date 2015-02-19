@@ -16,14 +16,12 @@ public class LegFactory implements IPhenotypeFactory<Leg> {
 		this.rnd = new Random(0);
 	}
 
-	@Override
 	public Leg create() {
 		Chromosome c = new Chromosome(count);
 		init(c);
 		return create(c);
 	}
 
-	@Override
 	public Leg create(final IChromosome c) {
 		Leg o = new Leg(c);
 		o.init();

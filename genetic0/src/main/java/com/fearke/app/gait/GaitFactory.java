@@ -16,7 +16,6 @@ public class GaitFactory implements IPhenotypeFactory<Gait> {
 		this.rnd = new Random(0);
 	}
 
-	@Override
 	public Gait create() {
 		Chromosome c = new Chromosome(count);
 		Gait gait = create(c);
@@ -64,7 +63,6 @@ public class GaitFactory implements IPhenotypeFactory<Gait> {
 		return rnd.nextInt(Ant.stepSize) - Ant.stepSize / 2;
 	}
 
-	@Override
 	public Gait create(IChromosome c) {
 		Gait gait = new Gait(c);
 		gait.init();

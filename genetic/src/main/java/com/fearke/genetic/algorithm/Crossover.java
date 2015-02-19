@@ -24,7 +24,7 @@ public class Crossover implements ICrossover {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
+
 	public void setProbabitliy(final double probability) {
 		this.probability = probability;
 	}
@@ -32,7 +32,7 @@ public class Crossover implements ICrossover {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
+
 	public double getProbability() {
 		return probability;
 	}
@@ -40,7 +40,7 @@ public class Crossover implements ICrossover {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
+
 	public IChromosome[] crossover(IChromosome o1, IChromosome o2) {
 		if (rnd.nextDouble() < probability) {
 			switch (type) {

@@ -28,7 +28,7 @@ public class Mutate implements IMutate {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
+
 	public void setProbabitliy(final double probability) {
 		this.probability = probability;
 	}
@@ -36,7 +36,7 @@ public class Mutate implements IMutate {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
+
 	public double getProbability() {
 		return probability;
 	}
@@ -52,7 +52,7 @@ public class Mutate implements IMutate {
 				value = Math.min(value, max);
 				value = Math.max(value, min);
 
-				//value = rnd.nextInt(max - min) + min;
+				// value = rnd.nextInt(max - min) + min;
 				o.setGene(i, (int) value);
 			}
 		}

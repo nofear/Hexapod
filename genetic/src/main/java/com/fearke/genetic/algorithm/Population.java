@@ -105,7 +105,7 @@ public class Population<T extends IPhenotype> implements IPopulation<T> {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
+
 	public List<Double> getFitnessHistory() {
 		synchronized (history) {
 			return new ArrayList<Double>(history);
@@ -115,7 +115,7 @@ public class Population<T extends IPhenotype> implements IPopulation<T> {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
+
 	public boolean stop() {
 		return stop;
 	}
@@ -189,7 +189,7 @@ public class Population<T extends IPhenotype> implements IPopulation<T> {
 
 	private void sort() {
 		Comparator<IPhenotype> cmp = new Comparator<IPhenotype>() {
-			@Override
+
 			public int compare(IPhenotype o1, IPhenotype o2) {
 				if (o1.getFitness() < o2.getFitness()) {
 					return -1;
