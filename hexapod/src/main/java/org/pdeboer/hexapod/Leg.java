@@ -4,20 +4,9 @@ import org.pdeboer.util.*;
 
 public class Leg {
 
-	/**
-	 * hip length.
-	 */
-	public final static int h = 27;
-
-	/**
-	 * tibia length.
-	 */
-	public final static int t = 107;
-
-	/**
-	 * femur length.
-	 */
-	public final static int f = 77;
+	public final static int LENGTH_COXA = 27;
+	public final static int LENGTH_TIBIA = 107;
+	public final static int LENGTH_FEMUR = 77;
 
 	public Vector3d p1;
 	public Vector3d p2;
@@ -32,10 +21,10 @@ public class Leg {
 	 * Constructor.
 	 */
 	public Leg() {
-		p1 = new Vector3d(0, 0, 0);
-		p2 = new Vector3d(0, 0, 0);
-		p3 = new Vector3d(0, 0, 0);
-		p4 = new Vector3d(0, 0, 0);
+		p1 = new Vector3d();
+		p2 = new Vector3d();
+		p3 = new Vector3d();
+		p4 = new Vector3d();
 	}
 
 	/**
@@ -124,18 +113,19 @@ public class Leg {
 		dy /= Math.sin(ra);
 
 		// offset to p2
-		dy -= Math.cos(roll) * h;
-		dz -= Math.sin(roll) * h;
+		dy -= Math.cos(roll) * LENGTH_COXA;
+		dz -= Math.sin(roll) * LENGTH_COXA;
 
 		double dyz2 = dy * dy + dz * dz;
 		double d2 = Math.sqrt(dyz2);
-		double c1 = (f * f - t * t + dyz2) / (2 * d2);
+		double c1 = (LENGTH_FEMUR * LENGTH_FEMUR - LENGTH_TIBIA * LENGTH_TIBIA + dyz2) / (2 * d2);
 		// float c2 = d2 - c1;
 
-		double rb1 = Math.acos(c1 / f);
+		double rb1 = Math.acos(c1 / LENGTH_FEMUR);
 		double rb2 = Math.asin(dz / d2);
 		rb = rb1 + rb2;
-		rc = -Math.acos((-f * f - t * t + dyz2) / (2 * f * t));
+		rc = -Math.acos((-LENGTH_FEMUR * LENGTH_FEMUR - LENGTH_TIBIA * LENGTH_TIBIA
+				+ dyz2) / (2 * LENGTH_FEMUR * LENGTH_TIBIA));
 
 		// need to subtract the roll
 		rb -= roll;
@@ -143,17 +133,17 @@ public class Leg {
 
 	public void update(final Matrix m) {
 		Matrix r = m.rotateZ(ra);
-		p2 = new Vector3d(h, 0, 0);
+		p2 = new Vector3d(LENGTH_COXA, 0, 0);
 		p2 = r.multiply(p2);
 		p2.add(p1);
 
 		r = r.rotateY(2 * Math.PI - rb);
-		p3 = new Vector3d(f, 0, 0);
+		p3 = new Vector3d(LENGTH_FEMUR, 0, 0);
 		p3 = r.multiply(p3);
 		p3.add(p2);
 
 		r = r.rotateY(2 * Math.PI - rc);
-		p4 = new Vector3d(t, 0, 0);
+		p4 = new Vector3d(LENGTH_TIBIA, 0, 0);
 		p4 = r.multiply(p4);
 		p4.add(p3);
 	}

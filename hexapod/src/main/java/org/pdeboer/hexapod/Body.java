@@ -10,12 +10,12 @@ public class Body {
 	private final static int w = 100;
 	private final static int wm = 150;
 	public final static int h = 50;
-	public final static int count = 6;
+	public final static int LEG_COUNT = 6;
 
 	public final static Vector3d[] offset;
 
 	static {
-		offset = new Vector3d[count];
+		offset = new Vector3d[LEG_COUNT];
 		offset[0] = new Vector3d(d / 2, +w / 2, -h / 2);
 		offset[1] = new Vector3d(0, +wm / 2, -h / 2);
 		offset[2] = new Vector3d(-d / 2, +w / 2, -h / 2);
@@ -31,7 +31,7 @@ public class Body {
 	private LegConfig legConfig;
 
 	public Body() {
-		legs = new Leg[count];
+		legs = new Leg[LEG_COUNT];
 		for (int i = 0; i < legs.length; ++i) {
 			legs[i] = new Leg();
 		}
@@ -56,7 +56,7 @@ public class Body {
 	public double[] getConfig() {
 		double[] config = new double[3 * 6];
 		int idx = 0;
-		for (int i = 0; i < count; ++i) {
+		for (int i = 0; i < LEG_COUNT; ++i) {
 			Leg leg = legs[i];
 			config[idx++] = leg.getRa();
 			config[idx++] = leg.getRb();
@@ -67,7 +67,7 @@ public class Body {
 
 	public void setConfig(double[] config) {
 		int idx = 0;
-		for (int i = 0; i < count; ++i) {
+		for (int i = 0; i < LEG_COUNT; ++i) {
 			Leg leg = legs[i];
 			leg.setR(Arrays.copyOfRange(config, idx, idx + 3));
 			idx += 3;
@@ -94,11 +94,11 @@ public class Body {
 			final double x,
 			final double y,
 			final double z) {
-		final int off = 50;
-		final double[][] o = new double[][] { { x + off, y }, { x, y },
-											  { x - 2 * off, y }, { x - 2 * off, -y }, { x, -y },
-											  { x + off, -y } };
-		for (int i = 0; i < count; ++i) {
+		int off = 50;
+		double[][] o = new double[][] { { x + off, y }, { x, y },
+										{ x - 2 * off, y }, { x - 2 * off, -y }, { x, -y },
+										{ x + off, -y } };
+		for (int i = 0; i < LEG_COUNT; ++i) {
 			legs[i].init(offset[i], o[i][0], o[i][1], z);
 		}
 	}
@@ -113,7 +113,7 @@ public class Body {
 
 	public Matrix updateP1() {
 		Matrix m = Matrix.getMatrix(rotation);
-		for (int i = 0; i < count; ++i) {
+		for (int i = 0; i < LEG_COUNT; ++i) {
 			Vector3d p = m.multiply(offset[i]);
 			p.add(center);
 
@@ -122,7 +122,7 @@ public class Body {
 		return m;
 	}
 
-	public void stabalize() {
+	public void stabilise() {
 		updateLegConfig();
 
 		Plane3d p = legConfig.getPlane();

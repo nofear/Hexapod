@@ -127,7 +127,7 @@ public class App extends PApplet {
 		handle_input(body);
 
 		body.update();
-		body.stabalize();
+		body.stabilise();
 
 		if (stabalize) {
 			double[] r = body.getRotation();
@@ -144,7 +144,7 @@ public class App extends PApplet {
 				body.setRotation(r);
 
 				body.updateP1();
-				for (int i = 0; i < Body.count; ++i) {
+				for (int i = 0; i < Body.LEG_COUNT; ++i) {
 					if (lc.touchGround(i)) {
 						body.getLeg(i).updateInverse(r[2]);
 					}
@@ -179,7 +179,7 @@ public class App extends PApplet {
 		float leg_x0 = 250;
 		// float leg_y0 = 120;
 		float leg_d = 150;
-		for (int i = 0; i < Body.count; ++i) {
+		for (int i = 0; i < Body.LEG_COUNT; ++i) {
 			Leg leg = body.getLeg(i);
 			text("leg " + i, leg_x0 + i * leg_d, 20);
 			text("ra " + fmt(leg.getRa()), leg_x0 + i * leg_d, 40);

@@ -98,7 +98,7 @@ class DrawBody {
 
 	private void drawLegs(PApplet g) {
 		LegConfig lc = body.getLegConfig();
-		for (int i = 0; i < Body.count; ++i) {
+		for (int i = 0; i < Body.LEG_COUNT; ++i) {
 			g.fill((lc.touchGround(i) ? Color.green : Color.orange).getRGB());
 
 			drawJoints(g, i);
@@ -143,20 +143,20 @@ class DrawBody {
 		g.rotateX((float) r[2]);
 		g.rotateZ((float) leg.getRa());
 
-		g.translate(Leg.h / 2, 0, 0);
-		g.box(Leg.h, 4, 6);
-		g.translate(Leg.h / 2, 0, 0);
+		g.translate(Leg.LENGTH_COXA / 2, 0, 0);
+		g.box(Leg.LENGTH_COXA, 4, 6);
+		g.translate(Leg.LENGTH_COXA / 2, 0, 0);
 
 		g.rotateY((float) (2 * Math.PI - leg.getRb()));
 
-		g.translate(Leg.f / 2, 0, 0);
-		g.box(Leg.f, 4, 6);
-		g.translate(Leg.f / 2, 0, 0);
+		g.translate(Leg.LENGTH_FEMUR / 2, 0, 0);
+		g.box(Leg.LENGTH_FEMUR, 4, 6);
+		g.translate(Leg.LENGTH_FEMUR / 2, 0, 0);
 
 		g.rotateY((float) (2 * Math.PI - leg.getRc()));
 
-		g.translate(Leg.t / 2, 0, 0);
-		g.box(Leg.t, 4, 6);
+		g.translate(Leg.LENGTH_TIBIA / 2, 0, 0);
+		g.box(Leg.LENGTH_TIBIA, 4, 6);
 
 		g.popMatrix();
 	}
@@ -169,7 +169,7 @@ class DrawBody {
 		g.fill(200, 200, 50);
 		g.beginShape();
 		LegConfig lc = body.getLegConfig();
-		for (int i = 0; i < Body.count; ++i) {
+		for (int i = 0; i < Body.LEG_COUNT; ++i) {
 			Leg leg = body.getLeg(i);
 			if (lc.touchGround(i)) {
 				vertex(g, leg.p4, o);

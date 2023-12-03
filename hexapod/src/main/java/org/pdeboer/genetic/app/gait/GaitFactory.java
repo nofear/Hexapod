@@ -7,9 +7,9 @@ import java.util.*;
 
 public class GaitFactory implements IPhenotypeFactory<Gait> {
 
-	private Random rnd;
+	private final Random rnd;
 
-	private int count = Gait.count * Ant.size;
+	private final int count = Gait.count * Ant.size;
 
 	public GaitFactory() {
 		this.rnd = new Random(0);
@@ -24,7 +24,7 @@ public class GaitFactory implements IPhenotypeFactory<Gait> {
 		return gait;
 	}
 
-	private void initGait0(Gait gait) {
+	private void initGait0(final Gait gait) {
 		for (int i = 0; i < Gait.count; ++i) {
 			gait.setStep(i, new int[] { 0, 0, 0, 0, 1, 1, 1, 1 });
 		}
@@ -38,7 +38,7 @@ public class GaitFactory implements IPhenotypeFactory<Gait> {
 		int r2 = nextInt();
 		int r3 = nextInt();
 
-		int l[] = { 0, 1, 2, 3 };
+		int[] l = { 0, 1, 2, 3 };
 
 		double s = r / 4;
 		double q = -s / 3;
@@ -46,7 +46,11 @@ public class GaitFactory implements IPhenotypeFactory<Gait> {
 		int i0 = 0;
 		for (int ll : l) {
 			for (int i = 0; i < 4; ++i) {
-				gait.setStep(i0 + i, new int[] { r0, r1, r2, r3, ll == 0 ? 0 : 1, ll == 1 ? 0 : 1, ll == 2 ? 0 : 1,
+				gait.setStep(i0 + i, new int[] {
+						r0, r1, r2, r3,
+						ll == 0 ? 0 : 1,
+						ll == 1 ? 0 : 1,
+						ll == 2 ? 0 : 1,
 						ll == 3 ? 0 : 1 });
 
 				r0 += ll == 0 ? s : q;
@@ -62,7 +66,7 @@ public class GaitFactory implements IPhenotypeFactory<Gait> {
 		return rnd.nextInt(Ant.stepSize) - Ant.stepSize / 2;
 	}
 
-	public Gait create(IChromosome c) {
+	public Gait create(final IChromosome c) {
 		Gait gait = new Gait(c);
 		gait.init();
 		return gait;

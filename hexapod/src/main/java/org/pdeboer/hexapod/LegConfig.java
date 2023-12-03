@@ -4,45 +4,60 @@ import org.pdeboer.util.*;
 
 /**
  * Helper class to calculate if a particular leg configuration is stable.
- * 
+ *
  * @author Patrick
- * 
  */
 public class LegConfig {
 
-	/** rounding error. */
+	/**
+	 * rounding error.
+	 */
 	private static final double EPSILON = 1E-06;
 
-	/** body. */
+	/**
+	 * body.
+	 */
 	private final Body body;
 
-	/** assume this legs are our ground plane. */
+	/**
+	 * assume these legs are our ground plane.
+	 */
 	private final int[] index;
 
-	/** true if the center of gravity is inside our ground plane. */
+	/**
+	 * true if the center of gravity is inside our ground plane.
+	 */
 	private boolean inside;
 
-	/** distance of each of the legs to the ground plane. */
+	/**
+	 * distance of each of the legs to the ground plane.
+	 */
 	private double[] distance;
 
-	/** true for each leg that touches the ground plane. */
+	/**
+	 * true for each leg that touches the ground plane.
+	 */
 	private boolean[] ground;
 
-	/** true for each leg that is below the ground plane. */
+	/**
+	 * true for each leg that is below the ground plane.
+	 */
 	private boolean distanceNeg;
 
-	/** ground plane. */
+	/**
+	 * ground plane.
+	 */
 	private Plane3d plane;
 
 	/**
 	 * Constructor.
-	 * 
-	 * @param body
-	 *            our body
-	 * @param index
-	 *            leg configuration, array of 3 elements with index values 0-5
+	 *
+	 * @param body  our body
+	 * @param index leg configuration, array of 3 elements with index values 0-5
 	 */
-	public LegConfig(Body body, int[] index) {
+	public LegConfig(
+			final Body body,
+			final int[] index) {
 		this.body = body;
 		this.index = index;
 	}
@@ -60,9 +75,9 @@ public class LegConfig {
 		plane = new Plane3d(p1, p2, p3);
 
 		distanceNeg = false;
-		distance = new double[Body.count];
-		ground = new boolean[Body.count];
-		for (int l = 0; l < Body.count; ++l) {
+		distance = new double[Body.LEG_COUNT];
+		ground = new boolean[Body.LEG_COUNT];
+		for (int l = 0; l < Body.LEG_COUNT; ++l) {
 			distance[l] = plane.distance(getP4(l));
 			distanceNeg |= (distance[l] < -EPSILON);
 			ground[l] = Math.abs(distance[l]) <= EPSILON;
@@ -79,32 +94,20 @@ public class LegConfig {
 		inside = p2d.inside(z);
 	}
 
-	/**
-	 * @return true if leg configuration is stable.
-	 */
 	public boolean isStable() {
 		return inside && !distanceNeg;
 	}
 
-	/**
-	 * @return leg configuration.
-	 */
 	public int[] getIndex() {
 		return index;
 	}
 
-	/**
-	 * @param idx
-	 *            leg index
-	 * @return true if leg touches the ground plane
-	 */
 	public boolean touchGround(int idx) {
 		return ground[idx];
 	}
 
 	/**
-	 * @param idx
-	 *            leg index
+	 * @param idx leg index
 	 * @return distance of leg end point to ground plane.
 	 */
 	public double getDistance(int idx) {
@@ -119,8 +122,7 @@ public class LegConfig {
 	}
 
 	/**
-	 * @param idx
-	 *            leg index
+	 * @param idx leg index
 	 * @return leg end point
 	 */
 	private Vector3d getP4(int idx) {
