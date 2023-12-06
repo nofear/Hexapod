@@ -1,6 +1,7 @@
 package org.pdeboer.hexapod.app;
 
 import org.pdeboer.hexapod.*;
+import org.pdeboer.hexapod.Hexapod.*;
 import org.pdeboer.util.*;
 import processing.core.*;
 
@@ -29,7 +30,7 @@ public class App extends PApplet {
 
 	private final int backColor = color(250, 250, 250);
 
-	private Body body;
+	private Hexapod hexapod;
 
 	// ************************* GLOBAL VARIABLES **************************
 
@@ -42,8 +43,7 @@ public class App extends PApplet {
 		smooth();
 		frameRate(FRAME_RATE);
 
-		body = new Body();
-		body.init();
+		hexapod = new Hexapod();
 	}
 
 	private void handle_input() {
@@ -63,8 +63,7 @@ public class App extends PApplet {
 
 		switch (key) {
 		case '0':
-			body.setCenter(new Vector3d(0, 0, 50));
-			body.updateInverse();
+			hexapod.init();
 			break;
 
 		case '1':
@@ -75,14 +74,32 @@ public class App extends PApplet {
 		case '6':
 			legIdx = key - '1';
 			break;
-		case '[':
-			body.getCenter().z -= 1;
-			body.updateInverse();
+		case 'w':
+			hexapod.execute(Action.FORWARD);
 			break;
-		case ']':
-			body.getCenter().z += 1;
-			body.updateInverse();
+		case 's':
+			hexapod.execute(Action.BACKWARD);
 			break;
+		case 'a':
+			hexapod.execute(Action.LEFT);
+			break;
+		case 'd':
+			hexapod.execute(Action.RIGHT);
+			break;
+		case 'q':
+			hexapod.execute(Action.UP);
+			break;
+		case 'e':
+			hexapod.execute(Action.DOWN);
+			break;
+
+		case 'i':
+			hexapod.execute(Action.ROLL_MIN);
+			break;
+		case 'k':
+			hexapod.execute(Action.ROLL_PLUS);
+			break;
+
 		case ' ':
 			stabilise();
 			break;
@@ -94,13 +111,13 @@ public class App extends PApplet {
 	public void draw() {
 		handle_input();
 
-		draw(body);
+		draw(hexapod);
 	}
 
 	private void stabilise() {
-		double[] r = body.getRotation();
+		double[] r = hexapod.getRotation();
 		if (r[2] != 0) {
-			LegConfig lc = body.calculateLegConfig();
+			LegConfig lc = hexapod.calculateLegConfig();
 
 			double diff = 0.0000001;
 			if (r[2] < -diff) {
@@ -109,21 +126,21 @@ public class App extends PApplet {
 				r[2] -= diff;
 			}
 
-			body.setRotation(r);
+			hexapod.setRotation(r);
 
-			body.updateP1();
-			for (int i = 0; i < Body.LEG_COUNT; ++i) {
+			hexapod.updateP1();
+			for (int i = 0; i < Hexapod.LEG_COUNT; ++i) {
 				if (lc.touchGround(i)) {
-					body.getLeg(i).updateInverse(r[2]);
+					hexapod.getLeg(i).updateInverse(r[2]);
 				}
 			}
 		}
 	}
 
-	private void draw(Body body) {
-		Vector3d center = body.getCenter();
-		double[] r = body.getRotation();
-		LegConfig lc = body.calculateLegConfig();
+	private void draw(Hexapod hexapod) {
+		Vector3d center = hexapod.getCenter();
+		double[] r = hexapod.getRotation();
+		LegConfig lc = hexapod.calculateLegConfig();
 
 		lights();
 		background(backColor);
@@ -142,8 +159,8 @@ public class App extends PApplet {
 		float leg_x0 = 250;
 		// float leg_y0 = 120;
 		float leg_d = 150;
-		for (int i = 0; i < Body.LEG_COUNT; ++i) {
-			Leg leg = body.getLeg(i);
+		for (int i = 0; i < Hexapod.LEG_COUNT; ++i) {
+			Leg leg = hexapod.getLeg(i);
 			text("leg " + i, leg_x0 + i * leg_d, 20);
 			text("ra " + fmtAngle(leg.getRa()), leg_x0 + i * leg_d, 40);
 			text("rb " + fmtAngle(leg.getRb()), leg_x0 + i * leg_d, 60);
@@ -158,7 +175,7 @@ public class App extends PApplet {
 		fill(100, 150, 100);
 		rect(-400, -400, 800, 800);
 
-		DrawBody ds = new DrawBody(body);
+		DrawHexapod ds = new DrawHexapod(hexapod);
 		ds.draw(this);
 		ds.drawPlane(this);
 		ds.drawLegFrame(this);

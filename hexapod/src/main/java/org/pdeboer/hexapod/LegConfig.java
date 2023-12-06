@@ -4,8 +4,6 @@ import org.pdeboer.util.*;
 
 /**
  * Helper class to calculate if a particular leg configuration is stable.
- *
- * @author Patrick
  */
 public class LegConfig {
 
@@ -14,10 +12,7 @@ public class LegConfig {
 	 */
 	private static final double EPSILON = 1E-06;
 
-	/**
-	 * body.
-	 */
-	private final Body body;
+	private final Hexapod hexapod;
 
 	/**
 	 * assume these legs are our ground plane.
@@ -49,16 +44,10 @@ public class LegConfig {
 	 */
 	private Plane3d plane;
 
-	/**
-	 * Constructor.
-	 *
-	 * @param body  our body
-	 * @param index leg configuration, array of 3 elements with index values 0-5
-	 */
 	public LegConfig(
-			final Body body,
+			final Hexapod hexapod,
 			final int[] index) {
-		this.body = body;
+		this.hexapod = hexapod;
 		this.index = index;
 	}
 
@@ -75,9 +64,9 @@ public class LegConfig {
 		plane = new Plane3d(p1, p2, p3);
 
 		distanceNeg = false;
-		distance = new double[Body.LEG_COUNT];
-		ground = new boolean[Body.LEG_COUNT];
-		for (int l = 0; l < Body.LEG_COUNT; ++l) {
+		distance = new double[Hexapod.LEG_COUNT];
+		ground = new boolean[Hexapod.LEG_COUNT];
+		for (int l = 0; l < Hexapod.LEG_COUNT; ++l) {
 			distance[l] = plane.distance(getP4(l));
 			distanceNeg |= (distance[l] < -EPSILON);
 			ground[l] = Math.abs(distance[l]) <= EPSILON;
@@ -88,7 +77,7 @@ public class LegConfig {
 		Vector2d c = new Vector2d(p3.x, p3.y);
 
 		Plane2d p2d = new Plane2d(a, b, c);
-		Vector3d planec = plane.project(body.getCenter());
+		Vector3d planec = plane.project(hexapod.getCenter());
 		Vector2d z = new Vector2d(planec.x, planec.y);
 
 		inside = p2d.inside(z);
@@ -126,6 +115,6 @@ public class LegConfig {
 	 * @return leg end point
 	 */
 	private Vector3d getP4(int idx) {
-		return body.getLeg(idx).p4;
+		return hexapod.getLeg(idx).p4;
 	}
 }

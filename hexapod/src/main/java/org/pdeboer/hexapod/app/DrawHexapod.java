@@ -8,18 +8,18 @@ import java.awt.*;
 
 import static processing.core.PConstants.*;
 
-class DrawBody {
+class DrawHexapod {
 
 	private static final int jointSize = 6;
 
-	private final Body body;
+	private final Hexapod hexapod;
 
-	DrawBody(final Body body) {
-		this.body = body;
+	DrawHexapod(final Hexapod hexapod) {
+		this.hexapod = hexapod;
 	}
 
 	public void draw(final PApplet g) {
-		Vector3d c = body.getCenter();
+		Vector3d c = hexapod.getCenter();
 
 		g.pushMatrix();
 		g.fill(Color.gray.getRGB());
@@ -42,21 +42,21 @@ class DrawBody {
 		// top plate
 		for (int i = 0; i < 6; ++i) {
 			p[i] = new Vector3d();
-			p[i].add(Body.offset[i]);
-			p[i].z = Body.h / 2;
+			p[i].add(Hexapod.offset[i]);
+			p[i].z = Hexapod.h / 2;
 		}
 
 		// bottom plate
 		for (int i = 0; i < 6; ++i) {
 			p[i + 6] = new Vector3d();
-			p[i + 6].add(Body.offset[i]);
-			p[i + 6].z = -Body.h / 2;
+			p[i + 6].add(Hexapod.offset[i]);
+			p[i + 6].z = -Hexapod.h / 2;
 		}
 
-		Matrix r = Matrix.getMatrix(body.getRotation());
+		Matrix r = Matrix.getMatrix(hexapod.getRotation());
 		for (int i = 0; i < p.length; ++i) {
 			p[i] = r.multiply(p[i]);
-			p[i].add(body.getCenter());
+			p[i].add(hexapod.getCenter());
 		}
 
 		g.beginShape();
@@ -97,8 +97,8 @@ class DrawBody {
 	}
 
 	private void drawLegs(final PApplet g) {
-		LegConfig lc = body.calculateLegConfig();
-		for (int i = 0; i < Body.LEG_COUNT; ++i) {
+		LegConfig lc = hexapod.calculateLegConfig();
+		for (int i = 0; i < Hexapod.LEG_COUNT; ++i) {
 			g.fill((lc.touchGround(i) ? Color.green : Color.orange).getRGB());
 
 			drawJoints(g, i);
@@ -109,7 +109,7 @@ class DrawBody {
 	private void drawJoints(
 			final PApplet g,
 			final int index) {
-		Leg leg = body.getLeg(index);
+		Leg leg = hexapod.getLeg(index);
 
 		g.noStroke();
 		g.pushMatrix();
@@ -133,8 +133,8 @@ class DrawBody {
 	private void drawLeg(
 			final PApplet g,
 			final 	int index) {
-		Leg leg = body.getLeg(index);
-		double[] r = body.getRotation();
+		Leg leg = hexapod.getLeg(index);
+		double[] r = hexapod.getRotation();
 
 		g.pushMatrix();
 		g.translate((float) leg.p1.x, (float) leg.p1.y, (float) leg.p1.z);
@@ -169,27 +169,27 @@ class DrawBody {
 		g.fill(200, 200, 50);
 
 		g.beginShape();
-		LegConfig lc = body.calculateLegConfig();
-		for (int i = 0; i < Body.LEG_COUNT; ++i) {
-			Leg leg = body.getLeg(i);
+		LegConfig lc = hexapod.calculateLegConfig();
+		for (int i = 0; i < Hexapod.LEG_COUNT; ++i) {
+			Leg leg = hexapod.getLeg(i);
 			if (lc.touchGround(i)) {
 				vertex(g, leg.p4, o);
 			}
 		}
 		g.endShape();
 
-		Vector3d c = body.getCenter();
-		Vector3d t = body.calculateLegConfig().getPlane().project(c);
+		Vector3d c = hexapod.getCenter();
+		Vector3d t = hexapod.calculateLegConfig().getPlane().project(c);
 
 		g.translate((float) t.x, (float) t.y, (float) t.z);
 		g.fill(Color.yellow.getRGB());
-		g.sphere(10);
+		g.sphere(4);
 
 		g.popMatrix();
 	}
 
 	void drawPlane(final PApplet g) {
-		Plane3d plane = body.calculateLegConfig().getPlane();
+		Plane3d plane = hexapod.calculateLegConfig().getPlane();
 		double[] r = Matrix.getRotation(plane.n);
 
 		g.pushMatrix();

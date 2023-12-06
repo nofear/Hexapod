@@ -4,7 +4,18 @@ import org.pdeboer.util.*;
 
 import java.util.*;
 
-public class Body {
+public class Hexapod {
+
+	public static final int PITCH = 0;
+	public static final int YAW = 1;
+	public static final int ROLL = 2;
+
+	public enum Action {
+		FORWARD, BACKWARD,
+		LEFT, RIGHT,
+		UP, DOWN,
+		ROLL_PLUS, ROLL_MIN
+	}
 
 	private final static int d = 200;
 	private final static int w = 100;
@@ -29,20 +40,38 @@ public class Body {
 
 	private final Leg[] legs;
 
-	public Body() {
+	public Hexapod() {
 		legs = new Leg[LEG_COUNT];
 		for (int i = 0; i < legs.length; ++i) {
 			legs[i] = new Leg();
 		}
+		;
 
-		center = new Vector3d();
-		rotation = new double[] { 0, 0, 0 };
+		init();
 	}
 
 	public void init() {
-		initLeg(0, 75, -50);
+		center = new Vector3d();
+		rotation = new double[] { 0, 0, 0 };
+
+		initLeg();
 		stabilise();
 		update();
+	}
+
+	public void execute(final Action action) {
+		switch (action) {
+		case FORWARD -> center.x++;
+		case BACKWARD -> center.x--;
+		case LEFT -> center.y--;
+		case RIGHT -> center.y++;
+		case UP -> center.z++;
+		case DOWN -> center.z--;
+		case ROLL_MIN -> rotation[ROLL] -= 0.002;
+		case ROLL_PLUS -> rotation[ROLL] += 0.002;
+		}
+
+		updateInverse();
 	}
 
 	public void setRotation(double[] r) {
@@ -86,11 +115,12 @@ public class Body {
 		return legs[index];
 	}
 
+	private void initLeg() {
 
-	private void initLeg(
-			final double x,
-			final double y,
-			final double z) {
+		int x = 0;
+		int y = 75;
+		int z = -50;
+
 		int off = 50;
 		double[][] o = new double[][] { { x + off, y }, { x, y },
 										{ x - 2 * off, y }, { x - 2 * off, -y }, { x, -y },
@@ -127,19 +157,18 @@ public class Body {
 		double[] r = Matrix.getRotation(p.n);
 
 		center = new Vector3d(center.x, center.y, distance);
-		rotation = new double[] { -r[0], -r[1], -r[2] };
+		rotation = new double[] { -r[PITCH], -r[YAW], -r[ROLL] };
 	}
 
 	public void updateInverse() {
 		updateP1();
 
 		for (Leg leg : legs) {
-			leg.updateInverse(0);
+			leg.updateInverse(rotation[ROLL]);
 		}
 
 		update();
 	}
-
 
 	/**
 	 * @return most stable leg configuration.
