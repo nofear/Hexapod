@@ -1,12 +1,13 @@
 package org.pdeboer.hexapod.app;
 
 import org.pdeboer.hexapod.*;
-import org.pdeboer.hexapod.Hexapod.*;
 import org.pdeboer.util.*;
 import processing.core.*;
 
 import java.awt.*;
 import java.util.*;
+
+import static org.pdeboer.hexapod.Hexapod.*;
 
 public class App extends PApplet {
 
@@ -131,7 +132,7 @@ public class App extends PApplet {
 			hexapod.updateP1();
 			for (int i = 0; i < Hexapod.LEG_COUNT; ++i) {
 				if (lc.touchGround(i)) {
-					hexapod.getLeg(i).updateInverse(r[2]);
+					hexapod.getLeg(i).updateInverse(0);
 				}
 			}
 		}
@@ -147,14 +148,15 @@ public class App extends PApplet {
 
 		fill(Color.black.getRGB());
 
+		int x0 = 10;
 		textAlign(PApplet.LEFT);
-		text("body", 0, 20);
-		text("yaw:   " + fmtAngle(r[0]), 0, 40);
-		text("pitch: " + fmtAngle(r[1]), 0, 60);
-		text("roll:  " + fmtAngle(r[2]), 0, 80);
+		text("body", 10, 20);
+		text("roll:  " + fmtAngle(r[ROLL]), x0, 40);
+		text("pitch: " + fmtAngle(r[PITCH]), x0, 60);
+		text("yaw:   " + fmtAngle(r[YAW]), x0, 80);
 
-		text("l: " + Arrays.toString(lc.getIndex()), 0, 120);
-		text("c:  " + center.toString(), 0, 140);
+		text("l: " + Arrays.toString(lc.getIndex()), x0, 120);
+		text("c:  " + center.toString(), x0, 140);
 
 		float leg_x0 = 250;
 		// float leg_y0 = 120;

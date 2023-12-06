@@ -17,9 +17,6 @@ public class Leg {
 	private double rb = 0;
 	private double rc = 0;
 
-	/**
-	 * Constructor.
-	 */
 	public Leg() {
 		p1 = new Vector3d();
 		p2 = new Vector3d();
@@ -49,36 +46,20 @@ public class Leg {
 		updateInverse(0);
 	}
 
-	/**
-	 * Set leg start point.
-	 *
-	 * @param p start point
-	 */
 	public void setP1(final Vector3d p) {
 		this.p1 = p;
 	}
 
-	/**
-	 * Set leg end point.
-	 *
-	 * @param p end point
-	 */
 	public void setP4(final Vector3d p) {
 		this.p4 = p;
 	}
 
-	/**
-	 * @param r angle array
-	 */
 	public void setRotation(final double[] r) {
 		this.ra = r[0];
 		this.rb = r[1];
 		this.rc = r[2];
 	}
 
-	/**
-	 * @return angle array
-	 */
 	public double[] getRotation() {
 		return new double[] { ra, rb, rc };
 	}
@@ -101,7 +82,8 @@ public class Leg {
 	 *
 	 * @param roll roll angle of the body
 	 */
-	public void updateInverse(final double roll) {
+	public void updateInverse(double roll) {
+
 		double dx = p4.x - p1.x;
 		double dy = p4.y - p1.y;
 		double dz = p4.z - p1.z;
@@ -113,8 +95,8 @@ public class Leg {
 		dy /= Math.sin(ra);
 
 		// offset to p2
-		dy -= Math.cos(roll) * LENGTH_COXA;
-		dz -= Math.sin(roll) * LENGTH_COXA;
+		dy -= Math.cos(0) * LENGTH_COXA;
+		dz -= Math.sin(0) * LENGTH_COXA;
 
 		double dyz2 = dy * dy + dz * dz;
 		double d2 = Math.sqrt(dyz2);
@@ -127,7 +109,7 @@ public class Leg {
 		rc = -Math.acos((-LENGTH_FEMUR * LENGTH_FEMUR - LENGTH_TIBIA * LENGTH_TIBIA
 				+ dyz2) / (2 * LENGTH_FEMUR * LENGTH_TIBIA));
 
-		// need to subtract the roll
+		// need to subtract the roll??
 		rb -= roll;
 	}
 

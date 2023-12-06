@@ -25,9 +25,9 @@ public record Matrix(
 	}
 
 	public static Matrix getMatrix(
-			final double yaw,
+			final double roll,
 			final double pitch,
-			final double roll) {
+			final double yaw) {
 		return Matrix.getRotateZ(yaw).rotateY(pitch).rotateX(roll);
 	}
 

@@ -157,14 +157,14 @@ public class Hexapod {
 		double[] r = Matrix.getRotation(p.n);
 
 		center = new Vector3d(center.x, center.y, distance);
-		rotation = new double[] { -r[PITCH], -r[YAW], -r[ROLL] };
+		rotation = new double[] { -r[ROLL], -r[PITCH], -r[YAW] };
 	}
 
 	public void updateInverse() {
 		updateP1();
 
 		for (Leg leg : legs) {
-			leg.updateInverse(rotation[ROLL]);
+			leg.updateInverse(0);
 		}
 
 		update();

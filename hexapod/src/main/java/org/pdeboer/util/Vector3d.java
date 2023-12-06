@@ -22,6 +22,10 @@ public class Vector3d extends javax.vecmath.Vector3d {
 		super(arg0);
 	}
 
+	public Vector3d neg() {
+		return new Vector3d(-x, -y, -z);
+	}
+
 	@Override
 	public String toString() {
 		return "(" + fmt(x) + "," + fmt(y) + "," + fmt(z) + ")";
