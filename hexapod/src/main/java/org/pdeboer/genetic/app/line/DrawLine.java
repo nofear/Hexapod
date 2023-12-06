@@ -8,14 +8,16 @@ import java.text.*;
 
 public class DrawLine extends DrawPhenotype<Line> {
 
-	public DrawLine(PApplet g, IAlgorithm<Line> algorithm) {
+	public DrawLine(
+			final PApplet g,
+			final IAlgorithm<Line> algorithm) {
 		super(g, algorithm);
 
 		this.width = 55;
 		this.height = 50;
 	}
 
-	protected void draw(Line phenotype) {
+	protected void draw(final Line phenotype) {
 		g.noFill();
 		g.stroke(255);
 		g.rect(0, 0, width, height);

@@ -28,7 +28,6 @@ public class Body {
 	private double[] rotation;
 
 	private final Leg[] legs;
-	private LegConfig legConfig;
 
 	public Body() {
 		legs = new Leg[LEG_COUNT];
@@ -42,6 +41,7 @@ public class Body {
 
 	public void init() {
 		initLeg(0, 75, -50);
+		stabilise();
 		update();
 	}
 
@@ -69,7 +69,7 @@ public class Body {
 		int idx = 0;
 		for (int i = 0; i < LEG_COUNT; ++i) {
 			Leg leg = legs[i];
-			leg.setR(Arrays.copyOfRange(config, idx, idx + 3));
+			leg.setRotation(Arrays.copyOfRange(config, idx, idx + 3));
 			idx += 3;
 		}
 	}
@@ -86,9 +86,6 @@ public class Body {
 		return legs[index];
 	}
 
-	public LegConfig getLegConfig() {
-		return legConfig;
-	}
 
 	private void initLeg(
 			final double x,
@@ -123,37 +120,31 @@ public class Body {
 	}
 
 	public void stabilise() {
-		updateLegConfig();
+		var legConfig = calculateLegConfig();
 
 		Plane3d p = legConfig.getPlane();
 		double distance = p.distance(center);
 		double[] r = Matrix.getRotation(p.n);
 
-		center = new Vector3d(0, 0, distance);
+		center = new Vector3d(center.x, center.y, distance);
 		rotation = new double[] { -r[0], -r[1], -r[2] };
-
-		update();
-
-		legConfig.update();
 	}
 
 	public void updateInverse() {
+		updateP1();
+
 		for (Leg leg : legs) {
 			leg.updateInverse(0);
 		}
+
+		update();
 	}
 
-	/**
-	 * Update most stable leg configuration.
-	 */
-	private void updateLegConfig() {
-		legConfig = calculateLegConfig();
-	}
 
 	/**
 	 * @return most stable leg configuration.
 	 */
-	private LegConfig calculateLegConfig() {
+	public LegConfig calculateLegConfig() {
 		int[][] indices = {
 
 				{ 0, 1, 3 }, { 0, 1, 4 }, { 0, 1, 5 },

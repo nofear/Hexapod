@@ -14,11 +14,11 @@ class DrawBody {
 
 	private final Body body;
 
-	public DrawBody(Body body) {
+	DrawBody(final Body body) {
 		this.body = body;
 	}
 
-	public void draw(PApplet g) {
+	public void draw(final PApplet g) {
 		Vector3d c = body.getCenter();
 
 		g.pushMatrix();
@@ -31,7 +31,7 @@ class DrawBody {
 		drawLegs(g);
 	}
 
-	private void drawBody(PApplet g) {
+	private void drawBody(final PApplet g) {
 		g.stroke(0);
 		g.pushMatrix();
 		g.fill(240);
@@ -96,8 +96,8 @@ class DrawBody {
 		g.popMatrix();
 	}
 
-	private void drawLegs(PApplet g) {
-		LegConfig lc = body.getLegConfig();
+	private void drawLegs(final PApplet g) {
+		LegConfig lc = body.calculateLegConfig();
 		for (int i = 0; i < Body.LEG_COUNT; ++i) {
 			g.fill((lc.touchGround(i) ? Color.green : Color.orange).getRGB());
 
@@ -107,8 +107,8 @@ class DrawBody {
 	}
 
 	private void drawJoints(
-			PApplet g,
-			int index) {
+			final PApplet g,
+			final int index) {
 		Leg leg = body.getLeg(index);
 
 		g.noStroke();
@@ -131,8 +131,8 @@ class DrawBody {
 	}
 
 	private void drawLeg(
-			PApplet g,
-			int index) {
+			final PApplet g,
+			final 	int index) {
 		Leg leg = body.getLeg(index);
 		double[] r = body.getRotation();
 
@@ -161,14 +161,15 @@ class DrawBody {
 		g.popMatrix();
 	}
 
-	public void drawLegFrame(PApplet g) {
+	void drawLegFrame(final PApplet g) {
 		g.pushMatrix();
 
 		Vector3d o = new Vector3d(0, 0, 2);
 
 		g.fill(200, 200, 50);
+
 		g.beginShape();
-		LegConfig lc = body.getLegConfig();
+		LegConfig lc = body.calculateLegConfig();
 		for (int i = 0; i < Body.LEG_COUNT; ++i) {
 			Leg leg = body.getLeg(i);
 			if (lc.touchGround(i)) {
@@ -178,17 +179,17 @@ class DrawBody {
 		g.endShape();
 
 		Vector3d c = body.getCenter();
-		Vector3d t = body.getLegConfig().getPlane().project(c);
+		Vector3d t = body.calculateLegConfig().getPlane().project(c);
 
 		g.translate((float) t.x, (float) t.y, (float) t.z);
 		g.fill(Color.yellow.getRGB());
-		g.sphere(4);
+		g.sphere(10);
 
 		g.popMatrix();
 	}
 
-	public void drawPlane(PApplet g) {
-		Plane3d plane = body.getLegConfig().getPlane();
+	void drawPlane(final PApplet g) {
+		Plane3d plane = body.calculateLegConfig().getPlane();
 		double[] r = Matrix.getRotation(plane.n);
 
 		g.pushMatrix();
@@ -202,17 +203,18 @@ class DrawBody {
 	}
 
 	private static void vertex(
-			PApplet g,
-			Vector3d p) {
+			final PApplet g,
+			final Vector3d p) {
 		g.vertex((float) p.x, (float) p.y, (float) p.z);
 	}
 
 	private static void vertex(
-			PApplet g,
+			final PApplet g,
 			final Vector3d v,
-			Vector3d o) {
-		v.add(o);
-		g.vertex((float) v.x, (float) v.y, (float) v.z);
+			final Vector3d o) {
+		var tmp = new Vector3d(v);
+		tmp.add(o);
+		g.vertex((float) tmp.x, (float) tmp.y, (float) tmp.z);
 	}
 
 }

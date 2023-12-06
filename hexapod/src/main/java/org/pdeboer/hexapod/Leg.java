@@ -70,7 +70,7 @@ public class Leg {
 	/**
 	 * @param r angle array
 	 */
-	public void setR(final double[] r) {
+	public void setRotation(final double[] r) {
 		this.ra = r[0];
 		this.rb = r[1];
 		this.rc = r[2];
@@ -79,7 +79,7 @@ public class Leg {
 	/**
 	 * @return angle array
 	 */
-	public double[] getR() {
+	public double[] getRotation() {
 		return new double[] { ra, rb, rc };
 	}
 

@@ -27,18 +27,9 @@ public class App extends PApplet {
 	private float mx = 0;
 	private float my = 0;
 
-	float leg_d = 12;
-	float leg_h = 20;
-
-	int t = 0;
-
 	private final int backColor = color(250, 250, 250);
 
-	private final static Random RANDOM = new Random();
-	private double[] config = null;
-	private int legIdx = 0;
-
-	private boolean stabalize = false;
+	private Body body;
 
 	// ************************* GLOBAL VARIABLES **************************
 
@@ -51,12 +42,11 @@ public class App extends PApplet {
 		smooth();
 		frameRate(FRAME_RATE);
 
-		Body body = new Body();
+		body = new Body();
 		body.init();
-		config = body.getConfig();
 	}
 
-	private void handle_input(final Body body) {
+	private void handle_input() {
 		if (mousePressed) {
 			mx = (float) (mouseX - MID_X) / WIDTH;
 			my = (float) (mouseY - MID_Y) / HEIGHT;
@@ -65,102 +55,75 @@ public class App extends PApplet {
 			rb = my * PI;
 		}
 
-		if (keyPressed) {
-			Leg leg = body.getLeg(legIdx);
-			double[] r = leg.getR();
+		if (!keyPressed) {
+			return;
+		}
 
-			switch (key) {
-			case '1':
-			case '2':
-			case '3':
-			case '4':
-			case '5':
-			case '6':
-				legIdx = key - '1';
-				break;
-			case '[':
-				leg.p4.z += 1;
-				leg.updateInverse(body.getRotation()[2]);
-				r = leg.getR();
-				break;
-			case ']':
-				leg.p4.z -= 1;
-				leg.updateInverse(body.getRotation()[2]);
-				r = leg.getR();
-				break;
-			case 'q':
-				r[0] += 0.02;
-				break;
-			case 'w':
-				r[0] -= 0.02;
-				break;
-			case 'a':
-				r[1] += 0.02;
-				break;
-			case 's':
-				r[1] -= 0.02;
-				break;
-			case 'z':
-				r[2] += 0.02;
-				break;
-			case 'x':
-				r[2] -= 0.02;
-				break;
-			case 'r':
-				stabalize = true;
-				break;
-			case 't':
-				stabalize = false;
-				break;
-			}
+		int legIdx = 0;
 
-			leg.setR(r);
+		switch (key) {
+		case '0':
+			body.setCenter(new Vector3d(0, 0, 50));
+			body.updateInverse();
+			break;
+
+		case '1':
+		case '2':
+		case '3':
+		case '4':
+		case '5':
+		case '6':
+			legIdx = key - '1';
+			break;
+		case '[':
+			body.getCenter().z -= 1;
+			body.updateInverse();
+			break;
+		case ']':
+			body.getCenter().z += 1;
+			body.updateInverse();
+			break;
+		case ' ':
+			stabilise();
+			break;
+
 		}
 	}
 
 	@Override
 	public void draw() {
-		Body body = new Body();
-		body.setConfig(config);
-		body.update();
+		handle_input();
 
-		handle_input(body);
+		draw(body);
+	}
 
-		body.update();
-		body.stabilise();
+	private void stabilise() {
+		double[] r = body.getRotation();
+		if (r[2] != 0) {
+			LegConfig lc = body.calculateLegConfig();
 
-		if (stabalize) {
-			double[] r = body.getRotation();
-			if (r[2] != 0) {
-				LegConfig lc = body.getLegConfig();
+			double diff = 0.0000001;
+			if (r[2] < -diff) {
+				r[2] += diff;
+			} else if (r[2] > diff) {
+				r[2] -= diff;
+			}
 
-				double diff = 0.0000001;
-				if (r[2] < -diff) {
-					r[2] += diff;
-				} else if (r[2] > diff) {
-					r[2] -= diff;
-				}
+			body.setRotation(r);
 
-				body.setRotation(r);
-
-				body.updateP1();
-				for (int i = 0; i < Body.LEG_COUNT; ++i) {
-					if (lc.touchGround(i)) {
-						body.getLeg(i).updateInverse(r[2]);
-					}
+			body.updateP1();
+			for (int i = 0; i < Body.LEG_COUNT; ++i) {
+				if (lc.touchGround(i)) {
+					body.getLeg(i).updateInverse(r[2]);
 				}
 			}
 		}
-
-		config = body.getConfig();
-
-		draw(body);
 	}
 
 	private void draw(Body body) {
 		Vector3d center = body.getCenter();
 		double[] r = body.getRotation();
-		LegConfig lc = body.getLegConfig();
+		LegConfig lc = body.calculateLegConfig();
 
 		lights();
 		background(backColor);
@@ -169,9 +132,9 @@ public class App extends PApplet {
 
 		textAlign(PApplet.LEFT);
 		text("body", 0, 20);
-		text("yaw:   " + fmt(r[0]), 0, 40);
-		text("pitch: " + fmt(r[1]), 0, 60);
-		text("roll:  " + fmt(r[2]), 0, 80);
+		text("yaw:   " + fmtAngle(r[0]), 0, 40);
+		text("pitch: " + fmtAngle(r[1]), 0, 60);
+		text("roll:  " + fmtAngle(r[2]), 0, 80);
 
 		text("l: " + Arrays.toString(lc.getIndex()), 0, 120);
 		text("c:  " + center.toString(), 0, 140);
@@ -182,9 +145,9 @@ public class App extends PApplet {
 		for (int i = 0; i < Body.LEG_COUNT; ++i) {
 			Leg leg = body.getLeg(i);
 			text("leg " + i, leg_x0 + i * leg_d, 20);
-			text("ra " + fmt(leg.getRa()), leg_x0 + i * leg_d, 40);
-			text("rb " + fmt(leg.getRb()), leg_x0 + i * leg_d, 60);
-			text("rc " + fmt(leg.getRc()), leg_x0 + i * leg_d, 80);
+			text("ra " + fmtAngle(leg.getRa()), leg_x0 + i * leg_d, 40);
+			text("rb " + fmtAngle(leg.getRb()), leg_x0 + i * leg_d, 60);
+			text("rc " + fmtAngle(leg.getRc()), leg_x0 + i * leg_d, 80);
 			text("d  " + fmt(lc.getDistance(i)), leg_x0 + i * leg_d, 100);
 		}
 
@@ -202,6 +165,10 @@ public class App extends PApplet {
 	}
 
 	private static String fmt(double v) {
-		return String.format("%.4f", v);
+		return String.format("%.1f", v);
+	}
+
+	private static String fmtAngle(final double v) {
+		return String.format("%.1f", v * 180 / PI);
 	}
 }

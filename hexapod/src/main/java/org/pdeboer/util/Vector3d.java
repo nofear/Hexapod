@@ -18,7 +18,7 @@ public class Vector3d extends javax.vecmath.Vector3d {
 		super(arg0, arg1, arg2);
 	}
 
-	public Vector3d(Vector3d arg0) {
+	public Vector3d(final Vector3d arg0) {
 		super(arg0);
 	}
 
@@ -27,7 +27,7 @@ public class Vector3d extends javax.vecmath.Vector3d {
 		return "(" + fmt(x) + "," + fmt(y) + "," + fmt(z) + ")";
 	}
 
-	public static String fmt(double v) {
+	public static String fmt(final double v) {
 		return String.format("%.4f", v);
 	}
 
