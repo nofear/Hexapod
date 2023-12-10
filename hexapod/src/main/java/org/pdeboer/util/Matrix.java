@@ -1,5 +1,7 @@
 package org.pdeboer.util;
 
+import static org.pdeboer.hexapod.Hexapod.*;
+
 public record Matrix(
 		double[][] elements
 ) {
@@ -28,11 +30,11 @@ public record Matrix(
 			final double roll,
 			final double pitch,
 			final double yaw) {
-		return Matrix.getRotateZ(yaw).rotateY(pitch).rotateX(roll);
+		return Matrix.getRotateX(roll).rotateY(pitch).rotateZ(yaw);
 	}
 
 	public static Matrix getMatrix(final double[] r) {
-		return Matrix.getRotateX(r[0]).rotateY(r[1]).rotateZ(r[2]);
+		return Matrix.getRotateX(r[ROLL]).rotateY(r[PITCH]).rotateZ(r[YAW]);
 	}
 
 	public static double[] getRotation(final Vector3d p) {
@@ -42,11 +44,7 @@ public record Matrix(
 		double yaw = 0;
 		double pitch = Math.atan2(n.x, n.z);
 		double roll = Math.asin(-n.y);
-		return new double[] { yaw, pitch, roll };
-	}
-
-	public static Matrix getMatrix(final Vector3d p) {
-		return getMatrix(getRotation(p));
+		return new double[] { roll, pitch, yaw };
 	}
 
 	public static Matrix getRotateX(final double a) {

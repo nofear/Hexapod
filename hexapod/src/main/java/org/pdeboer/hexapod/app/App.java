@@ -108,6 +108,13 @@ public class App extends PApplet {
 			hexapod.execute(Action.YAW_MIN);
 			break;
 
+		case 'u':
+			hexapod.execute(Action.PITCH_MIN);
+			break;
+		case 'o':
+			hexapod.execute(Action.PITCH_PLUS);
+			break;
+
 		case ' ':
 			stabilise();
 			break;
@@ -175,7 +182,8 @@ public class App extends PApplet {
 			text("rb " + fmtAngle(leg.getRb()), leg_x0 + i * leg_d, 60);
 			text("rc " + fmtAngle(leg.getRc()), leg_x0 + i * leg_d, 80);
 			text("d  " + fmt(lc.getDistance(i)), leg_x0 + i * leg_d, 100);
-			text("p4 z=" + fmt(leg.p4.z), leg_x0 + i * leg_d, 120);
+			text("p1 " + fmt(leg.p1), leg_x0 + i * leg_d, 120);
+			text("p4 " + fmt(leg.p4), leg_x0 + i * leg_d, 140);
 		}
 
 		translate(MID_X, HEIGHT / 2 + 50);
@@ -188,11 +196,15 @@ public class App extends PApplet {
 		var ds = new DrawHexapod(hexapod);
 		ds.draw(this);
 		//ds.drawPlane(this);
-		//ds.drawLegFrame(this);
+		ds.drawLegFrame(this);
 	}
 
-	private static String fmt(double v) {
+	private static String fmt(final double v) {
 		return String.format("%.1f", v);
+	}
+
+	private static String fmt(final Vector3d v) {
+		return String.format("(%.1f,%.1f,%.1f)", v.x, v.y, v.z);
 	}
 
 	private static String fmtAngle(final double v) {

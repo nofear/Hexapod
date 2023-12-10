@@ -6,7 +6,7 @@ import java.util.*;
 
 public class Hexapod {
 
-	static final double EPSILON = 1E-012;
+	public static final double EPSILON = 1E-012;
 
 	// roll: x-axis, pitch: y-axis, yaw: z-axis
 	public static final int ROLL = 0;
@@ -71,10 +71,10 @@ public class Hexapod {
 		case RIGHT -> center.y++;
 		case UP -> center.z++;
 		case DOWN -> center.z--;
-		case ROLL_MIN -> rotation[ROLL] -= 0.002;
-		case ROLL_PLUS -> rotation[ROLL] += 0.002;
-		case PITCH_MIN -> rotation[PITCH] -= 0.002;
-		case PITCH_PLUS -> rotation[PITCH] += 0.002;
+		case ROLL_MIN -> rotation[ROLL] -= 0.01;
+		case ROLL_PLUS -> rotation[ROLL] += 0.01;
+		case PITCH_MIN -> rotation[PITCH] -= 0.01;
+		case PITCH_PLUS -> rotation[PITCH] += 0.01;
 		case YAW_MIN -> rotation[YAW] -= 0.01;
 		case YAW_PLUS -> rotation[YAW] += 0.01;
 		}
@@ -172,7 +172,7 @@ public class Hexapod {
 		double[] r = Matrix.getRotation(p.n);
 
 		center = new Vector3d(center.x, center.y, distance);
-		// rotation = new double[] { -r[ROLL], -r[PITCH], -r[YAW] };
+		rotation = new double[] { -r[ROLL], -r[PITCH], -r[YAW] };
 	}
 
 	public void updateInverse() {

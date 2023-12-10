@@ -4,6 +4,7 @@ import org.junit.jupiter.api.*;
 
 import static java.lang.Math.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.pdeboer.hexapod.Hexapod.*;
 import static org.pdeboer.util.Matrix.*;
 
 class MatrixTest {
@@ -67,12 +68,20 @@ class MatrixTest {
 		assertEqualsVector3D(VECTOR_Z, m.multiply(VECTOR_Z));
 	}
 
-	public void assertEqualsVector3D(
+	@Test
+	void test_normal_vector() {
+		var m = Matrix.getMatrix(0.4, 0, 0);
+
+		var rv1 = m.multiply(VECTOR_Z);
+		assertArrayEquals(new double[] { 0.4, 0, 0 }, Matrix.getRotation(rv1), EPSILON);
+	}
+
+	void assertEqualsVector3D(
 			final Vector3d expected,
 			final Vector3d v) {
-		assertEquals(expected.getX(), v.getX(), 1E-12, "x");
-		assertEquals(expected.getY(), v.getY(), 1E-12, "y");
-		assertEquals(expected.getZ(), v.getZ(), 1E-12, "z");
+		assertEquals(expected.getX(), v.getX(), EPSILON, "x");
+		assertEquals(expected.getY(), v.getY(), EPSILON, "y");
+		assertEquals(expected.getZ(), v.getZ(), EPSILON, "z");
 	}
 
 	private static final Vector3d VECTOR_X = new Vector3d(1, 0, 0);

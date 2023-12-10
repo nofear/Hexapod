@@ -23,11 +23,11 @@ public class Leg {
 	private double rb = 0;
 	private double rc = 0;
 
-	public Leg() {
+	Leg() {
 		this(LENGTH_COXA, LENGTH_FEMUR, LENGTH_TIBIA);
 	}
 
-	public Leg(
+	Leg(
 			double lengthCoxa,
 			double lengthFemur,
 			double lengthTibia) {
@@ -85,13 +85,13 @@ public class Leg {
 		this.p4 = p;
 	}
 
-	public void setRotation(final double[] r) {
+	void setRotation(final double[] r) {
 		this.ra = r[0];
 		this.rb = r[1];
 		this.rc = r[2];
 	}
 
-	public double[] getRotation() {
+	double[] getRotation() {
 		return new double[] { ra, rb, rc };
 	}
 
@@ -117,33 +117,31 @@ public class Leg {
 		double dy = p4.y - p1.y;
 		double dz = p4.z - p1.z;
 
-		double rcoxa = -rotation[ROLL];
+		ra = Math.atan2(dx, dy) + rotation[YAW];
+
+		double rcoxa = Math.sin(ra) * -rotation[PITCH] + Math.cos(ra) * -rotation[ROLL];
 		double coxa_z = Math.sin(rcoxa) * lengthCoxa;
-		double coxa_y = Math.cos(rcoxa) * lengthCoxa;
+		double coxa_t = Math.cos(rcoxa) * lengthCoxa;
 
-		var ra_t = Math.atan2(Math.abs(dx), Math.abs(dy));
-
-		double coxa_t = coxa_y * Math.cos(ra_t);
+		double coxa_t2 = coxa_t * Math.cos(ra);
 		double m = dz + coxa_z;
-		double k = (Math.abs(dy) - coxa_t) / Math.cos(ra_t);
+		double k = dy - coxa_t2;
+		double k_t = k / Math.cos(ra);
 
-		double l = Math.sqrt(k * k + m * m);
+		double l = Math.sqrt(k_t * k_t + m * m);
 
 		double l2 = l * l;
 		double lf2 = lengthFemur * lengthFemur;
 		double lt2 = lengthTibia * lengthTibia;
 
-		double a1 = Math.atan2(k, -m);
+		double a1 = Math.atan2(k_t, -m);
 		double a2 = Math.acos((lf2 + l2 - lt2) / (2 * lengthFemur * l));
 		double b1 = Math.acos((lf2 + lt2 - l2) / (2 * lengthFemur * lengthTibia));
 
-		double rfemur = Math.PI - (a1 + a2);
-
-		ra = Math.atan2(dx, dy) + rotation[YAW];
-		rb = rfemur - rcoxa;
+		rb = Math.PI - (a1 + a2) - rcoxa;
 		rc = Math.PI - b1;
 
-		System.out.println(String.format("ra=%f, rb=%f, rc=%f", ra, rb, rc));
+		// System.out.printf("ra=%f, rb=%f, rc=%f%n", ra, rb, rc);
 	}
 
 	public void update(final Matrix m) {

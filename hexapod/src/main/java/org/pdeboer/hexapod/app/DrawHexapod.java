@@ -6,6 +6,7 @@ import processing.core.*;
 
 import java.awt.*;
 
+import static org.pdeboer.hexapod.Hexapod.*;
 import static processing.core.PConstants.*;
 
 class DrawHexapod {
@@ -44,8 +45,15 @@ class DrawHexapod {
 		float eyeZ = (float) c.z + hexapod.height / 2;
 
 		g.pushMatrix();
-		g.fill(Color.blue.getRGB());
+
+		double[] r = hexapod.rotation();
+		g.rotateX((float) r[ROLL]);
+		g.rotateY((float) r[PITCH]);
+		g.rotateZ((float) r[YAW]);
+
 		g.translate(eyeX, eyeY, eyeZ);
+
+		g.fill(Color.blue.getRGB());
 		g.sphere(6);
 		g.popMatrix();
 	}
