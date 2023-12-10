@@ -4,9 +4,9 @@ import org.pdeboer.util.*;
 
 public class Leg {
 
-	public final static int LENGTH_COXA = 27;
-	public final static int LENGTH_FEMUR = 77;
-	public final static int LENGTH_TIBIA = 107;
+	private final static int LENGTH_COXA = 27;
+	private final static int LENGTH_FEMUR = 77;
+	private final static int LENGTH_TIBIA = 107;
 
 	public Vector3d p1;
 	public Vector3d p2;
@@ -115,13 +115,16 @@ public class Leg {
 		double dy = p4.y - p1.y;
 		double dz = p4.z - p1.z;
 
-		double rcoxa = 0.00;
-
+		double rcoxa = 0;
 		double coxa_z = Math.sin(rcoxa) * lengthCoxa;
 		double coxa_y = Math.cos(rcoxa) * lengthCoxa;
 
+		var ra_t = Math.atan2(Math.abs(dx), Math.abs(dy));
+
+		double coxa_t = coxa_y * Math.cos(ra_t);
 		double m = dz + coxa_z;
-		double k = Math.abs(dy) - coxa_y;
+		double k = (Math.abs(dy) - coxa_t) / Math.cos(ra_t);
+
 		double l = Math.sqrt(k * k + m * m);
 
 		double l2 = l * l;
@@ -135,7 +138,7 @@ public class Leg {
 		double rfemur = Math.PI - (a1 + a2);
 
 		ra = Math.atan2(dx, dy);
-		rb = rfemur + rcoxa;
+		rb = rfemur - rcoxa;
 		rc = Math.PI - b1;
 
 		System.out.println(String.format("ra=%f, rb=%f, rc=%f", ra, rb, rc));

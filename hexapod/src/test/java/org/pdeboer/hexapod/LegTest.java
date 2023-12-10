@@ -54,7 +54,7 @@ class LegTest {
 
 	@ParameterizedTest
 	@ValueSource(doubles = { -141, -20, -10, 0, 10, 20, 58 })
-	void test_update_inverse2(final double offsetY) {
+	void test_update_inverse_offsetY(final double offsetY) {
 
 		var x0 = 10;
 		var y1 = sqrt(100 * 100 * 2) + offsetY;
@@ -62,14 +62,20 @@ class LegTest {
 		var leg = new Leg(0, 100, 100);
 		leg.init(new Vector3d(x0, 0, 0), 0, y1, 0);
 
-		var yc = leg.lengthCoxa();
-		var yf = Math.cos(Math.PI / 2 - leg.getRb()) * leg.lengthFemur();
-		var yt = Math.sin(leg.getRc() - leg.getRb()) * leg.lengthTibia();
-
-		var y = yc + yf + yt;
-
 		assertEqualsVector3D(new Vector3d(x0, 0, 0), leg.p1);
 		assertEqualsVector3D(new Vector3d(x0, y1, 0), leg.p4);
+	}
+
+	@ParameterizedTest
+	@ValueSource(doubles = { -45, -30, -10, 0, 10, 30, 45 })
+	void test_update_inverse_offsetX(final double offsetX) {
+		var y1 = sqrt(100 * 100 * 2);
+
+		var leg = new Leg(0, 100, 100);
+		leg.init(new Vector3d(0, 0, 0), offsetX, y1, 0);
+
+		assertEqualsVector3D(new Vector3d(0, 0, 0), leg.p1);
+		assertEqualsVector3D(new Vector3d(offsetX, y1, 0), leg.p4);
 	}
 
 	@MethodSource("test_update_max_extend_provider")
