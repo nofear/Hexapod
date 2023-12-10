@@ -2,6 +2,8 @@ package org.pdeboer.hexapod;
 
 import org.pdeboer.util.*;
 
+import static org.pdeboer.hexapod.Hexapod.*;
+
 public class Leg {
 
 	private final static int LENGTH_COXA = 27;
@@ -115,7 +117,7 @@ public class Leg {
 		double dy = p4.y - p1.y;
 		double dz = p4.z - p1.z;
 
-		double rcoxa = 0;
+		double rcoxa = -rotation[ROLL];
 		double coxa_z = Math.sin(rcoxa) * lengthCoxa;
 		double coxa_y = Math.cos(rcoxa) * lengthCoxa;
 
@@ -137,7 +139,7 @@ public class Leg {
 
 		double rfemur = Math.PI - (a1 + a2);
 
-		ra = Math.atan2(dx, dy);
+		ra = Math.atan2(dx, dy) + rotation[YAW];
 		rb = rfemur - rcoxa;
 		rc = Math.PI - b1;
 

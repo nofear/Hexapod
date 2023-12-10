@@ -94,11 +94,18 @@ public class App extends PApplet {
 			hexapod.execute(Action.DOWN);
 			break;
 
-		case 'i':
+		case 'j':
 			hexapod.execute(Action.ROLL_PLUS);
 			break;
-		case 'k':
+		case 'l':
 			hexapod.execute(Action.ROLL_MIN);
+			break;
+
+		case 'i':
+			hexapod.execute(Action.YAW_PLUS);
+			break;
+		case 'k':
+			hexapod.execute(Action.YAW_MIN);
 			break;
 
 		case ' ':

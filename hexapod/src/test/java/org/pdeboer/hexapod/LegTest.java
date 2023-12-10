@@ -78,6 +78,25 @@ class LegTest {
 		assertEqualsVector3D(new Vector3d(offsetX, y1, 0), leg.p4);
 	}
 
+	@ParameterizedTest
+	@ValueSource(doubles = { -0.01, 0, 0.01 })
+	void test_update_inverse_rotateA(final double rotateA) {
+		var y1 = sqrt(100 * 100 * 2);
+
+		var leg = new Leg(0, 100, 100);
+		leg.init(new Vector3d(0, 0, 0), 0, y1, 0);
+		assertEqualsVector3D(new Vector3d(0, y1, 0), leg.p4);
+
+		double[] r0 = { rotateA, 0, 0 };
+		leg.updateInverse(r0);
+
+		var m = Matrix.getMatrix(r0);
+		leg.update(m);
+
+		assertEqualsVector3D(new Vector3d(0, 0, 0), leg.p1);
+		assertEqualsVector3D(new Vector3d(0, y1, 0), leg.p4);
+	}
+
 	@MethodSource("test_update_max_extend_provider")
 	@ParameterizedTest
 	void test_update_max_extend(

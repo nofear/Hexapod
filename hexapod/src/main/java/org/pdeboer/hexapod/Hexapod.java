@@ -75,8 +75,8 @@ public class Hexapod {
 		case ROLL_PLUS -> rotation[ROLL] += 0.002;
 		case PITCH_MIN -> rotation[PITCH] -= 0.002;
 		case PITCH_PLUS -> rotation[PITCH] += 0.002;
-		case YAW_MIN -> rotation[YAW] -= 0.002;
-		case YAW_PLUS -> rotation[YAW] += 0.002;
+		case YAW_MIN -> rotation[YAW] -= 0.01;
+		case YAW_PLUS -> rotation[YAW] += 0.01;
 		}
 
 		updateInverse();
