@@ -95,10 +95,10 @@ public class App extends PApplet {
 			break;
 
 		case 'i':
-			hexapod.execute(Action.ROLL_MIN);
+			hexapod.execute(Action.ROLL_PLUS);
 			break;
 		case 'k':
-			hexapod.execute(Action.ROLL_PLUS);
+			hexapod.execute(Action.ROLL_MIN);
 			break;
 
 		case ' ':
@@ -116,7 +116,7 @@ public class App extends PApplet {
 	}
 
 	private void stabilise() {
-		double[] r = hexapod.getRotation();
+		double[] r = hexapod.rotation();
 		if (r[2] != 0) {
 			LegConfig lc = hexapod.calculateLegConfig();
 
@@ -132,7 +132,7 @@ public class App extends PApplet {
 			hexapod.updateP1();
 			for (int i = 0; i < Hexapod.LEG_COUNT; ++i) {
 				if (lc.touchGround(i)) {
-					hexapod.getLeg(i).updateInverse(0);
+					hexapod.getLeg(i).updateInverse(hexapod.rotation());
 				}
 			}
 		}
@@ -140,7 +140,7 @@ public class App extends PApplet {
 
 	private void draw(Hexapod hexapod) {
 		Vector3d center = hexapod.getCenter();
-		double[] r = hexapod.getRotation();
+		double[] r = hexapod.rotation();
 		LegConfig lc = hexapod.calculateLegConfig();
 
 		lights();
@@ -168,6 +168,7 @@ public class App extends PApplet {
 			text("rb " + fmtAngle(leg.getRb()), leg_x0 + i * leg_d, 60);
 			text("rc " + fmtAngle(leg.getRc()), leg_x0 + i * leg_d, 80);
 			text("d  " + fmt(lc.getDistance(i)), leg_x0 + i * leg_d, 100);
+			text("p4 z=" + fmt(leg.p4.z), leg_x0 + i * leg_d, 120);
 		}
 
 		translate(MID_X, HEIGHT / 2 + 50);
@@ -177,10 +178,10 @@ public class App extends PApplet {
 		fill(100, 150, 100);
 		rect(-400, -400, 800, 800);
 
-		DrawHexapod ds = new DrawHexapod(hexapod);
+		var ds = new DrawHexapod(hexapod);
 		ds.draw(this);
-		ds.drawPlane(this);
-		ds.drawLegFrame(this);
+		//ds.drawPlane(this);
+		//ds.drawLegFrame(this);
 	}
 
 	private static String fmt(double v) {

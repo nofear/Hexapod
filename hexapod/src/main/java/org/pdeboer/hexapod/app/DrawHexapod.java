@@ -21,6 +21,9 @@ class DrawHexapod {
 	public void draw(final PApplet g) {
 		Vector3d c = hexapod.getCenter();
 
+		drawEye(g, -10);
+		drawEye(g, 10);
+
 		g.pushMatrix();
 		g.fill(Color.gray.getRGB());
 		g.translate((float) c.x, (float) c.y, (float) c.z);
@@ -29,6 +32,22 @@ class DrawHexapod {
 
 		drawBody(g);
 		drawLegs(g);
+	}
+
+	private void drawEye(
+			final PApplet g,
+			final double offsetY) {
+		Vector3d c = hexapod.getCenter();
+
+		float eyeY = (float) (c.y + offsetY);
+		float eyeX = (float) c.x + hexapod.length / 2;
+		float eyeZ = (float) c.z + hexapod.height / 2;
+
+		g.pushMatrix();
+		g.fill(Color.blue.getRGB());
+		g.translate(eyeX, eyeY, eyeZ);
+		g.sphere(6);
+		g.popMatrix();
 	}
 
 	private void drawBody(final PApplet g) {
@@ -43,17 +62,17 @@ class DrawHexapod {
 		for (int i = 0; i < 6; ++i) {
 			p[i] = new Vector3d();
 			p[i].add(Hexapod.offset[i]);
-			p[i].z = Hexapod.h / 2;
+			p[i].z = Hexapod.height / 2;
 		}
 
 		// bottom plate
 		for (int i = 0; i < 6; ++i) {
 			p[i + 6] = new Vector3d();
 			p[i + 6].add(Hexapod.offset[i]);
-			p[i + 6].z = -Hexapod.h / 2;
+			p[i + 6].z = -Hexapod.height / 2;
 		}
 
-		Matrix r = Matrix.getMatrix(hexapod.getRotation());
+		Matrix r = Matrix.getMatrix(hexapod.rotation());
 		for (int i = 0; i < p.length; ++i) {
 			p[i] = r.multiply(p[i]);
 			p[i].add(hexapod.getCenter());
@@ -132,31 +151,36 @@ class DrawHexapod {
 
 	private void drawLeg(
 			final PApplet g,
-			final 	int index) {
+			final int index) {
 		Leg leg = hexapod.getLeg(index);
-		double[] r = hexapod.getRotation();
+		double[] r = hexapod.rotation();
 
 		g.pushMatrix();
 		g.translate((float) leg.p1.x, (float) leg.p1.y, (float) leg.p1.z);
-		g.rotateZ((float) r[0]);
+		g.rotateX((float) r[0]);
 		g.rotateY((float) r[1]);
-		g.rotateX((float) r[2]);
-		g.rotateZ((float) leg.getRa());
+		g.rotateZ((float) r[2]);
+		g.rotateZ((float) (PI / 2 - leg.getRa()));
 
-		g.translate(Leg.LENGTH_COXA / 2, 0, 0);
-		g.box(Leg.LENGTH_COXA, 4, 6);
-		g.translate(Leg.LENGTH_COXA / 2, 0, 0);
+		float lengthCoxa = (float) leg.lengthCoxa();
+		float lengthFemur = (float) leg.lengthFemur();
+		float lengthTibia = (float) leg.lengthTibia();
 
-		g.rotateY((float) (2 * Math.PI - leg.getRb()));
+		g.translate(lengthCoxa / 2, 0, 0);
+		g.box(lengthCoxa, 4, 6);
+		g.translate(lengthCoxa / 2, 0, 0);
 
-		g.translate(Leg.LENGTH_FEMUR / 2, 0, 0);
-		g.box(Leg.LENGTH_FEMUR, 4, 6);
-		g.translate(Leg.LENGTH_FEMUR / 2, 0, 0);
+		g.rotateY(-(PI / 2));
+		g.rotateY((float) leg.getRb());
 
-		g.rotateY((float) (2 * Math.PI - leg.getRc()));
+		g.translate(lengthFemur / 2, 0, 0);
+		g.box(lengthFemur, 4, 6);
+		g.translate(lengthFemur / 2, 0, 0);
 
-		g.translate(Leg.LENGTH_TIBIA / 2, 0, 0);
-		g.box(Leg.LENGTH_TIBIA, 4, 6);
+		g.rotateY((float) (leg.getRc()));
+
+		g.translate(lengthTibia / 2, 0, 0);
+		g.box(lengthTibia, 4, 6);
 
 		g.popMatrix();
 	}

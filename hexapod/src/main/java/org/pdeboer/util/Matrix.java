@@ -32,7 +32,7 @@ public record Matrix(
 	}
 
 	public static Matrix getMatrix(final double[] r) {
-		return Matrix.getRotateZ(r[0]).rotateY(r[1]).rotateX(r[2]);
+		return Matrix.getRotateX(r[0]).rotateY(r[1]).rotateZ(r[2]);
 	}
 
 	public static double[] getRotation(final Vector3d p) {

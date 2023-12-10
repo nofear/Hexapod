@@ -6,33 +6,38 @@ import java.util.*;
 
 public class Hexapod {
 
-	public static final int PITCH = 0;
-	public static final int YAW = 1;
-	public static final int ROLL = 2;
+	static final double EPSILON = 1E-012;
+
+	// roll: x-axis, pitch: y-axis, yaw: z-axis
+	public static final int ROLL = 0;
+	public static final int PITCH = 1;
+	public static final int YAW = 2;
 
 	public enum Action {
 		FORWARD, BACKWARD,
 		LEFT, RIGHT,
 		UP, DOWN,
+		PITCH_PLUS, PITCH_MIN,
+		YAW_PLUS, YAW_MIN,
 		ROLL_PLUS, ROLL_MIN
 	}
 
-	private final static int d = 200;
-	private final static int w = 100;
-	private final static int wm = 150;
-	public final static int h = 50;
+	public final static int length = 200;
+	public final static int width = 100;
+	public final static int height = 50;
+	private final static int widthMiddle = 150;
 	public final static int LEG_COUNT = 6;
 
 	public final static Vector3d[] offset;
 
 	static {
 		offset = new Vector3d[LEG_COUNT];
-		offset[0] = new Vector3d(d / 2, +w / 2, -h / 2);
-		offset[1] = new Vector3d(0, +wm / 2, -h / 2);
-		offset[2] = new Vector3d(-d / 2, +w / 2, -h / 2);
-		offset[3] = new Vector3d(-d / 2, -w / 2, -h / 2);
-		offset[4] = new Vector3d(0, -wm / 2, -h / 2);
-		offset[5] = new Vector3d(d / 2, -w / 2, -h / 2);
+		offset[0] = new Vector3d(length / 2, +width / 2, -height / 2);
+		offset[1] = new Vector3d(0, +widthMiddle / 2, -height / 2);
+		offset[2] = new Vector3d(-length / 2, +width / 2, -height / 2);
+		offset[3] = new Vector3d(-length / 2, -width / 2, -height / 2);
+		offset[4] = new Vector3d(0, -widthMiddle / 2, -height / 2);
+		offset[5] = new Vector3d(length / 2, -width / 2, -height / 2);
 	}
 
 	private Vector3d center;
@@ -45,18 +50,17 @@ public class Hexapod {
 		for (int i = 0; i < legs.length; ++i) {
 			legs[i] = new Leg();
 		}
-		;
 
 		init();
 	}
 
 	public void init() {
-		center = new Vector3d();
+		center = new Vector3d(0, 0, 75);
 		rotation = new double[] { 0, 0, 0 };
 
 		initLeg();
 		stabilise();
-		update();
+		// update();
 	}
 
 	public void execute(final Action action) {
@@ -69,6 +73,10 @@ public class Hexapod {
 		case DOWN -> center.z--;
 		case ROLL_MIN -> rotation[ROLL] -= 0.002;
 		case ROLL_PLUS -> rotation[ROLL] += 0.002;
+		case PITCH_MIN -> rotation[PITCH] -= 0.002;
+		case PITCH_PLUS -> rotation[PITCH] += 0.002;
+		case YAW_MIN -> rotation[YAW] -= 0.002;
+		case YAW_PLUS -> rotation[YAW] += 0.002;
 		}
 
 		updateInverse();
@@ -78,7 +86,7 @@ public class Hexapod {
 		this.rotation = r;
 	}
 
-	public double[] getRotation() {
+	public double[] rotation() {
 		return rotation.clone();
 	}
 
@@ -118,15 +126,22 @@ public class Hexapod {
 	private void initLeg() {
 
 		int x = 0;
-		int y = 75;
-		int z = -50;
+		int y = 100;
+		int z = 0;
 
 		int off = 50;
-		double[][] o = new double[][] { { x + off, y }, { x, y },
-										{ x - 2 * off, y }, { x - 2 * off, -y }, { x, -y },
-										{ x + off, -y } };
+		double[][] o = new double[][] {
+				{ x + off, y },
+				{ x, y },
+				{ x - 2 * off, y },
+				{ x - 2 * off, -y },
+				{ x, -y },
+				{ x + off, -y } };
 		for (int i = 0; i < LEG_COUNT; ++i) {
-			legs[i].init(offset[i], o[i][0], o[i][1], z);
+			var p1 = new Vector3d(center);
+			p1.add(offset[i]);
+
+			legs[i].init(p1, o[i][0], o[i][1], z);
 		}
 	}
 
@@ -157,14 +172,14 @@ public class Hexapod {
 		double[] r = Matrix.getRotation(p.n);
 
 		center = new Vector3d(center.x, center.y, distance);
-		rotation = new double[] { -r[ROLL], -r[PITCH], -r[YAW] };
+		// rotation = new double[] { -r[ROLL], -r[PITCH], -r[YAW] };
 	}
 
 	public void updateInverse() {
 		updateP1();
 
 		for (Leg leg : legs) {
-			leg.updateInverse(0);
+			leg.updateInverse(rotation);
 		}
 
 		update();

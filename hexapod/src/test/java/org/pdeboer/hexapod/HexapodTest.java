@@ -1,15 +1,18 @@
 package org.pdeboer.hexapod;
 
 import org.junit.jupiter.api.*;
-import org.pdeboer.hexapod.Hexapod.*;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.pdeboer.hexapod.Hexapod.*;
 
 class HexapodTest {
 
 	@Test
 	void test_init() {
 		var hexapod = new Hexapod();
+		assertLegsOnGround(hexapod);
+
+		hexapod.update();
 		assertLegsOnGround(hexapod);
 	}
 
@@ -22,16 +25,16 @@ class HexapodTest {
 	}
 
 	@Test
-	void test_roll_plus() {
+	void test_yaw_plus() {
 		var hexapod = new Hexapod();
-		hexapod.execute(Action.ROLL_PLUS);
+		hexapod.execute(Action.YAW_PLUS);
 
 		assertLegsOnGround(hexapod);
 	}
 
 	private static void assertLegsOnGround(final Hexapod hexapod) {
 		for (int i = 0; i < 6; ++i) {
-			assertEquals(0, hexapod.getLeg(i).p4.z, 1E-8);
+			assertEquals(0, hexapod.getLeg(i).p4.z, EPSILON);
 		}
 	}
 }

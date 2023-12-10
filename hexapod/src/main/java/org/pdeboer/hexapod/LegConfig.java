@@ -2,15 +2,12 @@ package org.pdeboer.hexapod;
 
 import org.pdeboer.util.*;
 
+import static org.pdeboer.hexapod.Hexapod.*;
+
 /**
  * Helper class to calculate if a particular leg configuration is stable.
  */
 public class LegConfig {
-
-	/**
-	 * rounding error.
-	 */
-	private static final double EPSILON = 1E-06;
 
 	private final Hexapod hexapod;
 
@@ -69,7 +66,7 @@ public class LegConfig {
 		for (int l = 0; l < Hexapod.LEG_COUNT; ++l) {
 			distance[l] = plane.distance(getP4(l));
 			distanceNeg |= (distance[l] < -EPSILON);
-			ground[l] = Math.abs(distance[l]) <= EPSILON;
+			ground[l] = Math.abs(distance[l]) <= 1E-08;
 		}
 
 		Vector2d a = new Vector2d(p1.x, p1.y);
