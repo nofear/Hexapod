@@ -32,6 +32,14 @@ class HexapodTest {
 		assertLegsOnGround(hexapod);
 	}
 
+	@Test
+	void test_pitch_plus() {
+		var hexapod = new Hexapod();
+		hexapod.execute(Action.PITCH_PLUS);
+
+		assertLegsOnGround(hexapod);
+	}
+
 	private static void assertLegsOnGround(final Hexapod hexapod) {
 		for (int i = 0; i < 6; ++i) {
 			assertEquals(0, hexapod.getLeg(i).p4.z, EPSILON);

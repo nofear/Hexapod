@@ -69,11 +69,19 @@ class MatrixTest {
 	}
 
 	@Test
-	void test_normal_vector() {
+	void test_angle_roll() {
 		var m = Matrix.getMatrix(0.4, 0, 0);
+		var v = m.multiply(VECTOR_Y);
+		var a = v.angle(VECTOR_Y);
+		assertEquals(0.4, a, EPSILON);
+	}
 
-		var rv1 = m.multiply(VECTOR_Z);
-		assertArrayEquals(new double[] { 0.4, 0, 0 }, Matrix.getRotation(rv1), EPSILON);
+	@Test
+	void test_angle_pitch() {
+		var m = Matrix.getMatrix(0.0, 0.4, 0);
+		var v = m.multiply(VECTOR_X);
+		var a = v.angle(VECTOR_X);
+		assertEquals(0.4, a, EPSILON);
 	}
 
 	void assertEqualsVector3D(

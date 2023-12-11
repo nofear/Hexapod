@@ -171,6 +171,7 @@ public class App extends PApplet {
 
 		text("l: " + Arrays.toString(lc.getIndex()), x0, 120);
 		text("c:  " + center.toString(), x0, 140);
+		text("r: " + Arrays.toString(hexapod.rotation()), x0, 160);
 
 		float leg_x0 = 250;
 		// float leg_y0 = 120;
@@ -182,8 +183,8 @@ public class App extends PApplet {
 			text("rb " + fmtAngle(leg.getRb()), leg_x0 + i * leg_d, 60);
 			text("rc " + fmtAngle(leg.getRc()), leg_x0 + i * leg_d, 80);
 			text("d  " + fmt(lc.getDistance(i)), leg_x0 + i * leg_d, 100);
-			text("p1 " + fmt(leg.p1), leg_x0 + i * leg_d, 120);
-			text("p4 " + fmt(leg.p4), leg_x0 + i * leg_d, 140);
+			text("p1 " + leg.p1.toString(), leg_x0 + i * leg_d, 120);
+			text("p4 " + leg.p4.toString(), leg_x0 + i * leg_d, 140);
 		}
 
 		translate(MID_X, HEIGHT / 2 + 50);
@@ -201,10 +202,6 @@ public class App extends PApplet {
 
 	private static String fmt(final double v) {
 		return String.format("%.1f", v);
-	}
-
-	private static String fmt(final Vector3d v) {
-		return String.format("(%.1f,%.1f,%.1f)", v.x, v.y, v.z);
 	}
 
 	private static String fmtAngle(final double v) {

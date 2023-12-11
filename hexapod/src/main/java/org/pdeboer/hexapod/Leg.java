@@ -2,6 +2,7 @@ package org.pdeboer.hexapod;
 
 import org.pdeboer.util.*;
 
+import static java.lang.Math.*;
 import static org.pdeboer.hexapod.Hexapod.*;
 
 public class Leg {
@@ -19,7 +20,7 @@ public class Leg {
 	private final double lengthFemur;
 	private final double lengthTibia;
 
-	private double ra = Math.PI / 2;
+	private double ra = PI / 2;
 	private double rb = 0;
 	private double rc = 0;
 
@@ -138,8 +139,8 @@ public class Leg {
 		double a2 = Math.acos((lf2 + l2 - lt2) / (2 * lengthFemur * l));
 		double b1 = Math.acos((lf2 + lt2 - l2) / (2 * lengthFemur * lengthTibia));
 
-		rb = Math.PI - (a1 + a2) - rcoxa;
-		rc = Math.PI - b1;
+		rb = PI - (a1 + a2) - rcoxa;
+		rc = PI - b1;
 
 		// System.out.printf("ra=%f, rb=%f, rc=%f%n", ra, rb, rc);
 	}

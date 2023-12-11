@@ -2,6 +2,7 @@ package org.pdeboer.util;
 
 import java.io.*;
 
+@SuppressWarnings({ "WeakerAccess", "unused" })
 public class Vector3d extends javax.vecmath.Vector3d {
 
 	@Serial
@@ -26,9 +27,13 @@ public class Vector3d extends javax.vecmath.Vector3d {
 		return new Vector3d(-x, -y, -z);
 	}
 
+	public double mul(final Vector3d v) {
+		return x * v.x + y * v.y + z * v.z;
+	}
+
 	@Override
 	public String toString() {
-		return "(" + fmt(x) + "," + fmt(y) + "," + fmt(z) + ")";
+		return String.format("(%.1f, %.1f, %.1f)", x, y, z);
 	}
 
 	public static String fmt(final double v) {

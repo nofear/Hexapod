@@ -41,8 +41,8 @@ class DrawHexapod {
 		Vector3d c = hexapod.getCenter();
 
 		float eyeY = (float) (c.y + offsetY);
-		float eyeX = (float) c.x + hexapod.length / 2;
-		float eyeZ = (float) c.z + hexapod.height / 2;
+		float eyeX = (float) c.x + Hexapod.length / 2;
+		float eyeZ = (float) c.z + Hexapod.height / 2;
 
 		g.pushMatrix();
 
@@ -165,9 +165,9 @@ class DrawHexapod {
 
 		g.pushMatrix();
 		g.translate((float) leg.p1.x, (float) leg.p1.y, (float) leg.p1.z);
-		g.rotateX((float) r[0]);
-		g.rotateY((float) r[1]);
-		g.rotateZ((float) r[2]);
+		g.rotateX((float) r[ROLL]);
+		g.rotateY((float) r[PITCH]);
+		g.rotateZ((float) r[YAW]);
 		g.rotateZ((float) (PI / 2 - leg.getRa()));
 
 		float lengthCoxa = (float) leg.lengthCoxa();
