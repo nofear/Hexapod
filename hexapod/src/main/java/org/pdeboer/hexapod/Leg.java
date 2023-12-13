@@ -7,31 +7,40 @@ import static org.pdeboer.hexapod.Hexapod.*;
 
 public class Leg {
 
+	public enum Id {
+		LEFT_FRONT, LEFT_MID, LEFT_BACK,
+		RIGHT_FRONT, RIGHT_MID, RIGHT_BACK
+	}
+
 	private final static int LENGTH_COXA = 27;
 	private final static int LENGTH_FEMUR = 77;
 	private final static int LENGTH_TIBIA = 107;
+
+	private final Id id;
+
+	private final double lengthCoxa;
+	private final double lengthFemur;
+	private final double lengthTibia;
 
 	public Vector3d p1;
 	public Vector3d p2;
 	public Vector3d p3;
 	public Vector3d p4;
 
-	private final double lengthCoxa;
-	private final double lengthFemur;
-	private final double lengthTibia;
-
 	private double ra = PI / 2;
 	private double rb = 0;
 	private double rc = 0;
 
-	Leg() {
-		this(LENGTH_COXA, LENGTH_FEMUR, LENGTH_TIBIA);
+	Leg(final Id id) {
+		this(id, LENGTH_COXA, LENGTH_FEMUR, LENGTH_TIBIA);
 	}
 
 	Leg(
+			final Id id,
 			double lengthCoxa,
 			double lengthFemur,
 			double lengthTibia) {
+		this.id = id;
 		this.lengthCoxa = lengthCoxa;
 		this.lengthFemur = lengthFemur;
 		this.lengthTibia = lengthTibia;
@@ -75,7 +84,7 @@ public class Leg {
 
 		double[] rotation = { 0, 0, 0 };
 		updateInverse(rotation);
-		update(Matrix.getMatrix(rotation));
+		update(rotation);
 	}
 
 	public void setP1(final Vector3d p) {
@@ -118,16 +127,16 @@ public class Leg {
 		double dy = p4.y - p1.y;
 		double dz = p4.z - p1.z;
 
-		ra = Math.atan2(dx, dy) + rotation[YAW];
+		var c1 = Math.atan2(dx, dy);
 
-		double rcoxa = Math.sin(ra) * -rotation[PITCH] + Math.cos(ra) * -rotation[ROLL];
-		double coxa_z = Math.sin(rcoxa) * lengthCoxa;
-		double coxa_t = Math.cos(rcoxa) * lengthCoxa;
+		double rco = rotation[ROLL];
+		double coxa_z = Math.sin(rco) * lengthCoxa;
+		double coxa_t = Math.cos(rco) * lengthCoxa;
 
-		double coxa_t2 = coxa_t * Math.cos(ra);
+		double coxa_t2 = coxa_t * Math.cos(c1);
 		double m = dz + coxa_z;
 		double k = dy - coxa_t2;
-		double k_t = k / Math.cos(ra);
+		double k_t = k / Math.cos(c1);
 
 		double l = Math.sqrt(k_t * k_t + m * m);
 
@@ -135,17 +144,24 @@ public class Leg {
 		double lf2 = lengthFemur * lengthFemur;
 		double lt2 = lengthTibia * lengthTibia;
 
+		// check why it's -m
 		double a1 = Math.atan2(k_t, -m);
 		double a2 = Math.acos((lf2 + l2 - lt2) / (2 * lengthFemur * l));
 		double b1 = Math.acos((lf2 + lt2 - l2) / (2 * lengthFemur * lengthTibia));
 
-		rb = PI - (a1 + a2) - rcoxa;
+		System.out.printf("a1=%f, a2=%f, b1=%f, k_t=%f, m=%f%n", a1, a2, b1, k_t, m);
+
+		ra = c1 + rotation[YAW];
+		rb = PI - (a1 + a2 - rco);
 		rc = PI - b1;
 
-		// System.out.printf("ra=%f, rb=%f, rc=%f%n", ra, rb, rc);
+		System.out.printf("ra=%f, rb=%f, rc=%f%n", ra, rb, rc);
 	}
 
-	public void update(final Matrix m) {
+	public void update(final double[] rotation) {
+
+		Matrix m = Matrix.getMatrix(rotation[ROLL], rotation[PITCH], rotation[YAW]);
+
 		Matrix r = m.rotateZ(-ra);
 		p2 = new Vector3d(0, lengthCoxa, 0);
 		p2 = r.multiply(p2);
@@ -162,4 +178,15 @@ public class Leg {
 		p4.add(p3);
 	}
 
+	@Override
+	public String toString() {
+		return "Leg{" +
+				"id=" + id +
+				", p1=" + p1 +
+				", p4=" + p4 +
+				", ra=" + ra +
+				", rb=" + rb +
+				", rc=" + rc +
+				'}';
+	}
 }

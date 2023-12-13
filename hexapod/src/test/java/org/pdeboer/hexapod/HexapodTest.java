@@ -1,6 +1,8 @@
 package org.pdeboer.hexapod;
 
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.params.*;
+import org.junit.jupiter.params.provider.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.pdeboer.hexapod.Hexapod.*;
@@ -16,26 +18,15 @@ class HexapodTest {
 		assertLegsOnGround(hexapod);
 	}
 
-	@Test
-	void test_move_up() {
+	@ParameterizedTest
+	@EnumSource(Action.class)
+	void test_action(final Action action) {
 		var hexapod = new Hexapod();
-		hexapod.execute(Action.UP);
+		hexapod.execute(action);
 
 		assertLegsOnGround(hexapod);
-	}
 
-	@Test
-	void test_yaw_plus() {
-		var hexapod = new Hexapod();
-		hexapod.execute(Action.YAW_PLUS);
-
-		assertLegsOnGround(hexapod);
-	}
-
-	@Test
-	void test_pitch_plus() {
-		var hexapod = new Hexapod();
-		hexapod.execute(Action.PITCH_PLUS);
+		hexapod.execute(action);
 
 		assertLegsOnGround(hexapod);
 	}

@@ -84,6 +84,14 @@ class MatrixTest {
 		assertEquals(0.4, a, EPSILON);
 	}
 
+	@Test
+	void test_rotate() {
+		var m = Matrix.getRotateX(0.4);
+		var vt = m.multiply(VECTOR_Z);
+
+		System.out.println(vt);
+	}
+
 	void assertEqualsVector3D(
 			final Vector3d expected,
 			final Vector3d v) {

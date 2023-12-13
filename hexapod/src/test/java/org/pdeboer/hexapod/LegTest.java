@@ -9,6 +9,7 @@ import java.util.stream.*;
 import static java.lang.Math.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.params.provider.Arguments.*;
+import static org.pdeboer.hexapod.Leg.Id.*;
 
 class LegTest {
 
@@ -21,7 +22,7 @@ class LegTest {
 
 		double x0 = 0;
 
-		var leg = new Leg(lengthCoxa, lengthFemur, lengthTibia);
+		var leg = new Leg(RIGHT_FRONT, lengthCoxa, lengthFemur, lengthTibia);
 		double y1 = sqrt(lengthTibia * lengthTibia + lengthFemur * lengthFemur) + lengthCoxa;
 		leg.init(new Vector3d(x0, 0, offsetZ), 0, y1, offsetZ);
 
@@ -41,7 +42,7 @@ class LegTest {
 
 		double x0 = -10;
 
-		var leg = new Leg(lengthCoxa, lengthFemur, lengthTibia);
+		var leg = new Leg(LEFT_FRONT, lengthCoxa, lengthFemur, lengthTibia);
 		double y1 = sqrt(lengthTibia * lengthTibia + lengthFemur * lengthFemur) + lengthCoxa;
 		leg.init(new Vector3d(x0, 0, offsetZ), 0, -y1, offsetZ);
 
@@ -59,7 +60,7 @@ class LegTest {
 		var x0 = 10;
 		var y1 = sqrt(100 * 100 * 2) + offsetY;
 
-		var leg = new Leg(0, 100, 100);
+		var leg = new Leg(RIGHT_FRONT, 0, 100, 100);
 		leg.init(new Vector3d(x0, 0, 0), 0, y1, 0);
 
 		assertEqualsVector3D(new Vector3d(x0, 0, 0), leg.p1);
@@ -71,7 +72,7 @@ class LegTest {
 	void test_update_inverse_offsetX(final double offsetX) {
 		var y1 = sqrt(100 * 100 * 2);
 
-		var leg = new Leg(0, 100, 100);
+		var leg = new Leg(RIGHT_FRONT, 0, 100, 100);
 		leg.init(new Vector3d(0, 0, 0), offsetX, y1, 0);
 
 		assertEqualsVector3D(new Vector3d(0, 0, 0), leg.p1);
@@ -83,15 +84,13 @@ class LegTest {
 	void test_update_inverse_roll(final double roll) {
 		var y1 = sqrt(100 * 100 * 2) + 100;
 
-		var leg = new Leg(100, 100, 100);
+		var leg = new Leg(RIGHT_FRONT, 100, 100, 100);
 		leg.init(new Vector3d(0, 0, 0), 0, y1, 0);
 		assertEqualsVector3D(new Vector3d(0, y1, 0), leg.p4);
 
 		double[] r0 = { roll, 0, 0 };
 		leg.updateInverse(r0);
-
-		var m = Matrix.getMatrix(r0);
-		leg.update(m);
+		leg.update(r0);
 
 		assertEqualsVector3D(new Vector3d(0, 0, 0), leg.p1);
 		assertEqualsVector3D(new Vector3d(0, y1, 0), leg.p4);
@@ -103,15 +102,13 @@ class LegTest {
 		var y1 = sqrt(100 * 100 * 2) + 100;
 		var x1 = 1;
 
-		var leg = new Leg(100, 100, 100);
+		var leg = new Leg(RIGHT_FRONT, 100, 100, 100);
 		leg.init(new Vector3d(0, 0, 0), x1, y1, 0);
 		assertEqualsVector3D(new Vector3d(x1, y1, 0), leg.p4);
 
 		double[] r0 = { 0, pitch, 0 };
 		leg.updateInverse(r0);
-
-		var m = Matrix.getMatrix(r0);
-		leg.update(m);
+		leg.update(r0);
 
 		assertEqualsVector3D(new Vector3d(0, 0, 0), leg.p1);
 		assertEqualsVector3D(new Vector3d(x1, y1, 0), leg.p4);
@@ -124,16 +121,13 @@ class LegTest {
 
 		var y1 = sqrt(r * r * 2) + 100;
 
-		var leg = new Leg(r, r, r);
+		var leg = new Leg(RIGHT_FRONT, r, r, r);
 		leg.init(new Vector3d(0, 0, 0), 0, y1, 0);
 		assertEqualsVector3D(new Vector3d(0, y1, 0), leg.p4);
 
 		double[] r0 = { 0, 0, yaw };
 		leg.updateInverse(r0);
-
-		double[] r1 = { 0, 0, yaw };
-		var m = Matrix.getMatrix(r1);
-		leg.update(m);
+		leg.update(r0);
 
 		assertEqualsVector3D(new Vector3d(0, 0, 0), leg.p1);
 		assertEqualsVector3D(new Vector3d(0, y1, 0), leg.p4);
@@ -145,11 +139,12 @@ class LegTest {
 			final double[] rotation,
 			final Vector3d expectedEndPoint) {
 
-		var leg = new Leg(100, 100, 100);
-		double[] r0 = { 0, 0, 0 };
-		var m = Matrix.getMatrix(r0);
+		var leg = new Leg(RIGHT_FRONT, 100, 200, 300);
 		leg.setRotation(rotation);
-		leg.update(m);
+
+		double[] r0 = { 0, 0, 0 };
+		leg.update(r0);
+
 		assertEqualsVector3D(expectedEndPoint, leg.p4);
 
 		leg.updateInverse(r0);
@@ -158,16 +153,11 @@ class LegTest {
 
 	static Stream<Arguments> test_update_max_extend_provider() {
 		return Stream.of(
-				arguments(new double[] { 0, PI / 2, 0 }, new Vector3d(0, 300, 0)),
-				arguments(new double[] { 0, PI / 2, PI / 2 }, new Vector3d(0, 200, -100)),
-				arguments(new double[] { 0, 0, PI / 2 }, new Vector3d(0, 200, 100)),
-				arguments(new double[] { 0, 0, 0 }, new Vector3d(0, 100, 200)),
-				arguments(new double[] { 0, 0, PI }, new Vector3d(0, 100, 0)),
-				arguments(new double[] { 0, PI / 4, PI / 2 },
-						  new Vector3d(0, 100 + Math.sqrt(100 * 100 + 100 * 100), 0))
+				arguments(new double[] { 0, PI / 2, 0 }, new Vector3d(0, 600, 0)),
+				arguments(new double[] { 0, 0, PI / 2 }, new Vector3d(0, 400, 200)),
+				arguments(new double[] { 0, 0, 0 }, new Vector3d(0, 100, 500))
 		);
 	}
-
 
 	static void assertEqualsVector3D(
 			final Vector3d v1,

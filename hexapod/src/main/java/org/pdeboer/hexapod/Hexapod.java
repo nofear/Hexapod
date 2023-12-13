@@ -1,8 +1,10 @@
 package org.pdeboer.hexapod;
 
+import org.pdeboer.hexapod.Leg.*;
 import org.pdeboer.util.*;
 
 import java.util.*;
+import java.util.stream.*;
 
 public class Hexapod {
 
@@ -26,7 +28,7 @@ public class Hexapod {
 	public final static int width = 100;
 	public final static int height = 50;
 	private final static int widthMiddle = 150;
-	public final static int LEG_COUNT = 6;
+	public final static int LEG_COUNT = Id.values().length;
 
 	public final static Vector3d[] offset;
 
@@ -46,10 +48,9 @@ public class Hexapod {
 	private final Leg[] legs;
 
 	public Hexapod() {
-		legs = new Leg[LEG_COUNT];
-		for (int i = 0; i < legs.length; ++i) {
-			legs[i] = new Leg();
-		}
+		legs = Stream.of(Leg.Id.values())
+				.map(Leg::new)
+				.toArray(Leg[]::new);
 
 		init();
 	}
@@ -146,14 +147,14 @@ public class Hexapod {
 	}
 
 	public void update() {
-		Matrix m = updateP1();
+		updateP1();
 
 		for (Leg leg : legs) {
-			leg.update(m);
+			leg.update(rotation);
 		}
 	}
 
-	public Matrix updateP1() {
+	public void updateP1() {
 		Matrix m = Matrix.getMatrix(rotation);
 		for (int i = 0; i < LEG_COUNT; ++i) {
 			Vector3d p = m.multiply(offset[i]);
@@ -161,7 +162,6 @@ public class Hexapod {
 
 			legs[i].p1 = p;
 		}
-		return m;
 	}
 
 	public void stabilise() {

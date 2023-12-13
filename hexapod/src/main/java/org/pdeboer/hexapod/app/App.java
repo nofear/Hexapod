@@ -115,6 +115,11 @@ public class App extends PApplet {
 			hexapod.execute(Action.PITCH_PLUS);
 			break;
 
+		case '-':
+			hexapod.updateInverse();
+			break;
+
+
 		case ' ':
 			stabilise();
 			break;
