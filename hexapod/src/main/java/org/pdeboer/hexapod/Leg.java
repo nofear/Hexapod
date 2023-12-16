@@ -129,7 +129,13 @@ public class Leg {
 
 		var c1 = Math.atan2(dx, dy);
 
-		double rco = rotation[ROLL];
+		var v0 = new Vector3d(0, 0, 1);
+		var v1 = Matrix.getMatrix(-rotation[ROLL], -rotation[PITCH], 0).multiply(v0);
+		var v2 = new Vector3d(dx, dy, 0);
+
+		double rco = (v1.angle(v2) - PI / 2);
+
+		//double rco = -Math.signum(dy) * x;
 		double coxa_z = Math.sin(rco) * lengthCoxa;
 		double coxa_t = Math.cos(rco) * lengthCoxa;
 
@@ -144,15 +150,14 @@ public class Leg {
 		double lf2 = lengthFemur * lengthFemur;
 		double lt2 = lengthTibia * lengthTibia;
 
-		// check why it's -m
 		double a1 = Math.atan2(k_t, -m);
 		double a2 = Math.acos((lf2 + l2 - lt2) / (2 * lengthFemur * l));
 		double b1 = Math.acos((lf2 + lt2 - l2) / (2 * lengthFemur * lengthTibia));
 
-		System.out.printf("a1=%f, a2=%f, b1=%f, k_t=%f, m=%f%n", a1, a2, b1, k_t, m);
+		// System.out.printf("a1=%f, a2=%f, b1=%f, k_t=%f, m=%f%n", a1, a2, b1, k_t, m);
 
 		ra = c1 + rotation[YAW];
-		rb = PI - (a1 + a2 - rco);
+		rb = PI - (a1 + a2 + rco);
 		rc = PI - b1;
 
 		System.out.printf("ra=%f, rb=%f, rc=%f%n", ra, rb, rc);
