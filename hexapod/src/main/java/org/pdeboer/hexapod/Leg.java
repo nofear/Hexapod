@@ -87,21 +87,13 @@ public class Leg {
 		update(rotation);
 	}
 
-	public void setP1(final Vector3d p) {
-		this.p1 = p;
-	}
-
-	public void setP4(final Vector3d p) {
-		this.p4 = p;
-	}
-
-	void setRotation(final double[] r) {
+	void setAngles(final double[] r) {
 		this.ra = r[0];
 		this.rb = r[1];
 		this.rc = r[2];
 	}
 
-	double[] getRotation() {
+	double[] getAngles() {
 		return new double[] { ra, rb, rc };
 	}
 
@@ -127,36 +119,42 @@ public class Leg {
 		double dy = p4.y - p1.y;
 		double dz = p4.z - p1.z;
 
-		var c1 = Math.atan2(dx, dy);
+		var c1 = Math.atan2(dx, dy) - rotation[YAW];
 
-		var v0 = new Vector3d(0, 0, 1);
-		var v1 = Matrix.getMatrix(-rotation[ROLL], -rotation[PITCH], 0).multiply(v0);
+		var matrix = Matrix.getMatrix(-rotation[ROLL], -rotation[PITCH], -rotation[YAW]);
+		matrix = matrix.rotateZ(-c1);
+
+		var coxa_t = matrix.multiply(new Vector3d(0, lengthCoxa, 0));
+
+		var vz = matrix.multiply(new Vector3d(0, 0, 1));
 		var v2 = new Vector3d(dx, dy, 0);
 
-		double rco = (v1.angle(v2) - PI / 2);
+		double rco = (vz.angle(v2) - PI / 2);
+		//rco = -coxa_t.angle(v2);
+		//		double coxa_z = Math.sin(rco) * lengthCoxa;
+		//		double coxa_t = Math.cos(rco) * lengthCoxa;
+		//
+		//		double coxa_y_t2 = coxa_t * Math.cos(c1);
+		//		double coxa_x_t2 = coxa_t * Math.sin(c1);
+		double m = dz + coxa_t.z;
 
-		//double rco = -Math.signum(dy) * x;
-		double coxa_z = Math.sin(rco) * lengthCoxa;
-		double coxa_t = Math.cos(rco) * lengthCoxa;
+		double dy_cy = dy - coxa_t.y;
+		double dx_cx = dx - coxa_t.x;
+		double k = Math.sqrt(dx_cx * dx_cx + dy_cy * dy_cy);
 
-		double coxa_t2 = coxa_t * Math.cos(c1);
-		double m = dz + coxa_z;
-		double k = dy - coxa_t2;
-		double k_t = k / Math.cos(c1);
-
-		double l = Math.sqrt(k_t * k_t + m * m);
+		double l = Math.sqrt(k * k + m * m);
 
 		double l2 = l * l;
 		double lf2 = lengthFemur * lengthFemur;
 		double lt2 = lengthTibia * lengthTibia;
 
-		double a1 = Math.atan2(k_t, -m);
+		double a1 = Math.atan2(k, -m);
 		double a2 = Math.acos((lf2 + l2 - lt2) / (2 * lengthFemur * l));
 		double b1 = Math.acos((lf2 + lt2 - l2) / (2 * lengthFemur * lengthTibia));
 
 		// System.out.printf("a1=%f, a2=%f, b1=%f, k_t=%f, m=%f%n", a1, a2, b1, k_t, m);
 
-		ra = c1 + rotation[YAW];
+		ra = c1;
 		rb = PI - (a1 + a2 + rco);
 		rc = PI - b1;
 
@@ -165,7 +163,7 @@ public class Leg {
 
 	public void update(final double[] rotation) {
 
-		Matrix m = Matrix.getMatrix(rotation[ROLL], rotation[PITCH], rotation[YAW]);
+		Matrix m = Matrix.getMatrix(-rotation[ROLL], -rotation[PITCH], -rotation[YAW]);
 
 		Matrix r = m.rotateZ(-ra);
 		p2 = new Vector3d(0, lengthCoxa, 0);

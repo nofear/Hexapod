@@ -21,18 +21,36 @@ class DrawHexapod {
 
 	public void draw(final PApplet g) {
 		Vector3d c = hexapod.getCenter();
-
 		drawEye(g, -10);
 		drawEye(g, 10);
+		drawCog(g, c);
 
 		g.pushMatrix();
-		g.fill(Color.gray.getRGB());
-		g.translate((float) c.x, (float) c.y, (float) c.z);
-		g.sphere(4);
+		var leg0 = hexapod.getLeg(0);
+		translate(g, leg0.p1);
+		rotate(g);
+		g.fill(Color.RED.getRGB());
+		g.box(2, 2, 100);
 		g.popMatrix();
 
 		drawBody(g);
 		drawLegs(g);
+	}
+
+	private static void drawCog(
+			final PApplet g,
+			final Vector3d c) {
+		g.pushMatrix();
+		g.fill(Color.gray.getRGB());
+		translate(g, c);
+		g.sphere(4);
+		g.popMatrix();
+	}
+
+	private static void translate(
+			final PApplet g,
+			final Vector3d v) {
+		g.translate((float) v.x, (float) v.y, (float) v.z);
 	}
 
 	private void drawEye(
@@ -46,10 +64,7 @@ class DrawHexapod {
 
 		g.pushMatrix();
 
-		double[] r = hexapod.rotation();
-		g.rotateX((float) r[ROLL]);
-		g.rotateY((float) r[PITCH]);
-		g.rotateZ((float) r[YAW]);
+		rotate(g);
 
 		g.translate(eyeX, eyeY, eyeZ);
 
@@ -58,8 +73,16 @@ class DrawHexapod {
 		g.popMatrix();
 	}
 
+	private void rotate(final PApplet g) {
+		double[] r = hexapod.rotation();
+		g.rotateX((float) -r[ROLL]);
+		g.rotateY((float) -r[PITCH]);
+		g.rotateZ((float) -r[YAW]);
+	}
+
 	private void drawBody(final PApplet g) {
 		g.stroke(0);
+		g.strokeWeight(2);
 		g.pushMatrix();
 		g.fill(240);
 		g.noFill();
@@ -80,7 +103,7 @@ class DrawHexapod {
 			p[i + 6].z = -Hexapod.height / 2;
 		}
 
-		Matrix r = Matrix.getMatrix(hexapod.rotation());
+		Matrix r = hexapod.rotationMatrix();
 		for (int i = 0; i < p.length; ++i) {
 			p[i] = r.multiply(p[i]);
 			p[i].add(hexapod.getCenter());
@@ -140,19 +163,19 @@ class DrawHexapod {
 
 		g.noStroke();
 		g.pushMatrix();
-		g.translate((float) leg.p1.x, (float) leg.p1.y, (float) leg.p1.z);
+		translate(g, leg.p1);
 		g.sphere(jointSize);
 		g.popMatrix();
 		g.pushMatrix();
-		g.translate((float) leg.p2.x, (float) leg.p2.y, (float) leg.p2.z);
+		translate(g, leg.p2);
 		g.sphere(jointSize);
 		g.popMatrix();
 		g.pushMatrix();
-		g.translate((float) leg.p3.x, (float) leg.p3.y, (float) leg.p3.z);
+		translate(g, leg.p3);
 		g.sphere(jointSize);
 		g.popMatrix();
 		g.pushMatrix();
-		g.translate((float) leg.p4.x, (float) leg.p4.y, (float) leg.p4.z);
+		translate(g, leg.p4);
 		g.sphere(jointSize);
 		g.popMatrix();
 	}
@@ -164,10 +187,8 @@ class DrawHexapod {
 		double[] r = hexapod.rotation();
 
 		g.pushMatrix();
-		g.translate((float) leg.p1.x, (float) leg.p1.y, (float) leg.p1.z);
-		g.rotateX((float) r[ROLL]);
-		g.rotateY((float) r[PITCH]);
-		g.rotateZ((float) r[YAW]);
+		translate(g, leg.p1);
+		rotate(g);
 		g.rotateZ((float) (PI / 2 - leg.getRa()));
 
 		float lengthCoxa = (float) leg.lengthCoxa();
@@ -213,7 +234,7 @@ class DrawHexapod {
 		Vector3d c = hexapod.getCenter();
 		Vector3d t = hexapod.calculateLegConfig().getPlane().project(c);
 
-		g.translate((float) t.x, (float) t.y, (float) t.z);
+		translate(g, t);
 		g.fill(Color.yellow.getRGB());
 		g.sphere(4);
 

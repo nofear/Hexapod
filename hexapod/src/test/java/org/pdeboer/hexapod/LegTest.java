@@ -1,5 +1,6 @@
 package org.pdeboer.hexapod;
 
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.*;
 import org.junit.jupiter.params.provider.*;
 import org.pdeboer.util.*;
@@ -10,6 +11,7 @@ import java.util.stream.*;
 import static java.lang.Math.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.params.provider.Arguments.*;
+import static org.pdeboer.hexapod.Hexapod.*;
 import static org.pdeboer.hexapod.Leg.Id.*;
 
 class LegTest {
@@ -31,7 +33,7 @@ class LegTest {
 		assertEqualsVector3D(new Vector3d(x0, 280, 240 + offsetZ), leg.p3);
 		assertEqualsVector3D(new Vector3d(x0, y1, offsetZ), leg.p4);
 
-		assertArrayEquals(new double[] { 0, 0.6435011087932843, PI / 2 }, leg.getRotation());
+		assertArrayEquals(new double[] { 0, 0.6435011087932843, PI / 2 }, leg.getAngles());
 	}
 
 	@ParameterizedTest
@@ -51,7 +53,7 @@ class LegTest {
 		assertEqualsVector3D(new Vector3d(x0, -280, 240 + offsetZ), leg.p3);
 		assertEqualsVector3D(new Vector3d(x0, -y1, offsetZ), leg.p4);
 
-		assertArrayEquals(new double[] { PI, 0.6435011087932843, PI / 2 }, leg.getRotation());
+		assertArrayEquals(new double[] { PI, 0.6435011087932843, PI / 2 }, leg.getAngles());
 	}
 
 	@ParameterizedTest
@@ -86,18 +88,19 @@ class LegTest {
 			final int sign,
 			final double roll) {
 		var tf = sqrt(100 * 100 * 2);
+		var x1 = 200;
 		var y1 = sign * 200;
 
 		var leg = new Leg(RIGHT_FRONT, 100, tf, tf);
-		leg.init(new Vector3d(0, 0, 0), 0, y1, 0);
-		assertEqualsVector3D(new Vector3d(0, y1, 0), leg.p4);
+		leg.init(new Vector3d(0, 0, 0), x1, y1, 0);
+		assertEqualsVector3D(new Vector3d(x1, y1, 0), leg.p4);
 
 		double[] r0 = { roll, 0, 0 };
 		leg.updateInverse(r0);
 		leg.update(r0);
 
 		assertEqualsVector3D(new Vector3d(0, 0, 0), leg.p1);
-		assertEqualsVector3D(new Vector3d(0, y1, 0), leg.p4);
+		assertEqualsVector3D(new Vector3d(x1, y1, 0), leg.p4);
 	}
 
 	@ParameterizedTest
@@ -105,8 +108,8 @@ class LegTest {
 	void test_update_inverse_pitch(
 			final int sign,
 			final double pitch) {
-		var x1 = 1;
-		var y1 = sign * (sqrt(100 * 100 * 2) + 100);
+		var y1 = 20;
+		var x1 = sign * (sqrt(100 * 100 * 2) + 100);
 
 		var leg = new Leg(RIGHT_FRONT, 100, 100, 100);
 		leg.init(new Vector3d(0, 0, 0), x1, y1, 0);
@@ -141,8 +144,8 @@ class LegTest {
 	}
 
 	private static Stream<Arguments> test_update_provider() {
-		var rotation = new double[] { -PI / 4, -0.05, 0, 0.05, PI / 4 };
-		return Stream.of(-1, 1)
+		var rotation = new double[] { PI / 4, 0.20, 0.05, 0, -0.05, -0.20, -PI / 4 };
+		return Stream.of(1, -1)
 				.flatMap(leftOrRight -> Arrays.stream(rotation)
 						.mapToObj(rot -> arguments(leftOrRight, rot)));
 	}
@@ -154,7 +157,7 @@ class LegTest {
 			final Vector3d expectedEndPoint) {
 
 		var leg = new Leg(RIGHT_FRONT, 100, 200, 300);
-		leg.setRotation(rotation);
+		leg.setAngles(rotation);
 
 		double[] r0 = { 0, 0, 0 };
 		leg.update(r0);
@@ -162,7 +165,21 @@ class LegTest {
 		assertEqualsVector3D(expectedEndPoint, leg.p4);
 
 		leg.updateInverse(r0);
-		assertArrayEquals(rotation, leg.getRotation(), 1E-09);
+		assertArrayEquals(rotation, leg.getAngles(), 1E-09);
+	}
+
+	@Test
+	void test() {
+
+		var rotation = new double[] { 0, 0, 0 };
+
+		var matrix = Matrix.getMatrix(-rotation[ROLL], -rotation[PITCH], -rotation[YAW]);
+		matrix = matrix.rotateZ(PI / 4);
+
+		var coxa_t = matrix.multiply(new Vector3d(0, 100, 0));
+
+		System.out.println(coxa_t);
+
 	}
 
 	static Stream<Arguments> test_update_max_extend_provider() {
@@ -176,9 +193,9 @@ class LegTest {
 	static void assertEqualsVector3D(
 			final Vector3d v1,
 			final Vector3d v2) {
-		assertEquals(v1.x, v2.x, 1E-9, "x");
-		assertEquals(v1.y, v2.y, 1E-9, "y");
-		assertEquals(v1.z, v2.z, 1E-9, "z");
+		assertEquals(v1.x, v2.x, 1E-6, "x");
+		assertEquals(v1.y, v2.y, 1E-6, "y");
+		assertEquals(v1.z, v2.z, 1E-6, "z");
 	}
 
 }

@@ -43,6 +43,8 @@ public class Hexapod {
 	}
 
 	private Vector3d center;
+
+	// anti-clockwise rotation.
 	private double[] rotation;
 
 	private final Leg[] legs;
@@ -91,6 +93,12 @@ public class Hexapod {
 		return rotation.clone();
 	}
 
+	public Matrix rotationMatrix() {
+		return Matrix.getRotateX(-rotation[ROLL])
+				.rotateY(-rotation[PITCH])
+				.rotateZ(-rotation[YAW]);
+	}
+
 	public double[] getConfig() {
 		double[] config = new double[3 * 6];
 		int idx = 0;
@@ -107,7 +115,7 @@ public class Hexapod {
 		int idx = 0;
 		for (int i = 0; i < LEG_COUNT; ++i) {
 			Leg leg = legs[i];
-			leg.setRotation(Arrays.copyOfRange(config, idx, idx + 3));
+			leg.setAngles(Arrays.copyOfRange(config, idx, idx + 3));
 			idx += 3;
 		}
 	}
@@ -155,7 +163,7 @@ public class Hexapod {
 	}
 
 	public void updateP1() {
-		Matrix m = Matrix.getMatrix(rotation);
+		Matrix m = rotationMatrix();
 		for (int i = 0; i < LEG_COUNT; ++i) {
 			Vector3d p = m.multiply(offset[i]);
 			p.add(center);

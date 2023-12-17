@@ -26,6 +26,7 @@ public record Matrix(
 		return new Vector3d(elements[0][idx], elements[1][idx], elements[2][idx]);
 	}
 
+	// clock-wise rotations
 	public static Matrix getMatrix(
 			final double roll,
 			final double pitch,
@@ -33,10 +34,7 @@ public record Matrix(
 		return Matrix.getRotateX(roll).rotateY(pitch).rotateZ(yaw);
 	}
 
-	public static Matrix getMatrix(final double[] r) {
-		return Matrix.getRotateX(r[ROLL]).rotateY(r[PITCH]).rotateZ(r[YAW]);
-	}
-
+	// get clock-wise rotations
 	public static double[] getRotation(final Vector3d p) {
 		Vector3d n = new Vector3d(p);
 		n.normalize();
@@ -47,6 +45,7 @@ public record Matrix(
 		return new double[] { roll, pitch, yaw };
 	}
 
+	// rotate clockwise around x-axis
 	public static Matrix getRotateX(final double a) {
 		Matrix m = new Matrix();
 		m.elements[0][0] = 1;
@@ -57,6 +56,7 @@ public record Matrix(
 		return m;
 	}
 
+	// rotate clockwise around y-axis
 	public static Matrix getRotateY(final double a) {
 		Matrix m = new Matrix();
 		m.elements[0][0] = Math.cos(a);
@@ -67,6 +67,7 @@ public record Matrix(
 		return m;
 	}
 
+	// rotate clockwise around z-axis
 	public static Matrix getRotateZ(final double a) {
 		Matrix m = new Matrix();
 		m.elements[0][0] = Math.cos(a);

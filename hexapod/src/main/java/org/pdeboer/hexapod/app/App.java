@@ -157,7 +157,7 @@ public class App extends PApplet {
 		}
 	}
 
-	private void draw(Hexapod hexapod) {
+	private void draw(final Hexapod hexapod) {
 		Vector3d center = hexapod.getCenter();
 		double[] r = hexapod.rotation();
 		LegConfig lc = hexapod.calculateLegConfig();
