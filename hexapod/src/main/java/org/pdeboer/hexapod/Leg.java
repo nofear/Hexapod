@@ -2,6 +2,8 @@ package org.pdeboer.hexapod;
 
 import org.pdeboer.util.*;
 
+import java.util.*;
+
 import static java.lang.Math.*;
 import static org.pdeboer.hexapod.Hexapod.*;
 
@@ -83,7 +85,7 @@ public class Leg {
 		p4.z = z;
 
 		double[] rotation = { 0, 0, 0 };
-		updateInverse(rotation);
+		updateInverseIK(rotation);
 		update(rotation);
 	}
 
@@ -113,7 +115,7 @@ public class Leg {
 	 * Inverse kinematic calculation of the leg. Given the start and end point
 	 * of the leg, calculate the angles of the three servos.
 	 */
-	public void updateInverse(double[] rotation) {
+	public void updateInverseIK(double[] rotation) {
 
 		double dx = p4.x - p1.x;
 		double dy = p4.y - p1.y;
@@ -153,6 +155,42 @@ public class Leg {
 		rc = PI - b1;
 
 		System.out.printf("ra=%f, rb=%f, rc=%f%n", ra, rb, rc);
+	}
+
+	public void updateInverse(double[] rotation) {
+		var dst = new Vector3d(p4);
+
+		update(rotation);
+
+		var temp = 0.1;
+		var rnd = new Random();
+
+		var angles = getAngles();
+
+		int count = 0;
+		double distance = p4.distanceSquared(dst);
+
+		while (distance > 1E-16) {
+			int idx = rnd.nextInt(3);
+			double[] anglesTmp = angles.clone();
+			anglesTmp[idx] += rnd.nextDouble(-temp, temp);
+
+			setAngles(anglesTmp);
+			update(rotation);
+
+			double distanceTmp = p4.distanceSquared(dst);
+			if (distance > distanceTmp) {
+				angles = anglesTmp;
+				distance = distanceTmp;
+			}
+
+			count++;
+			if (count % 256 == 0) {
+				temp /= 2;
+			}
+		}
+
+		System.out.printf("ra=%f, rb=%f, rc=%f, count=%d%n", ra, rb, rc, count);
 	}
 
 	public void update(final double[] rotation) {

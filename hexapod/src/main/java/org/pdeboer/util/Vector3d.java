@@ -27,6 +27,18 @@ public class Vector3d extends javax.vecmath.Vector3d {
 		return new Vector3d(-x, -y, -z);
 	}
 
+	public double distanceSquared(final Vector3d v) {
+		var tmp = new Vector3d(this);
+		tmp.sub(v);
+		return tmp.lengthSquared();
+	}
+
+	public Vector3d addEx(final Vector3d v) {
+		var tmp = new Vector3d(this);
+		tmp.add(v);
+		return tmp;
+	}
+
 	@Override
 	public String toString() {
 		return String.format("(%.2f, %.2f, %.2f)", x, y, z);

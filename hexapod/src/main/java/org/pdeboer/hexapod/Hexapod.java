@@ -8,7 +8,7 @@ import java.util.stream.*;
 
 public class Hexapod {
 
-	public static final double EPSILON = 1E-012;
+	public static final double EPSILON = 1E-12;
 
 	// roll: x-axis, pitch: y-axis, yaw: z-axis
 	public static final int ROLL = 0;
@@ -166,9 +166,7 @@ public class Hexapod {
 		Matrix m = rotationMatrix();
 		for (int i = 0; i < LEG_COUNT; ++i) {
 			Vector3d p = m.multiply(offset[i]);
-			p.add(center);
-
-			legs[i].p1 = p;
+			legs[i].p1 = center.addEx(p);
 		}
 	}
 
@@ -186,9 +184,8 @@ public class Hexapod {
 	public void updateInverse() {
 		updateP1();
 
-		for (Leg leg : legs) {
-			leg.updateInverse(rotation);
-		}
+		Stream.of(legs).parallel()
+				.forEach(leg -> leg.updateInverse(rotation));
 
 		update();
 	}

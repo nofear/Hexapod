@@ -32,8 +32,8 @@ class HexapodTest {
 	}
 
 	private static void assertLegsOnGround(final Hexapod hexapod) {
-		for (int i = 0; i < 6; ++i) {
-			assertEquals(0, hexapod.getLeg(i).p4.z, EPSILON);
+		for (int i = 0; i < LEG_COUNT; ++i) {
+			assertEquals(0, hexapod.getLeg(i).p4.z, 1E-7);
 		}
 	}
 }
