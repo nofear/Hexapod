@@ -2,6 +2,8 @@ package org.pdeboer.hexapod;
 
 import org.pdeboer.util.*;
 
+import java.util.stream.*;
+
 import static org.pdeboer.hexapod.Hexapod.*;
 
 /**
@@ -23,21 +25,6 @@ public class LegConfig {
 	 */
 	private boolean inside;
 
-	/**
-	 * distance of each of the legs to the ground plane.
-	 */
-	private double[] distance;
-
-	/**
-	 * true for each leg that touches the ground plane.
-	 */
-	private boolean[] ground;
-
-	/**
-	 * true for each leg that is below the ground plane.
-	 */
-	private boolean distanceNeg;
-
 	private Plane3d groundPlane;
 
 	public LegConfig(
@@ -45,12 +32,7 @@ public class LegConfig {
 			final int[] index) {
 		this.hexapod = hexapod;
 		this.index = index;
-	}
 
-	/**
-	 * Update configuration.
-	 */
-	public void update() {
 		assert (index.length == 3);
 
 		Vector3d p1 = getP4(index[0]);
@@ -58,15 +40,6 @@ public class LegConfig {
 		Vector3d p3 = getP4(index[2]);
 
 		groundPlane = new Plane3d(p1, p2, p3);
-
-		distanceNeg = false;
-		distance = new double[LEG_COUNT];
-		ground = new boolean[LEG_COUNT];
-		for (int l = 0; l < LEG_COUNT; ++l) {
-			distance[l] = groundPlane.distance(getP4(l));
-			distanceNeg |= (distance[l] < -GROUND_EPSILON);
-			ground[l] = Math.abs(distance[l]) <= GROUND_EPSILON;
-		}
 
 		Vector2d a = new Vector2d(p1.x, p1.y);
 		Vector2d b = new Vector2d(p2.x, p2.y);
@@ -79,8 +52,20 @@ public class LegConfig {
 		inside = p2d.inside(z);
 	}
 
-	public boolean isStable() {
-		return inside && !distanceNeg;
+	public int countStable() {
+		if (!inside) {
+			return 0;
+		}
+
+		boolean distanceNeg = IntStream.range(0, LEG_COUNT)
+				.anyMatch(l -> getDistance(l) < -GROUND_EPSILON);
+		if (distanceNeg) {
+			return 0;
+		}
+
+		return (int) IntStream.range(0, LEG_COUNT).boxed()
+				.filter(this::touchGround)
+				.count();
 	}
 
 	public int[] getIndex() {
@@ -88,11 +73,12 @@ public class LegConfig {
 	}
 
 	public boolean touchGround(int idx) {
-		return ground[idx];
+		double distance = getDistance(idx);
+		return Math.abs(distance) <= GROUND_EPSILON;
 	}
 
 	public double getDistance(int idx) {
-		return distance[idx];
+		return groundPlane.distance(getP4(idx));
 	}
 
 	public Plane3d getGroundPlane() {

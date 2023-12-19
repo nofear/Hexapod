@@ -6,6 +6,8 @@ import org.pdeboer.util.*;
 import java.util.*;
 import java.util.stream.*;
 
+import static java.util.Comparator.*;
+
 public class Hexapod {
 
 	public static final double EPSILON = 1E-12;
@@ -208,15 +210,10 @@ public class Hexapod {
 
 				{ 2, 3, 4 }, { 2, 3, 5 }, { 2, 4, 5 } };
 
-		for (int[] index : indices) {
-			LegConfig lc = new LegConfig(this, index);
-			lc.update();
-			if (!lc.isStable()) {
-				continue;
-			}
-			return lc;
-		}
+		return Stream.of(indices)
+				.map(index -> new LegConfig(this, index))
+				.max(comparing(LegConfig::countStable))
+				.orElseThrow(() -> new IllegalStateException("no stable leg configuration found"));
 
-		throw new IllegalStateException("no stable leg configuration found");
 	}
 }

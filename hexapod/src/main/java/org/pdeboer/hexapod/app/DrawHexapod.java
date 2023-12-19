@@ -45,7 +45,8 @@ class DrawHexapod {
 		g.translate((float) v.x, (float) v.y, (float) v.z);
 	}
 
-	private void drawEye(
+	private void
+	drawEye(
 			final PApplet g,
 			final double offsetY) {
 		Vector3d c = hexapod.getCenter();

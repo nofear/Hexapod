@@ -23,11 +23,19 @@ public class App extends PApplet {
 	private final static int MID_Y = HEIGHT / 2;
 	private final static int FRAME_RATE = 30;
 
-	private float ra = -PI / 4;
-	private float rb = PI / 8;
+	private double ra = -PI / 4;
+	private double rb = PI / 8;
 
-	private float mx = 0;
-	private float my = 0;
+	private boolean controlFrame = false;
+	private boolean controlBody = false;
+	private boolean controlLeg = false;
+	private int controlLegIndex = -1;
+
+	private double ra0 = 0;
+	private double rb0 = 0;
+
+	private double mx0 = 0;
+	private double my0 = 0;
 
 	private final int backColor = color(250, 250, 250);
 
@@ -47,21 +55,73 @@ public class App extends PApplet {
 		hexapod = new Hexapod();
 	}
 
-	private void handle_input() {
-		if (mousePressed) {
-			mx = (float) (mouseX - MID_X) / WIDTH;
-			my = (float) (mouseY - MID_Y) / HEIGHT;
+	@Override
+	public void mousePressed() {
 
-			ra = mx * PI;
-			rb = my * PI;
+		if (keyCode == ALT) {
+			if (!controlBody) {
+				controlBody = true;
+
+				mx0 = mouseX;
+				my0 = mouseY;
+
+				ra0 = hexapod.rotation()[ROLL];
+				rb0 = hexapod.rotation()[PITCH];
+			}
+
+		} else {
+			if (!controlFrame) {
+				controlFrame = true;
+
+				mx0 = mouseX;
+				my0 = mouseY;
+
+				ra0 = ra;
+				rb0 = rb;
+			}
 		}
+	}
 
-		if (!keyPressed) {
+	@Override
+	public void mouseDragged() {
+		if (controlLeg) {
+			int leg_x = (int) (ra0 + (mouseX - mx0));
+			int leg_y = (int) (rb0 + (mouseY - my0));
+
+			Leg leg = hexapod.getLeg(controlLegIndex);
+			leg.p4.x = leg_x;
+			leg.p4.y = leg_y;
+
+			hexapod.updateInverse();
+
 			return;
 		}
 
-		int legIdx = 0;
+		if (controlBody) {
+			double roll = ra0 + ((mouseX - mx0) / WIDTH * PI);
+			double pitch = rb0 + ((mouseY - my0) / HEIGHT * PI);
 
+			hexapod.setRotation(new double[] { roll, pitch, hexapod.rotation()[YAW] });
+			hexapod.updateInverse();
+		}
+
+		if (controlFrame) {
+			ra = ra0 + ((mouseX - mx0) / WIDTH * PI);
+			rb = rb0 + ((mouseY - my0) / HEIGHT * PI);
+		}
+
+	}
+
+	@Override
+	public void mouseReleased() {
+		controlFrame = false;
+		controlBody = false;
+		controlLeg = false;
+		controlLegIndex = -1;
+	}
+
+	@Override
+	public void keyPressed() {
 		switch (key) {
 		case '0':
 			hexapod.init();
@@ -73,7 +133,14 @@ public class App extends PApplet {
 		case '4':
 		case '5':
 		case '6':
-			legIdx = key - '1';
+			controlFrame = false;
+			controlBody = false;
+			controlLeg = true;
+			controlLegIndex = key - '1';
+			mx0 = mouseX;
+			my0 = mouseY;
+			ra0 = hexapod.getLeg(controlLegIndex).p4.x;
+			rb0 = hexapod.getLeg(controlLegIndex).p4.y;
 			break;
 		case 'w':
 			hexapod.execute(Action.FORWARD);
@@ -119,7 +186,6 @@ public class App extends PApplet {
 			hexapod.updateInverse();
 			break;
 
-
 		case ' ':
 			stabilise();
 			break;
@@ -129,8 +195,6 @@ public class App extends PApplet {
 
 	@Override
 	public void draw() {
-		handle_input();
-
 		draw(hexapod);
 	}
 
@@ -180,7 +244,7 @@ public class App extends PApplet {
 
 		float leg_x0 = 250;
 		// float leg_y0 = 120;
-		float leg_d = 150;
+		float leg_d = 180;
 		for (int i = 0; i < Hexapod.LEG_COUNT; ++i) {
 			Leg leg = hexapod.getLeg(i);
 			text("leg " + i, leg_x0 + i * leg_d, 20);
@@ -193,8 +257,8 @@ public class App extends PApplet {
 		}
 
 		translate(MID_X, HEIGHT / 2 + 50);
-		rotateX(-rb + PI / 2);
-		rotateZ(-ra);
+		rotateX((float) -rb + PI / 2);
+		rotateZ((float) -ra);
 
 		fill(100, 150, 100);
 		rect(-400, -400, 800, 800);
