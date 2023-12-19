@@ -85,10 +85,10 @@ class LegTest {
 	@ParameterizedTest
 	@MethodSource("test_update_provider")
 	void test_update_inverse_roll(
+			final int x1,
 			final int sign,
 			final double roll) {
 		var tf = sqrt(100 * 100 * 2);
-		var x1 = 200;
 		var y1 = sign * 200;
 
 		var leg = new Leg(RIGHT_FRONT, 100, tf, tf);
@@ -106,12 +106,13 @@ class LegTest {
 	@ParameterizedTest
 	@MethodSource("test_update_provider")
 	void test_update_inverse_pitch(
+			final int y1,
 			final int sign,
 			final double pitch) {
-		var y1 = 20;
+		var tf = sqrt(100 * 100 * 2);
 		var x1 = sign * (sqrt(100 * 100 * 2) + 100);
 
-		var leg = new Leg(RIGHT_FRONT, 100, 100, 100);
+		var leg = new Leg(RIGHT_FRONT, 100, tf, tf);
 		leg.init(new Vector3d(0, 0, 0), x1, y1, 0);
 		assertEqualsVector3D(new Vector3d(x1, y1, 0), leg.p4);
 
@@ -126,28 +127,29 @@ class LegTest {
 	@ParameterizedTest
 	@MethodSource("test_update_provider")
 	void test_update_inverse_yaw(
+			final int x1,
 			final int sign,
 			final double yaw) {
 		var r = Math.sqrt(2) / 2 * 100;
 		var y1 = sign * (sqrt(r * r * 2) + 100);
 
 		var leg = new Leg(RIGHT_FRONT, r, r, r);
-		leg.init(new Vector3d(0, 0, 0), 0, y1, 0);
-		assertEqualsVector3D(new Vector3d(0, y1, 0), leg.p4);
+		leg.init(new Vector3d(0, 0, 0), x1, y1, 0);
+		assertEqualsVector3D(new Vector3d(x1, y1, 0), leg.p4);
 
 		double[] r0 = { 0, 0, yaw };
 		leg.updateInverse(r0);
 		leg.update(r0);
 
 		assertEqualsVector3D(new Vector3d(0, 0, 0), leg.p1);
-		assertEqualsVector3D(new Vector3d(0, y1, 0), leg.p4);
+		assertEqualsVector3D(new Vector3d(x1, y1, 0), leg.p4);
 	}
 
 	private static Stream<Arguments> test_update_provider() {
-		var rotation = new double[] { PI / 4, 0.20, 0.05, 0, -0.05, -0.20, -PI / 4 };
-		return Stream.of(1, -1)
+		var rotation = new double[] { -0.1, 0, 0.1 };
+		return Stream.of(0, 5).flatMap(offset -> Stream.of(1, -1)
 				.flatMap(leftOrRight -> Arrays.stream(rotation)
-						.mapToObj(rot -> arguments(leftOrRight, rot)));
+						.mapToObj(rot -> arguments(offset, leftOrRight, rot))));
 	}
 
 	@MethodSource("test_update_max_extend_provider")

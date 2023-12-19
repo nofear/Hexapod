@@ -119,24 +119,18 @@ public class Leg {
 		double dy = p4.y - p1.y;
 		double dz = p4.z - p1.z;
 
-		var c1 = Math.atan2(dx, dy) - rotation[YAW];
+		var c1 = Math.atan2(dx, dy);
 
-		var matrix = Matrix.getMatrix(-rotation[ROLL], -rotation[PITCH], -rotation[YAW]);
-		matrix = matrix.rotateZ(-c1);
+		var matrix = Matrix.getMatrix(rotation[ROLL], rotation[PITCH], rotation[YAW]);
 
-		var coxa_t = matrix.multiply(new Vector3d(0, lengthCoxa, 0));
+		var coxa_t = matrix.rotateZ(-c1)
+				.multiply(new Vector3d(0, lengthCoxa, 0));
 
 		var vz = matrix.multiply(new Vector3d(0, 0, 1));
 		var v2 = new Vector3d(dx, dy, 0);
 
-		double rco = (vz.angle(v2) - PI / 2);
-		//rco = -coxa_t.angle(v2);
-		//		double coxa_z = Math.sin(rco) * lengthCoxa;
-		//		double coxa_t = Math.cos(rco) * lengthCoxa;
-		//
-		//		double coxa_y_t2 = coxa_t * Math.cos(c1);
-		//		double coxa_x_t2 = coxa_t * Math.sin(c1);
-		double m = dz + coxa_t.z;
+		double rco = -(vz.angle(v2) - PI / 2);
+		double m = (dz + coxa_t.z);
 
 		double dy_cy = dy - coxa_t.y;
 		double dx_cx = dx - coxa_t.x;
@@ -154,8 +148,8 @@ public class Leg {
 
 		// System.out.printf("a1=%f, a2=%f, b1=%f, k_t=%f, m=%f%n", a1, a2, b1, k_t, m);
 
-		ra = c1;
-		rb = PI - (a1 + a2 + rco);
+		ra = c1 - rotation[YAW];
+		rb = PI - (a1 + a2 - rco);
 		rc = PI - b1;
 
 		System.out.printf("ra=%f, rb=%f, rc=%f%n", ra, rb, rc);

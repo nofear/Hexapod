@@ -138,7 +138,7 @@ public class Hexapod {
 		int y = 100;
 		int z = 0;
 
-		int off = 50;
+		int off = 0;
 		double[][] o = new double[][] {
 				{ x + off, y },
 				{ x, y },
