@@ -201,7 +201,7 @@ public class App extends PApplet {
 
 		var ds = new DrawHexapod(hexapod);
 		ds.draw(this);
-		//ds.drawPlane(this);
+		ds.drawPlane(this);
 		ds.drawLegFrame(this);
 	}
 

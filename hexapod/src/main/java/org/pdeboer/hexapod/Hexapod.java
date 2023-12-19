@@ -138,7 +138,7 @@ public class Hexapod {
 		int y = 100;
 		int z = 0;
 
-		int off = 0;
+		int off = 50;
 		double[][] o = new double[][] {
 				{ x + off, y },
 				{ x, y },
@@ -173,7 +173,7 @@ public class Hexapod {
 	public void stabilise() {
 		var legConfig = calculateLegConfig();
 
-		Plane3d p = legConfig.getPlane();
+		Plane3d p = legConfig.getGroundPlane();
 		double distance = p.distance(center);
 		double[] r = Matrix.getRotation(p.n);
 
@@ -217,6 +217,6 @@ public class Hexapod {
 			return lc;
 		}
 
-		throw new RuntimeException();
+		throw new IllegalStateException("no stable leg configuration found");
 	}
 }

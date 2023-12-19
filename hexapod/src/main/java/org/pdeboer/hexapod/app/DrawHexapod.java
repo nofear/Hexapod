@@ -20,18 +20,10 @@ class DrawHexapod {
 	}
 
 	public void draw(final PApplet g) {
-		Vector3d c = hexapod.getCenter();
 		drawEye(g, -10);
 		drawEye(g, 10);
-		drawCog(g, c);
 
-		g.pushMatrix();
-		var leg0 = hexapod.getLeg(0);
-		translate(g, leg0.p1);
-		rotate(g);
-		g.fill(Color.RED.getRGB());
-		g.box(2, 2, 100);
-		g.popMatrix();
+		drawCog(g, hexapod.getCenter());
 
 		drawBody(g);
 		drawLegs(g);
@@ -148,7 +140,7 @@ class DrawHexapod {
 
 	private void drawLegs(final PApplet g) {
 		LegConfig lc = hexapod.calculateLegConfig();
-		for (int i = 0; i < Hexapod.LEG_COUNT; ++i) {
+		for (int i = 0; i < LEG_COUNT; ++i) {
 			g.fill((lc.touchGround(i) ? Color.green : Color.orange).getRGB());
 
 			drawJoints(g, i);
@@ -223,7 +215,7 @@ class DrawHexapod {
 
 		g.beginShape();
 		LegConfig lc = hexapod.calculateLegConfig();
-		for (int i = 0; i < Hexapod.LEG_COUNT; ++i) {
+		for (int i = 0; i < LEG_COUNT; ++i) {
 			Leg leg = hexapod.getLeg(i);
 			if (lc.touchGround(i)) {
 				vertex(g, leg.p4, o);
@@ -232,7 +224,7 @@ class DrawHexapod {
 		g.endShape();
 
 		Vector3d c = hexapod.getCenter();
-		Vector3d t = hexapod.calculateLegConfig().getPlane().project(c);
+		Vector3d t = hexapod.calculateLegConfig().getGroundPlane().project(c);
 
 		translate(g, t);
 		g.fill(Color.yellow.getRGB());
@@ -242,7 +234,7 @@ class DrawHexapod {
 	}
 
 	void drawPlane(final PApplet g) {
-		Plane3d plane = hexapod.calculateLegConfig().getPlane();
+		Plane3d plane = hexapod.calculateLegConfig().getGroundPlane();
 		double[] r = Matrix.getRotation(plane.n);
 
 		g.pushMatrix();

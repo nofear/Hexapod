@@ -44,8 +44,4 @@ public class Vector3d extends javax.vecmath.Vector3d {
 		return String.format("(%.2f, %.2f, %.2f)", x, y, z);
 	}
 
-	public static String fmt(final double v) {
-		return String.format("%.4f", v);
-	}
-
 }

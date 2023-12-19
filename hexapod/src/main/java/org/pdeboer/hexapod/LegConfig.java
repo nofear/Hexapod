@@ -9,6 +9,8 @@ import static org.pdeboer.hexapod.Hexapod.*;
  */
 public class LegConfig {
 
+	private static final double GROUND_EPSILON = 1E-06;
+
 	private final Hexapod hexapod;
 
 	/**
@@ -36,10 +38,7 @@ public class LegConfig {
 	 */
 	private boolean distanceNeg;
 
-	/**
-	 * ground plane.
-	 */
-	private Plane3d plane;
+	private Plane3d groundPlane;
 
 	public LegConfig(
 			final Hexapod hexapod,
@@ -58,15 +57,15 @@ public class LegConfig {
 		Vector3d p2 = getP4(index[1]);
 		Vector3d p3 = getP4(index[2]);
 
-		plane = new Plane3d(p1, p2, p3);
+		groundPlane = new Plane3d(p1, p2, p3);
 
 		distanceNeg = false;
-		distance = new double[Hexapod.LEG_COUNT];
-		ground = new boolean[Hexapod.LEG_COUNT];
-		for (int l = 0; l < Hexapod.LEG_COUNT; ++l) {
-			distance[l] = plane.distance(getP4(l));
-			distanceNeg |= (distance[l] < -EPSILON);
-			ground[l] = Math.abs(distance[l]) <= 1E-08;
+		distance = new double[LEG_COUNT];
+		ground = new boolean[LEG_COUNT];
+		for (int l = 0; l < LEG_COUNT; ++l) {
+			distance[l] = groundPlane.distance(getP4(l));
+			distanceNeg |= (distance[l] < -GROUND_EPSILON);
+			ground[l] = Math.abs(distance[l]) <= GROUND_EPSILON;
 		}
 
 		Vector2d a = new Vector2d(p1.x, p1.y);
@@ -74,7 +73,7 @@ public class LegConfig {
 		Vector2d c = new Vector2d(p3.x, p3.y);
 
 		Plane2d p2d = new Plane2d(a, b, c);
-		Vector3d planec = plane.project(hexapod.getCenter());
+		Vector3d planec = groundPlane.project(hexapod.getCenter());
 		Vector2d z = new Vector2d(planec.x, planec.y);
 
 		inside = p2d.inside(z);
@@ -92,25 +91,14 @@ public class LegConfig {
 		return ground[idx];
 	}
 
-	/**
-	 * @param idx leg index
-	 * @return distance of leg end point to ground plane.
-	 */
 	public double getDistance(int idx) {
 		return distance[idx];
 	}
 
-	/**
-	 * @return ground plane
-	 */
-	public Plane3d getPlane() {
-		return plane;
+	public Plane3d getGroundPlane() {
+		return groundPlane;
 	}
 
-	/**
-	 * @param idx leg index
-	 * @return leg end point
-	 */
 	private Vector3d getP4(int idx) {
 		return hexapod.getLeg(idx).p4;
 	}
