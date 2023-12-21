@@ -3,7 +3,6 @@ package org.pdeboer.hexapod;
 import org.pdeboer.hexapod.Leg.*;
 import org.pdeboer.util.*;
 
-import java.util.*;
 import java.util.stream.*;
 
 import static java.util.Comparator.*;
@@ -51,8 +50,12 @@ public class Hexapod {
 
 	private final Leg[] legs;
 
+	private Vector3d speed;
+
+	private int legIndex;
+
 	public Hexapod() {
-		legs = Stream.of(Leg.Id.values())
+		this.legs = Stream.of(Leg.Id.values())
 				.map(Leg::new)
 				.toArray(Leg[]::new);
 
@@ -60,12 +63,33 @@ public class Hexapod {
 	}
 
 	public void init() {
-		center = new Vector3d(0, 0, 75);
-		rotation = new double[] { 0, 0, 0 };
+		this.center = new Vector3d(0, 0, 75);
+		this.rotation = new double[] { 0, 0, 0 };
+		this.speed = new Vector3d();
 
 		initLeg();
-		stabilise();
-		// update();
+	}
+
+	public void startMoving(final Vector3d speed) {
+		this.speed = speed;
+		this.legIndex = 0;
+
+	}
+
+	public void update() {
+		if (speed.length() == 0) {
+			return;
+		}
+
+		center = center.addEx(speed);
+
+		updateP1();
+
+		for (Leg leg : legs) {
+			leg.update(speed.mul(6));
+		}
+
+		updateInverse();
 	}
 
 	public void execute(final Action action) {
@@ -87,6 +111,22 @@ public class Hexapod {
 		updateInverse();
 	}
 
+	public void setCenter(final Vector3d center) {
+		this.center = center;
+	}
+
+	public Vector3d center() {
+		return center;
+	}
+
+	public void setSpeed(final Vector3d speed) {
+		this.speed = speed;
+	}
+
+	public Vector3d speed() {
+		return speed;
+	}
+
 	public void setRotation(double[] r) {
 		this.rotation = r;
 	}
@@ -99,35 +139,6 @@ public class Hexapod {
 		return Matrix.getRotateX(-rotation[ROLL])
 				.rotateY(-rotation[PITCH])
 				.rotateZ(-rotation[YAW]);
-	}
-
-	public double[] getConfig() {
-		double[] config = new double[3 * 6];
-		int idx = 0;
-		for (int i = 0; i < LEG_COUNT; ++i) {
-			Leg leg = legs[i];
-			config[idx++] = leg.getRa();
-			config[idx++] = leg.getRb();
-			config[idx++] = leg.getRc();
-		}
-		return config;
-	}
-
-	public void setConfig(double[] config) {
-		int idx = 0;
-		for (int i = 0; i < LEG_COUNT; ++i) {
-			Leg leg = legs[i];
-			leg.setAngles(Arrays.copyOfRange(config, idx, idx + 3));
-			idx += 3;
-		}
-	}
-
-	public Vector3d getCenter() {
-		return center;
-	}
-
-	public void setCenter(final Vector3d center) {
-		this.center = center;
 	}
 
 	public Leg getLeg(int index) {
@@ -156,7 +167,7 @@ public class Hexapod {
 		}
 	}
 
-	public void update() {
+	public void updateForward() {
 		updateP1();
 
 		for (Leg leg : legs) {
@@ -189,7 +200,7 @@ public class Hexapod {
 		Stream.of(legs).parallel()
 				.forEach(leg -> leg.updateInverse(rotation));
 
-		update();
+		updateForward();
 	}
 
 	/**

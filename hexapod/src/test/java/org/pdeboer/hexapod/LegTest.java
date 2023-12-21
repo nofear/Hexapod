@@ -1,5 +1,6 @@
 package org.pdeboer.hexapod;
 
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.*;
 import org.junit.jupiter.params.provider.*;
 import org.pdeboer.util.*;
@@ -175,6 +176,25 @@ class LegTest {
 				arguments(new double[] { 0, 0, PI / 2 }, new Vector3d(0, 400, 200)),
 				arguments(new double[] { 0, 0, 0 }, new Vector3d(0, 100, 500))
 		);
+	}
+
+	@Test
+	void test_leg_moving() {
+		int x1 = 0;
+		int y1 = 100;
+
+		var leg = new Leg(RIGHT_FRONT, 20, 70, 100);
+		leg.init(new Vector3d(0, 0, 50), x1, y1, 0);
+		assertEqualsVector3D(new Vector3d(x1, y1, 0), leg.p4);
+
+		Vector3d speed = new Vector3d(0.5, 0.25, 0);
+		leg.startMoving(speed);
+
+		for (int i = 0; i < Leg.STEP_COUNT; ++i) {
+			leg.update(speed.mul(6));
+		}
+
+		assertEqualsVector3D(new Vector3d(30, 115, 0), leg.p4);
 	}
 
 	static void assertEqualsVector3D(

@@ -46,7 +46,7 @@ public class LegConfig {
 		Vector2d c = new Vector2d(p3.x, p3.y);
 
 		Plane2d p2d = new Plane2d(a, b, c);
-		Vector3d planec = groundPlane.project(hexapod.getCenter());
+		Vector3d planec = groundPlane.project(hexapod.center());
 		Vector2d z = new Vector2d(planec.x, planec.y);
 
 		inside = p2d.inside(z);

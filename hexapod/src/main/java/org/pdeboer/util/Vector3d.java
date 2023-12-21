@@ -33,6 +33,10 @@ public class Vector3d extends javax.vecmath.Vector3d {
 		return tmp.lengthSquared();
 	}
 
+	public Vector3d mul(final double val) {
+		return new Vector3d(x * val, y * val, z * val);
+	}
+
 	public Vector3d addEx(final Vector3d v) {
 		var tmp = new Vector3d(this);
 		tmp.add(v);

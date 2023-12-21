@@ -10,10 +10,11 @@ import static org.pdeboer.hexapod.Hexapod.*;
 public class Leg {
 
 	public enum Id {
-		LEFT_FRONT, LEFT_MID, LEFT_BACK,
-		RIGHT_FRONT, RIGHT_MID, RIGHT_BACK
+		RIGHT_FRONT, RIGHT_MID, RIGHT_BACK,
+		LEFT_BACK, LEFT_MID, LEFT_FRONT
 	}
 
+	public final static int STEP_COUNT = 10;
 	private final static int LENGTH_COXA = 27;
 	private final static int LENGTH_FEMUR = 77;
 	private final static int LENGTH_TIBIA = 107;
@@ -33,6 +34,10 @@ public class Leg {
 	private double rb = 0;
 	private double rc = 0;
 
+	private boolean isMoving;
+	private int moveIndex;
+	private Vector3d moveSource;
+
 	Leg(final Id id) {
 		this(id, LENGTH_COXA, LENGTH_FEMUR, LENGTH_TIBIA);
 	}
@@ -46,11 +51,34 @@ public class Leg {
 		this.lengthCoxa = lengthCoxa;
 		this.lengthFemur = lengthFemur;
 		this.lengthTibia = lengthTibia;
+		this.isMoving = false;
+		this.moveIndex = 0;
 
 		p1 = new Vector3d();
 		p2 = new Vector3d();
 		p3 = new Vector3d();
 		p4 = new Vector3d();
+	}
+
+	public void startMoving(final Vector3d speed) {
+		moveIndex = 0;
+		moveSource = new Vector3d(p4);
+		isMoving = true;
+	}
+
+	public void update(final Vector3d speed) {
+		if (!isMoving) {
+			return;
+		}
+
+		moveIndex++;
+		isMoving = moveIndex < STEP_COUNT;
+
+		p4.x += speed.x;
+		p4.y += speed.y;
+		p4.z = Math.sin(PI * moveIndex / STEP_COUNT) * 20;
+
+		System.out.println(String.format("leg=%s, p4=%s", id, p4));
 	}
 
 	public double lengthCoxa() {
@@ -190,7 +218,7 @@ public class Leg {
 			}
 		}
 
-		System.out.printf("ra=%f, rb=%f, rc=%f, count=%d%n", ra, rb, rc, count);
+		// System.out.printf("ra=%f, rb=%f, rc=%f, count=%d%n", ra, rb, rc, count);
 	}
 
 	public void update(final double[] rotation) {

@@ -23,7 +23,7 @@ class DrawHexapod {
 		drawEye(g, -10);
 		drawEye(g, 10);
 
-		drawCog(g, hexapod.getCenter());
+		drawCog(g, hexapod.center());
 
 		drawBody(g);
 		drawLegs(g);
@@ -49,7 +49,7 @@ class DrawHexapod {
 	drawEye(
 			final PApplet g,
 			final double offsetY) {
-		Vector3d c = hexapod.getCenter();
+		Vector3d c = hexapod.center();
 
 		float eyeY = (float) (c.y + offsetY);
 		float eyeX = (float) c.x + Hexapod.length / 2;
@@ -99,7 +99,7 @@ class DrawHexapod {
 		Matrix r = hexapod.rotationMatrix();
 		for (int i = 0; i < p.length; ++i) {
 			p[i] = r.multiply(p[i]);
-			p[i].add(hexapod.getCenter());
+			p[i].add(hexapod.center());
 		}
 
 		g.beginShape();
@@ -224,7 +224,7 @@ class DrawHexapod {
 		}
 		g.endShape();
 
-		Vector3d c = hexapod.getCenter();
+		Vector3d c = hexapod.center();
 		Vector3d t = hexapod.calculateLegConfig().getGroundPlane().project(c);
 
 		translate(g, t);
