@@ -5,7 +5,10 @@ import org.junit.jupiter.params.*;
 import org.junit.jupiter.params.provider.*;
 import org.pdeboer.util.*;
 
+import java.util.stream.*;
+
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.params.provider.Arguments.*;
 import static org.pdeboer.hexapod.Hexapod.*;
 import static org.pdeboer.hexapod.LegTest.*;
 
@@ -33,20 +36,21 @@ class HexapodTest {
 		assertLegsOnGround(hexapod);
 	}
 
-	@Test
-	void test_walk() {
+	@ParameterizedTest
+	@MethodSource("test_walk_provider")
+	void test_walk(final Vector3d speed) {
 		var hexapod = new Hexapod();
-
-		Vector3d speed = new Vector3d(0.5, 0, 0);
 		hexapod.setSpeed(speed);
 
-		for (int legIndex = 0; legIndex < LEG_COUNT; ++legIndex) {
-			var leg = hexapod.getLeg(legIndex);
-			leg.startMoving(speed);
+		for (int i = 0; i < LEG_COUNT * Leg.STEP_COUNT; ++i) {
+			if (i % Leg.STEP_COUNT == 0) {
+				int legIndex = i / Leg.STEP_COUNT;
 
-			for (int i = 0; i < Leg.STEP_COUNT; ++i) {
-				hexapod.update();
+				var leg = hexapod.getLeg(legIndex);
+				leg.startMoving(speed);
 			}
+
+			hexapod.update();
 		}
 
 		assertLegsOnGround(hexapod);
@@ -62,9 +66,18 @@ class HexapodTest {
 		}
 	}
 
+	static Stream<Arguments> test_walk_provider() {
+		return Stream.of(
+				arguments(new Vector3d(0.5, 0.0, 0)),
+				arguments(new Vector3d(0.0, 0.5, 0)),
+				arguments(new Vector3d(0.25, 0.25, 0))
+		);
+	}
+
 	private static void assertLegsOnGround(final Hexapod hexapod) {
 		for (int i = 0; i < LEG_COUNT; ++i) {
-			assertEquals(0, hexapod.getLeg(i).p4.z, 1E-7);
+			Leg leg = hexapod.getLeg(i);
+			assertEquals(0, leg.p4.z, 1E-7, leg.id().name());
 		}
 	}
 }

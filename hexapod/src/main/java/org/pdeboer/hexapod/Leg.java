@@ -60,6 +60,10 @@ public class Leg {
 		p4 = new Vector3d();
 	}
 
+	public Id id() {
+		return id;
+	}
+
 	public void startMoving(final Vector3d speed) {
 		moveIndex = 0;
 		moveSource = new Vector3d(p4);
