@@ -231,17 +231,17 @@ public class Leg {
 		Matrix r = m.rotateZ(-ra);
 		p2 = new Vector3d(0, lengthCoxa, 0);
 		p2 = r.multiply(p2);
-		p2 = p2.addEx(p1);
+		p2 = p2.add(p1);
 
 		r = r.rotateX(-rb);
 		p3 = new Vector3d(0, 0, lengthFemur);
 		p3 = r.multiply(p3);
-		p3 = p3.addEx(p2);
+		p3 = p3.add(p2);
 
 		r = r.rotateX(-rc);
 		p4 = new Vector3d(0, 0, lengthTibia);
 		p4 = r.multiply(p4);
-		p4 = p4.addEx(p3);
+		p4 = p4.add(p3);
 	}
 
 	@Override

@@ -84,17 +84,17 @@ class DrawHexapod {
 
 		// top plate
 		for (int i = 0; i < 6; ++i) {
-			p[i] = Hexapod.offset[i].addEx(new Vector3d(0, 0, Hexapod.height / 2));
+			p[i] = Hexapod.offset[i].add(new Vector3d(0, 0, Hexapod.height / 2));
 		}
 
 		// bottom plate
 		for (int i = 0; i < 6; ++i) {
-			p[i + 6] = Hexapod.offset[i].addEx(new Vector3d(0, 0, -Hexapod.height / 2));
+			p[i + 6] = Hexapod.offset[i].add(new Vector3d(0, 0, -Hexapod.height / 2));
 		}
 
 		Matrix r = hexapod.rotationMatrix();
 		for (int i = 0; i < p.length; ++i) {
-			p[i] = r.multiply(p[i]).addEx(hexapod.center());
+			p[i] = r.multiply(p[i]).add(hexapod.center());
 		}
 
 		g.beginShape();
@@ -253,7 +253,7 @@ class DrawHexapod {
 			final PApplet g,
 			final Vector3d v,
 			final Vector3d o) {
-		var tmp = v.addEx(o);
+		var tmp = v.add(o);
 		g.vertex((float) tmp.x(), (float) tmp.y(), (float) tmp.z());
 	}
 

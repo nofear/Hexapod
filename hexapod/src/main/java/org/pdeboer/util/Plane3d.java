@@ -17,8 +17,8 @@ public class Plane3d {
 		this.b = b;
 		this.c = c;
 
-		Vector3d v2 = b.subEx(a);
-		Vector3d v3 = c.subEx(a);
+		Vector3d v2 = b.sub(a);
+		Vector3d v3 = c.sub(a);
 
 		this.n = Vector3d.cross(v2, v3).normalize();
 		this.D = n.dot(a);
@@ -44,8 +44,8 @@ public class Plane3d {
 	 * @return point on the plane
 	 */
 	public Vector3d project(Vector3d l) {
-		Vector3d p = a.subEx(l);
+		Vector3d p = a.sub(l);
 		double d = p.dot(n) / n.dot(n);
-		return n.multiply(d).addEx(l);
+		return n.multiply(d).add(l);
 	}
 }

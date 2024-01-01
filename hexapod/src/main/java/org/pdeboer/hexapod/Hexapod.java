@@ -81,7 +81,7 @@ public class Hexapod {
 			return;
 		}
 
-		center = center.addEx(speed);
+		center = center.add(speed);
 
 		updateP1();
 
@@ -160,7 +160,7 @@ public class Hexapod {
 				{ x, -y },
 				{ x + off, -y } };
 		for (int i = 0; i < LEG_COUNT; ++i) {
-			var p1 = center.addEx(offset[i]);
+			var p1 = center.add(offset[i]);
 
 			legs[i].init(p1, o[i][0], o[i][1], z);
 		}
@@ -178,7 +178,7 @@ public class Hexapod {
 		Matrix m = rotationMatrix();
 		for (int i = 0; i < LEG_COUNT; ++i) {
 			Vector3d p = m.multiply(offset[i]);
-			legs[i].p1 = center.addEx(p);
+			legs[i].p1 = center.add(p);
 		}
 	}
 

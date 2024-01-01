@@ -1,5 +1,7 @@
 package org.pdeboer.util;
 
+import org.apache.commons.math3.linear.*;
+
 import java.io.*;
 import java.util.*;
 
@@ -37,7 +39,7 @@ public class Vector3d implements Serializable {
 	}
 
 	public double distanceSquared(final Vector3d v) {
-		return subEx(v).lengthSquared();
+		return sub(v).lengthSquared();
 	}
 
 	public final double lengthSquared() {
@@ -48,7 +50,7 @@ public class Vector3d implements Serializable {
 		return new Vector3d(x * val, y * val, z * val);
 	}
 
-	public Vector3d addEx(final Vector3d v) {
+	public Vector3d add(final Vector3d v) {
 		return new Vector3d(x + v.x, y + v.y, z + v.z);
 	}
 
@@ -74,7 +76,7 @@ public class Vector3d implements Serializable {
 		return new Vector3d(x, y, tz);
 	}
 
-	public Vector3d subEx(final Vector3d v) {
+	public Vector3d sub(final Vector3d v) {
 		return new Vector3d(x - v.x, y - v.y, z - v.z);
 	}
 
@@ -125,4 +127,9 @@ public class Vector3d implements Serializable {
 	public Vector3d normalize() {
 		return multiply(1.0 / length());
 	}
+
+	public RealVector realVector() {
+		return MatrixUtils.createRealVector(new double[] { x, y, z });
+	}
+
 }

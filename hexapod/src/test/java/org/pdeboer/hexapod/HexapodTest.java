@@ -58,10 +58,10 @@ class HexapodTest {
 		Vector3d offset = speed.multiply(LEG_COUNT * Leg.STEP_COUNT);
 
 		var hexapod0 = new Hexapod();
-		assertEqualsVector3D(hexapod0.center().addEx(offset),
+		assertEqualsVector3D(hexapod0.center().add(offset),
 							 hexapod.center());
 		for (int i = 0; i < LEG_COUNT; ++i) {
-			assertEqualsVector3D(hexapod0.getLeg(i).p4.addEx(offset),
+			assertEqualsVector3D(hexapod0.getLeg(i).p4.add(offset),
 								 hexapod.getLeg(i).p4);
 		}
 	}
