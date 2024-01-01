@@ -64,9 +64,9 @@ public class Leg implements IPhenotype {
 		for (int i = 0; i < count; ++i) {
 			Vector2d p = path.get(i)[2];
 			Vector2d q = poly.project(p);
-			double dq = Vector2d.sub(p, q).lengthSquared();
+			double dq = p.sub(q).lengthSquared();
 			if (dq <= epsilon || poly.inside(p)) {
-				double dc = Vector2d.sub(p, c).lengthSquared();
+				double dc = p.sub(c).lengthSquared();
 				if (dc <= epsilon) {
 					sumS += 2 * (force / epsilon);
 				} else {
@@ -81,8 +81,8 @@ public class Leg implements IPhenotype {
 	}
 
 	private double getFitnessCenter() {
-		Vector2d c = Vector2d.add(p0, p1);
-		c.scale(0.5);
+		Vector2d c = p0.add(p1);
+		c.multiply(0.5);
 
 		double sumS = 0;
 		int count = chromosome.getCount() / 2;
@@ -116,8 +116,8 @@ public class Leg implements IPhenotype {
 			double rb = Math.PI / stepSize * chromosome.getGene(i * 2 + 1);
 
 			Vector2d v0 = new Vector2d(150, 50);
-			Vector2d v1 = Vector2d.add(v0, new Vector2d(Leg.l1, 0).rotate(ra));
-			Vector2d v2 = Vector2d.add(v1, new Vector2d(Leg.l2, 0).rotate(ra + rb));
+			Vector2d v1 = v0.add(new Vector2d(Leg.l1, 0).rotate(ra));
+			Vector2d v2 = v1.add(new Vector2d(Leg.l2, 0).rotate(ra + rb));
 			path.add(new Vector2d[] { v0, v1, v2 });
 		}
 	}

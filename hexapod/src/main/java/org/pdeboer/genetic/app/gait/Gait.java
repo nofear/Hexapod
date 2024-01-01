@@ -109,7 +109,7 @@ public class Gait implements IPhenotype {
 			Polygon2d gp0 = a0.getGroundPlane(g);
 			Polygon2d gp1 = a1.getGroundPlane(g);
 
-			distance[i] = gp0.centroid().x - gp1.centroid().x;
+			distance[i] = gp0.centroid().x() - gp1.centroid().x();
 		}
 	}
 

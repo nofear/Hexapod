@@ -22,7 +22,7 @@ public class DrawBase {
 	}
 
 	protected void vertex(Vector2d p) {
-		g.vertex((float) p.x, (float) p.y);
+		g.vertex((float) p.x(), (float) p.y());
 	}
 
 	protected void rect(Vector2d v) {
@@ -32,13 +32,13 @@ public class DrawBase {
 	protected void rect(
 			Vector2d v,
 			float size) {
-		g.rect((float) v.x - size / 2, (float) v.y - size / 2, size, size);
+		g.rect((float) v.x() - size / 2, (float) v.y() - size / 2, size, size);
 	}
 
 	protected void line(
 			Vector2d v0,
 			Vector2d v1) {
-		g.line((float) v0.x, (float) v0.y, (float) v1.x, (float) v1.y);
+		g.line((float) v0.x(), (float) v0.y(), (float) v1.x(), (float) v1.y());
 	}
 
 	protected void text(

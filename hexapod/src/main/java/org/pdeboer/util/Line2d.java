@@ -5,7 +5,9 @@ public class Line2d {
 	private final Vector2d a;
 	private final Vector2d b;
 
-	public Line2d(Vector2d a, Vector2d b) {
+	public Line2d(
+			Vector2d a,
+			Vector2d b) {
 		super();
 		this.a = a;
 		this.b = b;
@@ -16,23 +18,22 @@ public class Line2d {
 	}
 
 	public Vector2d project(final Vector2d p) {
-		Vector2d d = Vector2d.sub(b, a);
-		double u = Vector2d.sub(p, a).dot(d) / d.lengthSquared();
+		Vector2d d = b.sub(a);
+		double u = p.sub(a).dot(d) / d.lengthSquared();
 
-		Vector2d r = Vector2d.add(a, Vector2d.scale(d, u));
+		Vector2d r = a.add(d.multiply(u));
 
 		return r;
 	}
 
 	/**
 	 * Distance between the line and a point
-	 * 
-	 * @param p
-	 *            point
+	 *
+	 * @param p point
 	 * @return distance
 	 */
 	public double distance(final Vector2d p) {
-		double u = Math.abs((b.x - a.x) * (a.y - p.y) - (a.x - p.x) * (b.y - a.y));
+		double u = Math.abs((b.x() - a.x()) * (a.y() - p.y()) - (a.x() - p.x()) * (b.y() - a.y()));
 		u /= a.distance(b);
 		return u;
 	}
@@ -45,17 +46,17 @@ public class Line2d {
 	// See: the January 2001 Algorithm
 	// "Area of 2D and 3D Triangles and Polygons"
 	private double orientation(final Vector2d p) {
-		return ((b.x - a.x) * (p.y - a.y) - (p.x - a.x) * (b.y - a.y));
+		return ((b.x() - a.x()) * (p.y() - a.y()) - (p.x() - a.x()) * (b.y() - a.y()));
 	}
 
 	public boolean onSegment(final Vector2d p) {
 		if (orientation(p) > 1e-08) {
 			return false;
 		} else {
-			if (a.x != b.x) {
-				return (Math.min(a.x, b.x) <= p.x) && (p.x <= Math.max(a.x, b.x));
+			if (a.x() != b.x()) {
+				return (Math.min(a.x(), b.x()) <= p.x()) && (p.x() <= Math.max(a.x(), b.x()));
 			} else {
-				return (Math.min(a.y, b.y) <= p.y) && (p.y <= Math.max(a.y, b.y));
+				return (Math.min(a.y(), b.y()) <= p.y()) && (p.y() <= Math.max(a.y(), b.y()));
 			}
 		}
 	}

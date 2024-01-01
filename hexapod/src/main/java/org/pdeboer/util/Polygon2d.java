@@ -78,11 +78,11 @@ public class Polygon2d {
 			Vector2d p0 = points.get(i);
 			Vector2d p1 = points.get((i + 1) % size);
 			// an upward crossing or a downward crossing
-			if (((p0.y <= P.y) && (p1.y > P.y)) || ((p0.y > P.y) && (p1.y <= P.y))) {
+			if (((p0.y() <= P.y()) && (p1.y() > P.y())) || ((p0.y() > P.y()) && (p1.y() <= P.y()))) {
 				// compute the actual edge-ray intersect x-coordinate
-				float vt = (float) ((P.y - p0.y) / (p1.y - p0.y));
+				float vt = (float) ((P.y() - p0.y()) / (p1.y() - p0.y()));
 				// P.x < intersect
-				if (P.x < p0.x + vt * (p1.x - p0.x)) {
+				if (P.x() < p0.x() + vt * (p1.x() - p0.x())) {
 					// a valid crossing of y=P.y right of P.x
 					++cn;
 				}
@@ -100,7 +100,7 @@ public class Polygon2d {
 				Vector2d p0 = points.get(i);
 				Vector2d p1 = points.get((i + 1) % size);
 
-				area += (p0.x * p1.y - p1.x * p0.y);
+				area += (p0.x() * p1.y() - p1.x() * p0.y());
 			}
 			area /= 2;
 			updateArea = false;
@@ -118,9 +118,9 @@ public class Polygon2d {
 				Vector2d p0 = points.get(i);
 				Vector2d p1 = points.get((i + 1) % size);
 
-				double d = (p0.x * p1.y) - (p1.x * p0.y);
-				x += (p0.x + p1.x) * d;
-				y += (p0.y + p1.y) * d;
+				double d = (p0.x() * p1.y()) - (p1.x() * p0.y());
+				x += (p0.x() + p1.x()) * d;
+				y += (p0.y() + p1.y()) * d;
 			}
 
 			double area = 1.0 / (6.0 * area());

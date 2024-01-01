@@ -85,7 +85,7 @@ public class DrawGait extends DrawBase {
 		g.fill(Color.orange.getRGB());
 		g.beginShape();
 		for (Vector2d p : a.poly.getPoints()) {
-			g.vertex((float) p.x, (float) p.y);
+			g.vertex((float) p.x(), (float) p.y());
 		}
 		g.endShape();
 	}

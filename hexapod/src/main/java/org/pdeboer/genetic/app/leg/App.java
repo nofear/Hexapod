@@ -11,15 +11,11 @@ import processing.core.*;
  */
 public class App extends PApplet {
 
-	/** */
-	private static final long serialVersionUID = 1L;
-
 	public static void main(String[] args) {
 		// "--present",
 		PApplet.main(new String[] { App.class.getName() });
 	}
 
-	private IAlgorithm<Leg> algorithm;
 	private DrawLeg draw;
 
 	public static Vector2d p0 = new Vector2d(25, 100);
@@ -36,7 +32,7 @@ public class App extends PApplet {
 		ICrossover crossover = new Crossover(Type.Uniform, 0.80);
 		IMutate mutate = new Mutate(0.02, 5);
 
-		algorithm = new Algorithm<Leg>(factory, crossover, mutate, null);
+		var algorithm = new Algorithm<Leg>(factory, crossover, mutate, null);
 		algorithm.init(new int[] { 12, 16 });
 		algorithm.start();
 
@@ -47,8 +43,7 @@ public class App extends PApplet {
 
 	public void draw() {
 		if (mousePressed) {
-			p0.x = mouseX;
-			p0.y = mouseY;
+			p0 = new Vector2d(mouseX, mouseY);
 		}
 
 		if (keyPressed) {
