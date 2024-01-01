@@ -95,9 +95,9 @@ class MatrixTest {
 	void assertEqualsVector3D(
 			final Vector3d expected,
 			final Vector3d v) {
-		assertEquals(expected.getX(), v.getX(), EPSILON, "x");
-		assertEquals(expected.getY(), v.getY(), EPSILON, "y");
-		assertEquals(expected.getZ(), v.getZ(), EPSILON, "z");
+		assertEquals(expected.x(), v.x(), EPSILON, "x");
+		assertEquals(expected.y(), v.y(), EPSILON, "y");
+		assertEquals(expected.z(), v.z(), EPSILON, "z");
 	}
 
 	private static final Vector3d VECTOR_X = new Vector3d(1, 0, 0);

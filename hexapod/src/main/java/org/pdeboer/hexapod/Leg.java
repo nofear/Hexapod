@@ -78,9 +78,11 @@ public class Leg {
 		moveIndex++;
 		isMoving = moveIndex < STEP_COUNT;
 
-		p4.x += speed.x;
-		p4.y += speed.y;
-		p4.z = Math.sin(PI * moveIndex / STEP_COUNT) * 20;
+		double x = p4.x() + speed.x();
+		double y = p4.y() + speed.y();
+		double z = Math.sin(PI * moveIndex / STEP_COUNT) * 20;
+
+		p4 = new Vector3d(x, y, z);
 
 		System.out.println(String.format("leg=%s, p4=%s", id, p4));
 	}
@@ -111,10 +113,7 @@ public class Leg {
 			final double y,
 			final double z) {
 		p1 = new Vector3d(v);
-		p4 = new Vector3d(v);
-		p4.x += x;
-		p4.y += y;
-		p4.z = z;
+		p4 = new Vector3d(v.x() + x, v.y() + y, z);
 
 		double[] rotation = { 0, 0, 0 };
 		updateInverseIK(rotation);
@@ -149,9 +148,9 @@ public class Leg {
 	 */
 	public void updateInverseIK(double[] rotation) {
 
-		double dx = p4.x - p1.x;
-		double dy = p4.y - p1.y;
-		double dz = p4.z - p1.z;
+		double dx = p4.x() - p1.x();
+		double dy = p4.y() - p1.y();
+		double dz = p4.z() - p1.z();
 
 		var c1 = Math.atan2(dx, dy);
 
@@ -164,10 +163,10 @@ public class Leg {
 		var v2 = new Vector3d(dx, dy, 0);
 
 		double rco = -(vz.angle(v2) - PI / 2);
-		double m = (dz + coxa_t.z);
+		double m = (dz + coxa_t.z());
 
-		double dy_cy = dy - coxa_t.y;
-		double dx_cx = dx - coxa_t.x;
+		double dy_cy = dy - coxa_t.y();
+		double dx_cx = dx - coxa_t.x();
 		double k = Math.sqrt(dx_cx * dx_cx + dy_cy * dy_cy);
 
 		double l = Math.sqrt(k * k + m * m);
@@ -232,17 +231,17 @@ public class Leg {
 		Matrix r = m.rotateZ(-ra);
 		p2 = new Vector3d(0, lengthCoxa, 0);
 		p2 = r.multiply(p2);
-		p2.add(p1);
+		p2 = p2.addEx(p1);
 
 		r = r.rotateX(-rb);
 		p3 = new Vector3d(0, 0, lengthFemur);
 		p3 = r.multiply(p3);
-		p3.add(p2);
+		p3 = p3.addEx(p2);
 
 		r = r.rotateX(-rc);
 		p4 = new Vector3d(0, 0, lengthTibia);
 		p4 = r.multiply(p4);
-		p4.add(p3);
+		p4 = p4.addEx(p3);
 	}
 
 	@Override

@@ -42,7 +42,7 @@ class DrawHexapod {
 	private static void translate(
 			final PApplet g,
 			final Vector3d v) {
-		g.translate((float) v.x, (float) v.y, (float) v.z);
+		g.translate((float) v.x(), (float) v.y(), (float) v.z());
 	}
 
 	private void
@@ -51,9 +51,9 @@ class DrawHexapod {
 			final double offsetY) {
 		Vector3d c = hexapod.center();
 
-		float eyeY = (float) (c.y + offsetY);
-		float eyeX = (float) c.x + Hexapod.length / 2;
-		float eyeZ = (float) c.z + Hexapod.height / 2;
+		float eyeY = (float) (c.y() + offsetY);
+		float eyeX = (float) c.x() + Hexapod.length / 2;
+		float eyeZ = (float) c.z() + Hexapod.height / 2;
 
 		g.pushMatrix();
 
@@ -84,22 +84,17 @@ class DrawHexapod {
 
 		// top plate
 		for (int i = 0; i < 6; ++i) {
-			p[i] = new Vector3d();
-			p[i].add(Hexapod.offset[i]);
-			p[i].z = Hexapod.height / 2;
+			p[i] = Hexapod.offset[i].addEx(new Vector3d(0, 0, Hexapod.height / 2));
 		}
 
 		// bottom plate
 		for (int i = 0; i < 6; ++i) {
-			p[i + 6] = new Vector3d();
-			p[i + 6].add(Hexapod.offset[i]);
-			p[i + 6].z = -Hexapod.height / 2;
+			p[i + 6] = Hexapod.offset[i].addEx(new Vector3d(0, 0, -Hexapod.height / 2));
 		}
 
 		Matrix r = hexapod.rotationMatrix();
 		for (int i = 0; i < p.length; ++i) {
-			p[i] = r.multiply(p[i]);
-			p[i].add(hexapod.center());
+			p[i] = r.multiply(p[i]).addEx(hexapod.center());
 		}
 
 		g.beginShape();
@@ -251,16 +246,15 @@ class DrawHexapod {
 	private static void vertex(
 			final PApplet g,
 			final Vector3d p) {
-		g.vertex((float) p.x, (float) p.y, (float) p.z);
+		g.vertex((float) p.x(), (float) p.y(), (float) p.z());
 	}
 
 	private static void vertex(
 			final PApplet g,
 			final Vector3d v,
 			final Vector3d o) {
-		var tmp = new Vector3d(v);
-		tmp.add(o);
-		g.vertex((float) tmp.x, (float) tmp.y, (float) tmp.z);
+		var tmp = v.addEx(o);
+		g.vertex((float) tmp.x(), (float) tmp.y(), (float) tmp.z());
 	}
 
 }

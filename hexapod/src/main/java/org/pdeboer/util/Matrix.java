@@ -42,12 +42,11 @@ public record Matrix(
 
 	// get clock-wise rotations
 	public static double[] getRotation(final Vector3d p) {
-		Vector3d n = new Vector3d(p);
-		n.normalize();
+		var n = p.normalize();
 
 		double yaw = 0;
-		double pitch = Math.atan2(n.x, n.z);
-		double roll = Math.asin(-n.y);
+		double pitch = Math.atan2(n.x(), n.z());
+		double roll = Math.asin(-n.y());
 		return new double[] { roll, pitch, yaw };
 	}
 
@@ -87,11 +86,10 @@ public record Matrix(
 	public Vector3d multiply(final Vector3d v) {
 		var elements = matrix.getData();
 
-		Vector3d r = new Vector3d();
-		r.x = elements[0][0] * v.x + elements[0][1] * v.y + elements[0][2] * v.z;
-		r.y = elements[1][0] * v.x + elements[1][1] * v.y + elements[1][2] * v.z;
-		r.z = elements[2][0] * v.x + elements[2][1] * v.y + elements[2][2] * v.z;
-		return r;
+		double x = elements[0][0] * v.x() + elements[0][1] * v.y() + elements[0][2] * v.z();
+		double y = elements[1][0] * v.x() + elements[1][1] * v.y() + elements[1][2] * v.z();
+		double z = elements[2][0] * v.x() + elements[2][1] * v.y() + elements[2][2] * v.z();
+		return new Vector3d(x, y, z);
 	}
 
 	public Matrix multiply(final Matrix m) {

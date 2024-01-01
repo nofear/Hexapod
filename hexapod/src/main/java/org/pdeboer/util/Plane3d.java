@@ -9,18 +9,18 @@ public class Plane3d {
 	public Vector3d n;
 	public double D;
 
-	public Plane3d(Vector3d a, Vector3d b, Vector3d c) {
+	public Plane3d(
+			Vector3d a,
+			Vector3d b,
+			Vector3d c) {
 		this.a = a;
 		this.b = b;
 		this.c = c;
 
-		Vector3d v2 = new Vector3d(b);
-		Vector3d v3 = new Vector3d(c);
-		v2.sub(a);
-		v3.sub(a);
-		this.n = new Vector3d();
-		this.n.cross(v2, v3);
-		this.n.normalize();
+		Vector3d v2 = b.subEx(a);
+		Vector3d v3 = c.subEx(a);
+
+		this.n = Vector3d.cross(v2, v3).normalize();
 		this.D = n.dot(a);
 	}
 
@@ -39,20 +39,13 @@ public class Plane3d {
 	/**
 	 * Determines the point on the plane when the given point is projected
 	 * perpendicular onto the plane.
-	 * 
-	 * @param l
-	 *            point to project
+	 *
+	 * @param l point to project
 	 * @return point on the plane
 	 */
 	public Vector3d project(Vector3d l) {
-		Vector3d p = new Vector3d(a);
-		p.sub(l);
+		Vector3d p = a.subEx(l);
 		double d = p.dot(n) / n.dot(n);
-
-		Vector3d t = new Vector3d(n);
-		t.scale(d);
-		t.add(l);
-
-		return t;
+		return n.multiply(d).addEx(l);
 	}
 }

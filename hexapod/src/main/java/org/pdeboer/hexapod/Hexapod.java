@@ -86,7 +86,7 @@ public class Hexapod {
 		updateP1();
 
 		for (Leg leg : legs) {
-			leg.update(speed.mul(6));
+			leg.update(speed.multiply(6));
 		}
 
 		updateInverse();
@@ -94,12 +94,12 @@ public class Hexapod {
 
 	public void execute(final Action action) {
 		switch (action) {
-		case FORWARD -> center.x++;
-		case BACKWARD -> center.x--;
-		case LEFT -> center.y--;
-		case RIGHT -> center.y++;
-		case UP -> center.z++;
-		case DOWN -> center.z--;
+		case FORWARD -> center = new Vector3d(center.x() + 1, center.y(), center.z());
+		case BACKWARD -> center = new Vector3d(center.x() - 1, center.y(), center.z());
+		case LEFT -> center = new Vector3d(center.x(), center.y() + 1, center.z());
+		case RIGHT -> center = new Vector3d(center.x(), center.y() - 1, center.z());
+		case UP -> center = new Vector3d(center.x(), center.y(), center.z() + 1);
+		case DOWN -> center = new Vector3d(center.x(), center.y(), center.z() - 1);
 		case ROLL_MIN -> rotation[ROLL] -= 0.01;
 		case ROLL_PLUS -> rotation[ROLL] += 0.01;
 		case PITCH_MIN -> rotation[PITCH] -= 0.01;
@@ -160,8 +160,7 @@ public class Hexapod {
 				{ x, -y },
 				{ x + off, -y } };
 		for (int i = 0; i < LEG_COUNT; ++i) {
-			var p1 = new Vector3d(center);
-			p1.add(offset[i]);
+			var p1 = center.addEx(offset[i]);
 
 			legs[i].init(p1, o[i][0], o[i][1], z);
 		}
@@ -190,7 +189,7 @@ public class Hexapod {
 		double distance = p.distance(center);
 		double[] r = Matrix.getRotation(p.n);
 
-		center = new Vector3d(center.x, center.y, distance);
+		center = new Vector3d(center.x(), center.y(), distance);
 		rotation = new double[] { -r[ROLL], -r[PITCH], -r[YAW] };
 	}
 

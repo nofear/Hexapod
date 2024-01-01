@@ -64,8 +64,8 @@ public class App extends PApplet {
 
 				mx0 = mouseX;
 				my0 = mouseY;
-				ra0 = hexapod.getLeg(controlLegIndex).p4.x;
-				rb0 = hexapod.getLeg(controlLegIndex).p4.y;
+				ra0 = hexapod.getLeg(controlLegIndex).p4.x();
+				rb0 = hexapod.getLeg(controlLegIndex).p4.y();
 			}
 
 			return;
@@ -103,8 +103,7 @@ public class App extends PApplet {
 			int leg_y = (int) (rb0 + (mouseY - my0));
 
 			Leg leg = hexapod.getLeg(controlLegIndex);
-			leg.p4.x = leg_x;
-			leg.p4.y = leg_y;
+			leg.p4 = new Vector3d(leg_x, leg_y, leg.p4.z());
 
 			hexapod.updateInverse();
 

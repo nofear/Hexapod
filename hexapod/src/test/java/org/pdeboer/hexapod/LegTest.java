@@ -191,7 +191,7 @@ class LegTest {
 		leg.startMoving(speed);
 
 		for (int i = 0; i < Leg.STEP_COUNT; ++i) {
-			leg.update(speed.mul(6));
+			leg.update(speed.multiply(6));
 		}
 
 		assertEqualsVector3D(new Vector3d(30, 115, 0), leg.p4);
@@ -200,9 +200,9 @@ class LegTest {
 	static void assertEqualsVector3D(
 			final Vector3d v1,
 			final Vector3d v2) {
-		assertEquals(v1.x, v2.x, 1E-6, "x");
-		assertEquals(v1.y, v2.y, 1E-6, "y");
-		assertEquals(v1.z, v2.z, 1E-6, "z");
+		assertEquals(v1.x(), v2.x(), 1E-6, "x");
+		assertEquals(v1.y(), v2.y(), 1E-6, "y");
+		assertEquals(v1.z(), v2.z(), 1E-6, "z");
 	}
 
 }
