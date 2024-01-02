@@ -14,7 +14,7 @@ public class Leg {
 		LEFT_BACK, LEFT_MID, LEFT_FRONT
 	}
 
-	public final static int STEP_COUNT = 10;
+	final static int STEP_COUNT = 10;
 	private final static int LENGTH_COXA = 27;
 	private final static int LENGTH_FEMUR = 77;
 	private final static int LENGTH_TIBIA = 107;
@@ -146,7 +146,7 @@ public class Leg {
 	 * Inverse kinematic calculation of the leg. Given the start and end point
 	 * of the leg, calculate the angles of the three servos.
 	 */
-	public void updateInverseIK(double[] rotation) {
+	public void updateInverseIK(double[] bodyRotation) {
 
 		double dx = p4.x() - p1.x();
 		double dy = p4.y() - p1.y();
@@ -154,12 +154,11 @@ public class Leg {
 
 		var c1 = Math.atan2(dx, dy);
 
-		var matrix = Matrix.getMatrix(rotation[ROLL], rotation[PITCH], rotation[YAW]);
+		var rotation = Rotation3D.of(bodyRotation[ROLL], bodyRotation[PITCH], bodyRotation[YAW]);
 
-		var coxa_t = matrix.rotateZ(-c1)
-				.multiply(new Vector3d(0, lengthCoxa, 0));
+		var coxa_t = rotation.rotateZ(-c1).apply(new Vector3d(0, lengthCoxa, 0));
 
-		var vz = matrix.multiply(new Vector3d(0, 0, 1));
+		var vz = rotation.apply(new Vector3d(0, 0, 1));
 		var v2 = new Vector3d(dx, dy, 0);
 
 		double rco = -(vz.angle(v2) - PI / 2);
@@ -181,7 +180,7 @@ public class Leg {
 
 		// System.out.printf("a1=%f, a2=%f, b1=%f, k_t=%f, m=%f%n", a1, a2, b1, k_t, m);
 
-		ra = c1 - rotation[YAW];
+		ra = c1 - bodyRotation[YAW];
 		rb = PI - (a1 + a2 - rco);
 		rc = PI - b1;
 
@@ -224,23 +223,23 @@ public class Leg {
 		// System.out.printf("ra=%f, rb=%f, rc=%f, count=%d%n", ra, rb, rc, count);
 	}
 
-	public void update(final double[] rotation) {
+	public void update(final double[] bodyRotation) {
 
-		Matrix m = Matrix.getMatrix(-rotation[ROLL], -rotation[PITCH], -rotation[YAW]);
+		var r = Rotation3D.of(-bodyRotation[ROLL], -bodyRotation[PITCH], -bodyRotation[YAW]);
 
-		Matrix r = m.rotateZ(-ra);
+		r = r.rotateZ(-ra);
 		p2 = new Vector3d(0, lengthCoxa, 0);
-		p2 = r.multiply(p2);
+		p2 = r.apply(p2);
 		p2 = p2.add(p1);
 
 		r = r.rotateX(-rb);
 		p3 = new Vector3d(0, 0, lengthFemur);
-		p3 = r.multiply(p3);
+		p3 = r.apply(p3);
 		p3 = p3.add(p2);
 
 		r = r.rotateX(-rc);
 		p4 = new Vector3d(0, 0, lengthTibia);
-		p4 = r.multiply(p4);
+		p4 = r.apply(p4);
 		p4 = p4.add(p3);
 	}
 

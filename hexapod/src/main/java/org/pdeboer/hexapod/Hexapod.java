@@ -135,10 +135,10 @@ public class Hexapod {
 		return rotation.clone();
 	}
 
-	public Matrix rotationMatrix() {
-		return Matrix.getRotateX(-rotation[ROLL])
-				.rotateY(-rotation[PITCH])
-				.rotateZ(-rotation[YAW]);
+	public Rotation3D rotationMatrix() {
+		return Rotation3D.of(-rotation[ROLL],
+							 -rotation[PITCH],
+							 -rotation[YAW]);
 	}
 
 	public Leg getLeg(int index) {
@@ -175,9 +175,9 @@ public class Hexapod {
 	}
 
 	public void updateP1() {
-		Matrix m = rotationMatrix();
+		var rotation = rotationMatrix();
 		for (int i = 0; i < LEG_COUNT; ++i) {
-			Vector3d p = m.multiply(offset[i]);
+			Vector3d p = rotation.apply(offset[i]);
 			legs[i].p1 = center.add(p);
 		}
 	}
@@ -187,7 +187,7 @@ public class Hexapod {
 
 		Plane3d p = legConfig.getGroundPlane();
 		double distance = p.distance(center);
-		double[] r = Matrix.getRotation(p.n);
+		double[] r = Rotation3D.getAngles(p.n);
 
 		center = new Vector3d(center.x(), center.y(), distance);
 		rotation = new double[] { -r[ROLL], -r[PITCH], -r[YAW] };

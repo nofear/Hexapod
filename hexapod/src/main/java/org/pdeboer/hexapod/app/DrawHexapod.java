@@ -92,9 +92,9 @@ class DrawHexapod {
 			p[i + 6] = Hexapod.offset[i].add(new Vector3d(0, 0, -Hexapod.height / 2));
 		}
 
-		Matrix r = hexapod.rotationMatrix();
+		Rotation3D r = hexapod.rotationMatrix();
 		for (int i = 0; i < p.length; ++i) {
-			p[i] = r.multiply(p[i]).add(hexapod.center());
+			p[i] = r.apply(p[i]).add(hexapod.center());
 		}
 
 		g.beginShape();
@@ -231,7 +231,7 @@ class DrawHexapod {
 
 	void drawPlane(final PApplet g) {
 		Plane3d plane = hexapod.calculateLegConfig().getGroundPlane();
-		double[] r = Matrix.getRotation(plane.n);
+		double[] r = Rotation3D.getAngles(plane.n);
 
 		g.pushMatrix();
 		g.rotateZ((float) r[0]);
