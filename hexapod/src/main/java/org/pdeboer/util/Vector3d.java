@@ -34,6 +34,13 @@ public class Vector3d implements Serializable {
 		this(arg0.x, arg0.y, arg0.z);
 	}
 
+	public static Vector3d of(
+			final double arg0,
+			final double arg1,
+			final double arg2) {
+		return new Vector3d(arg0, arg1, arg2);
+	}
+
 	public Vector3d neg() {
 		return multiply(-1);
 	}

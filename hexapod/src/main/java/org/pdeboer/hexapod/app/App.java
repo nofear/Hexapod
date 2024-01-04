@@ -41,6 +41,10 @@ public class App extends PApplet {
 
 	private Hexapod hexapod;
 
+	private Vector3d speed = new Vector3d();
+
+	private static int stepIndex = 0;
+
 	// ************************* GLOBAL VARIABLES **************************
 
 	public void settings() {
@@ -137,9 +141,21 @@ public class App extends PApplet {
 			return;
 		}
 
+		switch (keyCode) {
+		case UP -> speed = speed.add(new Vector3d(0.1, 0, 0));
+		case DOWN -> speed = speed.add(new Vector3d(-0.1, 0, 0));
+		case RIGHT -> speed = speed.add(new Vector3d(0, 0.1, 0));
+		case LEFT -> speed = speed.add(new Vector3d(0, -0.1, 0));
+		}
+
 		switch (key) {
+		case '.':
+			speed = new Vector3d();
+			break;
+
 		case '0':
 			hexapod.init();
+			speed = new Vector3d();
 			break;
 
 		case '1':
@@ -204,6 +220,21 @@ public class App extends PApplet {
 	@Override
 	public void draw() {
 		checkKeyPressed();
+
+		hexapod.setSpeed(speed);
+
+		stepIndex++;
+
+		stepIndex %= Leg.STEP_COUNT * 6;
+
+		if (stepIndex % Leg.STEP_COUNT == 0) {
+			int legIndex = stepIndex / Leg.STEP_COUNT;
+
+			var leg = hexapod.getLeg(legIndex);
+			leg.startMoving(speed);
+		}
+
+		hexapod.update();
 
 		draw(hexapod);
 	}

@@ -63,7 +63,7 @@ public class Hexapod {
 	}
 
 	public void init() {
-		this.center = new Vector3d(0, 0, 75);
+		this.center = new Vector3d(-50, 0, 75);
 		this.rotation = new double[] { 0, 0, 0 };
 		this.speed = new Vector3d();
 
@@ -148,16 +148,16 @@ public class Hexapod {
 	private void initLeg() {
 
 		int x = 0;
-		int y = 100;
+		int y = 80;
 		int z = 0;
 
 		int off = 50;
 		double[][] o = new double[][] {
 				{ x + off, y },
-				{ x, y },
-				{ x - 2 * off, y },
-				{ x - 2 * off, -y },
-				{ x, -y },
+				{ x, y * 1.25 },
+				{ x - off, y },
+				{ x - off, -y },
+				{ x, -y * 1.25 },
 				{ x + off, -y } };
 		for (int i = 0; i < LEG_COUNT; ++i) {
 			var p1 = center.add(offset[i]);

@@ -14,7 +14,7 @@ public class Leg {
 		LEFT_BACK, LEFT_MID, LEFT_FRONT
 	}
 
-	final static int STEP_COUNT = 10;
+	public final static int STEP_COUNT = 10;
 	private final static int LENGTH_COXA = 27;
 	private final static int LENGTH_FEMUR = 77;
 	private final static int LENGTH_TIBIA = 107;

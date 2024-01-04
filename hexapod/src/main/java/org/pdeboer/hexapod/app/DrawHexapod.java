@@ -33,9 +33,9 @@ class DrawHexapod {
 			final PApplet g,
 			final Vector3d c) {
 		g.pushMatrix();
-		g.fill(Color.gray.getRGB());
+		g.fill(Color.orange.getRGB());
 		translate(g, c);
-		g.sphere(4);
+		g.sphere(5);
 		g.popMatrix();
 	}
 
@@ -45,8 +45,7 @@ class DrawHexapod {
 		g.translate((float) v.x(), (float) v.y(), (float) v.z());
 	}
 
-	private void
-	drawEye(
+	private void drawEye(
 			final PApplet g,
 			final double offsetY) {
 		Vector3d c = hexapod.center();
@@ -83,13 +82,14 @@ class DrawHexapod {
 		Vector3d[] p = new Vector3d[12];
 
 		// top plate
+		int height2 = height / 2;
 		for (int i = 0; i < 6; ++i) {
-			p[i] = Hexapod.offset[i].add(new Vector3d(0, 0, Hexapod.height / 2));
+			p[i] = offset[i].add(new Vector3d(0, 0, height));
 		}
 
 		// bottom plate
 		for (int i = 0; i < 6; ++i) {
-			p[i + 6] = Hexapod.offset[i].add(new Vector3d(0, 0, -Hexapod.height / 2));
+			p[i + 6] = offset[i].add(new Vector3d(0, 0, 0));
 		}
 
 		Rotation3D r = hexapod.rotationMatrix();
