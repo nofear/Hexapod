@@ -1,5 +1,7 @@
 package org.pdeboer.hexapod.app;
 
+import net.java.games.input.Event;
+import net.java.games.input.*;
 import org.pdeboer.*;
 import org.pdeboer.hexapod.*;
 import org.pdeboer.util.*;
@@ -7,10 +9,13 @@ import processing.core.*;
 
 import java.awt.*;
 import java.util.*;
+import java.util.stream.*;
 
 import static org.pdeboer.hexapod.Hexapod.*;
 
 public class App extends PApplet {
+
+	private static final String CONTROLLER_NAME = "DualSense Wireless Controller";
 
 	public static void main(String[] args) {
 		PApplet.main(new String[] { App.class.getName() });
@@ -26,6 +31,9 @@ public class App extends PApplet {
 
 	private double ra = -PI / 4;
 	private double rb = PI / 8;
+
+	private double ra_speed = 0.0;
+	private double rb_speed = 0.0;
 
 	private boolean controlFrame = false;
 	private boolean controlBody = false;
@@ -44,6 +52,10 @@ public class App extends PApplet {
 
 	private Terrain terrain;
 
+	private Controller controller;
+
+	private Map<String, Float> controllerValues;
+
 	// ************************* GLOBAL VARIABLES **************************
 
 	public void settings() {
@@ -57,6 +69,12 @@ public class App extends PApplet {
 
 		terrain = new TerrainImpl(0.001);
 		hexapod = new Hexapod(terrain);
+
+		controller = Stream.of(ControllerEnvironment.getDefaultEnvironment().getControllers())
+				.filter(ctrl -> ctrl.getName().compareToIgnoreCase(CONTROLLER_NAME) == 0)
+				.findFirst()
+				.orElse(null);
+		controllerValues = new HashMap<>();
 	}
 
 	@Override
@@ -169,11 +187,86 @@ public class App extends PApplet {
 
 	@Override
 	public void draw() {
+		if (controller != null) {
+			process_controller();
+		}
+
 		checkKeyPressed();
 
 		hexapod.update();
 
 		draw(hexapod);
+	}
+
+	private void process_controller() {
+
+		controller.poll();
+
+		var queue = controller.getEventQueue();
+
+		/* Create an event object for the underlying plugin to populate */
+		Event event = new Event();
+
+		while (queue.getNextEvent(event)) {
+
+			String id = event.getComponent().getIdentifier().getName();
+
+			String m = String.format(
+					"[time_stamp=%d] [component=%s] [analog=%s] [value=%f]",
+					event.getNanos(),
+					event.getComponent(),
+					event.getComponent().isAnalog() ? "true" : "false",
+					event.getValue()
+			);
+
+			controllerValues.put(id, event.getValue());
+
+			switch (event.getComponent().getName()) {
+			case "pov" -> {
+				if (event.getValue() == 0.25) {
+					hexapod.execute(Action.MOVE_FORWARD);
+				}
+				if (event.getValue() == 0.5) {
+					hexapod.execute(Action.MOVE_RIGHT);
+				}
+				if (event.getValue() == 0.75) {
+					hexapod.execute(Action.MOVE_BACKWARD);
+				}
+				if (event.getValue() == 1.0) {
+					hexapod.execute(Action.MOVE_LEFT);
+				}
+			}
+
+			// left-stick
+			case "y" -> {
+				var speed = hexapod.speed();
+				float val = -event.getValue();
+				hexapod.setSpeed(new Vector3d(Math.abs(val) >= 0.02 ? val : 0, speed.y(), 0));
+			}
+
+			case "x" -> {
+				var speed = hexapod.speed();
+				float val = event.getValue();
+				hexapod.setSpeed(new Vector3d(speed.x(), Math.abs(val) >= 0.02 ? val : 0, 0));
+			}
+
+			case "z" -> {
+				float val = event.getValue();
+				ra_speed = Math.abs(val) >= 0.02 ? val * 0.05 : 0;
+			}
+			case "rz" -> {
+				float val = event.getValue();
+				rb_speed = Math.abs(val) >= 0.02 ? val * 0.05 : 0;
+			}
+
+			}
+
+			System.out.println(m);
+		}
+
+		ra += ra_speed;
+		rb += rb_speed;
+
 	}
 
 	private void stabilise() {
@@ -257,4 +350,5 @@ public class App extends PApplet {
 	private static String fmtAngle(final double v) {
 		return String.format("%.1f", v * 180 / PI);
 	}
+
 }

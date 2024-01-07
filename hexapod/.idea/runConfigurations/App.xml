@@ -1,5 +1,8 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="App" type="Application" factoryName="Application" nameIsGenerated="true">
+    <envs>
+      <env name="-Djava.library.path" value="${project.build.directory}/natives" />
+    </envs>
     <option name="MAIN_CLASS_NAME" value="org.pdeboer.hexapod.app.App" />
     <module name="hexapod" />
     <extension name="coverage">
