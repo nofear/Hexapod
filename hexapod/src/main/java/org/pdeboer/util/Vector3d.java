@@ -57,7 +57,6 @@ public class Vector3d implements Serializable {
 		return new Vector3d(x * val, y * val, z * val);
 	}
 
-
 	public double angle(final Vector3d v1) {
 		double vDot = dot(v1) / (length() * v1.length());
 		if (vDot < -1.0) {
@@ -79,8 +78,21 @@ public class Vector3d implements Serializable {
 		var tz = v1.x * v2.y - v1.y * v2.x;
 		return new Vector3d(x, y, tz);
 	}
+
 	public Vector3d add(final Vector3d v) {
 		return new Vector3d(x + v.x, y + v.y, z + v.z);
+	}
+
+	public Vector3d addX(final double dx) {
+		return new Vector3d(x + dx, y, z);
+	}
+
+	public Vector3d addY(final double dy) {
+		return new Vector3d(x, y + dy, z);
+	}
+
+	public Vector3d addZ(final double dz) {
+		return new Vector3d(x, y, z + dz);
 	}
 
 	public Vector3d sub(final Vector3d v) {

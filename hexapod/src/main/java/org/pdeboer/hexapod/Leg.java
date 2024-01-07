@@ -1,5 +1,6 @@
 package org.pdeboer.hexapod;
 
+import org.pdeboer.*;
 import org.pdeboer.util.*;
 
 import java.util.*;
@@ -18,6 +19,8 @@ public class Leg {
 	private final static int LENGTH_COXA = 27;
 	private final static int LENGTH_FEMUR = 77;
 	private final static int LENGTH_TIBIA = 107;
+
+	private final Terrain terrain;
 
 	private final Id id;
 
@@ -38,16 +41,28 @@ public class Leg {
 	private int moveIndex;
 	private Vector3d moveSource;
 
-	Leg(final Id id) {
-		this(id, LENGTH_COXA, LENGTH_FEMUR, LENGTH_TIBIA);
+	Leg(
+			final Id id,
+			final Terrain terrain) {
+		this(id, terrain, LENGTH_COXA, LENGTH_FEMUR, LENGTH_TIBIA);
 	}
 
 	Leg(
 			final Id id,
-			double lengthCoxa,
-			double lengthFemur,
-			double lengthTibia) {
+			final double lengthCoxa,
+			final double lengthFemur,
+			final double lengthTibia) {
+		this(id, (x, y) -> 0, lengthCoxa, lengthFemur, lengthTibia);
+	}
+
+	private Leg(
+			final Id id,
+			final Terrain terrain,
+			final double lengthCoxa,
+			final double lengthFemur,
+			final double lengthTibia) {
 		this.id = id;
+		this.terrain = terrain;
 		this.lengthCoxa = lengthCoxa;
 		this.lengthFemur = lengthFemur;
 		this.lengthTibia = lengthTibia;
@@ -82,7 +97,7 @@ public class Leg {
 		double y = p4.y() + speed.y();
 		double z = Math.sin(PI * moveIndex / STEP_COUNT) * 20;
 
-		p4 = new Vector3d(x, y, z);
+		p4 = new Vector3d(x, y, terrain.height(x, y) + z);
 
 		System.out.println(String.format("leg=%s, p4=%s", id, p4));
 	}

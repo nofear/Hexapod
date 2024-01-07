@@ -39,6 +39,7 @@ public class Hexapod {
 
 	public final static int length = 200;
 	public final static int width = 100;
+
 	public final static int height = 50;
 	private final static int widthMiddle = 150;
 	public final static int LEG_COUNT = Id.values().length;
@@ -65,7 +66,7 @@ public class Hexapod {
 	private State state;
 	private Vector3d speed;
 
-	private int legIndex;
+	private int centerHeight;
 
 	private int stepIndex;
 
@@ -75,17 +76,19 @@ public class Hexapod {
 		this.terrain = terrain;
 
 		this.legs = Stream.of(Leg.Id.values())
-				.map(Leg::new)
+				.map(legId -> new Leg(legId, terrain))
 				.toArray(Leg[]::new);
 
-		this.legIndex = -1;
 		this.stepIndex = 0;
+
+		this.centerHeight = 75;
 
 		init();
 	}
 
 	public void init() {
-		this.center = new Vector3d(-50, 0, 75);
+		Vector3d c = new Vector3d(-50, 0, 0);
+		this.center = c.addZ(terrain.height(c.x(), c.y()) + centerHeight);
 		this.rotation = new double[] { 0, 0, 0 };
 
 		this.state = State.STOP;
@@ -94,14 +97,30 @@ public class Hexapod {
 		initLeg();
 	}
 
-	public void startMoving(final Vector3d speed) {
-		this.state = State.WALK;
-		this.speed = speed;
-		this.legIndex = 0;
-
-	}
-
 	public void update() {
+		updateP1();
+
+		double frontHeight = getAvgHeight(Id.RIGHT_FRONT, Id.LEFT_FRONT);
+		double backHeight = getAvgHeight(Id.RIGHT_BACK, Id.LEFT_BACK);
+		double diffPitch = backHeight - frontHeight;
+		diffPitch = Math.abs(diffPitch) > 5 ? Math.signum(diffPitch) * 0.01 : 0.0;
+
+		double leftHeight = getAvgHeight(Id.LEFT_FRONT, Id.LEFT_BACK);
+		double rightHeight = getAvgHeight(Id.RIGHT_FRONT, Id.RIGHT_BACK);
+		double diffRoll = leftHeight - rightHeight;
+		diffRoll = Math.abs(diffRoll) > 5 ? Math.signum(diffRoll) * 0.01 : 0.0;
+
+		rotation[PITCH] += diffPitch;
+		rotation[ROLL] += diffRoll;
+
+		double diffCenter = getHeight(center) - centerHeight;
+		if (Math.abs(diffCenter) > 5) {
+			Vector3d diff = new Vector3d(0, 0, 0.5).multiply(Math.signum(diffCenter));
+			setCenter(center.sub(diff));
+		}
+
+		updateInverse();
+
 		switch (state) {
 		case STOP -> updateIdle();
 		case WALK -> updateWalk();
@@ -138,6 +157,20 @@ public class Hexapod {
 		if (update) {
 			updateInverse();
 		}
+
+	}
+
+	private double getAvgHeight(
+			final Leg.Id legId1,
+			final Leg.Id legId2) {
+		var leg1 = getLeg(legId1);
+		var leg2 = getLeg(legId2);
+
+		return (getHeight(leg1.p1) + getHeight(leg2.p1)) / 2;
+	}
+
+	private double getHeight(final Vector3d p) {
+		return p.z() - terrain.height(p.x(), p.y());
 	}
 
 	private void updateWalk() {
@@ -171,12 +204,18 @@ public class Hexapod {
 		case MOVE_RIGHT -> setSpeed(speed.add(new Vector3d(0, 0.1, 0)));
 		case MOVE_LEFT -> setSpeed(speed.add(new Vector3d(0, -0.1, 0)));
 
-		case FORWARD -> center = new Vector3d(center.x() + 1, center.y(), center.z());
-		case BACKWARD -> center = new Vector3d(center.x() - 1, center.y(), center.z());
-		case LEFT -> center = new Vector3d(center.x(), center.y() + 1, center.z());
-		case RIGHT -> center = new Vector3d(center.x(), center.y() - 1, center.z());
-		case UP -> center = new Vector3d(center.x(), center.y(), center.z() + 1);
-		case DOWN -> center = new Vector3d(center.x(), center.y(), center.z() - 1);
+		case FORWARD -> setCenter(center.addX(1));
+		case BACKWARD -> setCenter(center.addX(-1));
+		case LEFT -> setCenter(center.addY(1));
+		case RIGHT -> setCenter(center.addY(-1));
+		case UP -> {
+			centerHeight++;
+			center = center.addZ(1);
+		}
+		case DOWN -> {
+			centerHeight--;
+			center = center.addZ(-1);
+		}
 
 		case ROLL_MIN -> rotation[ROLL] -= 0.01;
 		case ROLL_PLUS -> rotation[ROLL] += 0.01;
@@ -226,6 +265,10 @@ public class Hexapod {
 		return legs[index];
 	}
 
+	public Leg getLeg(Leg.Id legId) {
+		return legs[legId.ordinal()];
+	}
+
 	private void initLeg() {
 
 		int x = 0;
@@ -243,7 +286,8 @@ public class Hexapod {
 			var p1 = center.add(offset[i]);
 			double x1 = o[i][0];
 			double y1 = o[i][1];
-			legs[i].init(p1, x1, y1, terrain.height(x1, y1));
+
+			legs[i].init(p1, x1, y1, terrain.height(p1.x() + x1, p1.y() + y1));
 		}
 	}
 

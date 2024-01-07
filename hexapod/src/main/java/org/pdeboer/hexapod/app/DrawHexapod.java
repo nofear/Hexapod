@@ -76,8 +76,7 @@ class DrawHexapod {
 		g.stroke(0);
 		g.strokeWeight(2);
 		g.pushMatrix();
-		g.fill(240);
-		g.noFill();
+		g.fill(240, 128);
 
 		Vector3d[] p = new Vector3d[12];
 

@@ -54,8 +54,6 @@ public class App extends PApplet {
 
 	private Controller controller;
 
-	private Map<String, Float> controllerValues;
-
 	// ************************* GLOBAL VARIABLES **************************
 
 	public void settings() {
@@ -67,14 +65,13 @@ public class App extends PApplet {
 		smooth();
 		frameRate(FRAME_RATE);
 
-		terrain = new TerrainImpl(0.001);
+		terrain = new TerrainImpl(0.0012);
 		hexapod = new Hexapod(terrain);
 
 		controller = Stream.of(ControllerEnvironment.getDefaultEnvironment().getControllers())
 				.filter(ctrl -> ctrl.getName().compareToIgnoreCase(CONTROLLER_NAME) == 0)
 				.findFirst()
 				.orElse(null);
-		controllerValues = new HashMap<>();
 	}
 
 	@Override
@@ -209,8 +206,6 @@ public class App extends PApplet {
 
 		while (queue.getNextEvent(event)) {
 
-			String id = event.getComponent().getIdentifier().getName();
-
 			String m = String.format(
 					"[time_stamp=%d] [component=%s] [analog=%s] [value=%f]",
 					event.getNanos(),
@@ -218,8 +213,6 @@ public class App extends PApplet {
 					event.getComponent().isAnalog() ? "true" : "false",
 					event.getValue()
 			);
-
-			controllerValues.put(id, event.getValue());
 
 			switch (event.getComponent().getName()) {
 			case "pov" -> {
@@ -266,30 +259,6 @@ public class App extends PApplet {
 
 		ra += ra_speed;
 		rb += rb_speed;
-
-	}
-
-	private void stabilise() {
-		double[] r = hexapod.rotation();
-		if (r[2] != 0) {
-			LegConfig lc = hexapod.calculateLegConfig();
-
-			double diff = 0.0000001;
-			if (r[2] < -diff) {
-				r[2] += diff;
-			} else if (r[2] > diff) {
-				r[2] -= diff;
-			}
-
-			hexapod.setRotation(r);
-
-			hexapod.updateP1();
-			for (int i = 0; i < LEG_COUNT; ++i) {
-				if (lc.touchGround(i)) {
-					hexapod.getLeg(i).updateInverse(hexapod.rotation());
-				}
-			}
-		}
 	}
 
 	private void draw(final Hexapod hexapod) {
@@ -304,27 +273,24 @@ public class App extends PApplet {
 
 		int x0 = 10;
 		textAlign(PApplet.LEFT);
-		text("body", 10, 20);
-		text("roll:  " + fmtAngle(r[ROLL]), x0, 40);
-		text("pitch: " + fmtAngle(r[PITCH]), x0, 60);
-		text("yaw:   " + fmtAngle(r[YAW]), x0, 80);
+		text("center: " + hexapod.center(), x0, 20);
+		text("rotation: " + Arrays.toString(hexapod.rotation()), x0, 40);
+		text("speed:    " + hexapod.speed(), 10, 60);
 
-		text("l: " + Arrays.toString(lc.getIndex()), x0, 120);
-		text("c:  " + center.toString(), x0, 140);
-		text("r: " + Arrays.toString(hexapod.rotation()), x0, 160);
-
-		float leg_x0 = 250;
-		// float leg_y0 = 120;
-		float leg_d = 180;
-		for (int i = 0; i < LEG_COUNT; ++i) {
-			Leg leg = hexapod.getLeg(i);
-			text("leg " + i, leg_x0 + i * leg_d, 20);
-			text("ra " + fmtAngle(leg.getRa()), leg_x0 + i * leg_d, 40);
-			text("rb " + fmtAngle(leg.getRb()), leg_x0 + i * leg_d, 60);
-			text("rc " + fmtAngle(leg.getRc()), leg_x0 + i * leg_d, 80);
-			text("d  " + fmt(lc.getDistance(i)), leg_x0 + i * leg_d, 100);
-			text("p1 " + leg.p1.toString(), leg_x0 + i * leg_d, 120);
-			text("p4 " + leg.p4.toString(), leg_x0 + i * leg_d, 140);
+		if (false) {
+			float leg_x0 = 250;
+			// float leg_y0 = 120;
+			float leg_d = 180;
+			for (int i = 0; i < LEG_COUNT; ++i) {
+				Leg leg = hexapod.getLeg(i);
+				text("leg " + i, leg_x0 + i * leg_d, 20);
+				text("ra " + fmtAngle(leg.getRa()), leg_x0 + i * leg_d, 40);
+				text("rb " + fmtAngle(leg.getRb()), leg_x0 + i * leg_d, 60);
+				text("rc " + fmtAngle(leg.getRc()), leg_x0 + i * leg_d, 80);
+				text("d  " + fmt(lc.getDistance(i)), leg_x0 + i * leg_d, 100);
+				text("p1 " + leg.p1.toString(), leg_x0 + i * leg_d, 120);
+				text("p4 " + leg.p4.toString(), leg_x0 + i * leg_d, 140);
+			}
 		}
 
 		translate(MID_X, HEIGHT / 2 + 50);
@@ -334,12 +300,8 @@ public class App extends PApplet {
 		var dt = new DrawTerrain(terrain);
 		dt.draw(this);
 
-		// fill(100, 150, 100);
-		// rect(-400, -400, 800, 800);
-
 		var ds = new DrawHexapod(hexapod);
 		ds.draw(this);
-		// ds.drawPlane(this);
 		ds.drawLegFrame(this);
 
 		Vector3d c = hexapod.center();

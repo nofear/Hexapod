@@ -15,7 +15,7 @@ class DrawTerrain {
 
 	void draw(final PApplet g) {
 
-		int width2 = 1000 / 2;
+		int width2 = 2000 / 2;
 		int meshSize = 50;
 
 		g.pushMatrix();
