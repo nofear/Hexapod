@@ -341,6 +341,13 @@ public class App extends PApplet {
 		ds.draw(this);
 		// ds.drawPlane(this);
 		ds.drawLegFrame(this);
+
+		Vector3d c = hexapod.center();
+		Vector3d t = new Vector3d(c.x(), c.y(), terrain.height(c.x(), c.y()));
+
+		DrawHexapod.translate(this, t);
+		g.fill(Color.yellow.getRGB());
+		g.sphere(4);
 	}
 
 	private static String fmt(final double v) {

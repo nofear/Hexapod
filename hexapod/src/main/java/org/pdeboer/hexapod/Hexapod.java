@@ -113,21 +113,23 @@ public class Hexapod {
 		boolean update = false;
 		for (Leg leg : legs) {
 
+			double speed = 0.5;
+
 			double x = leg.p4.x();
 			double y = leg.p4.y();
 			double z = terrain.height(x, y);
 
-			if (Math.abs(leg.p4.z() - z) < 0.1) {
+			if (Math.abs(leg.p4.z() - z) <= speed) {
 				leg.p4 = new Vector3d(leg.p4.x(), leg.p4.y(), z);
 				continue;
 			}
 
 			if (leg.p4.z() < z) {
-				leg.p4 = leg.p4.add(new Vector3d(0, 0, 0.1));
+				leg.p4 = leg.p4.add(new Vector3d(0, 0, speed));
 			}
 
 			if (leg.p4.z() > z) {
-				leg.p4 = leg.p4.sub(new Vector3d(0, 0, 0.1));
+				leg.p4 = leg.p4.sub(new Vector3d(0, 0, speed));
 			}
 
 			update = true;
@@ -261,17 +263,6 @@ public class Hexapod {
 		}
 	}
 
-	public void stabilise() {
-		var legConfig = calculateLegConfig();
-
-		Plane3d p = legConfig.getGroundPlane();
-		double distance = p.distance(center);
-		double[] r = Rotation3D.getAngles(p.n);
-
-		center = new Vector3d(center.x(), center.y(), distance);
-		rotation = new double[] { -r[ROLL], -r[PITCH], -r[YAW] };
-	}
-
 	public void updateInverse() {
 		updateP1();
 
@@ -300,7 +291,7 @@ public class Hexapod {
 				{ 2, 3, 4 }, { 2, 3, 5 }, { 2, 4, 5 } };
 
 		return Stream.of(indices)
-				.map(index -> new LegConfig(this, index))
+				.map(index -> new LegConfig(this, terrain, index))
 				.max(comparing(LegConfig::countStable))
 				.orElseThrow(() -> new IllegalStateException("no stable leg configuration found"));
 

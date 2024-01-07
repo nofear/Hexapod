@@ -1,5 +1,6 @@
 package org.pdeboer.hexapod;
 
+import org.pdeboer.*;
 import org.pdeboer.util.*;
 
 import java.util.stream.*;
@@ -15,41 +16,28 @@ public class LegConfig {
 
 	private final Hexapod hexapod;
 
+	private final Terrain terrain;
+
 	/**
 	 * assume these legs are our ground plane.
 	 */
 	private final int[] index;
 
-	/**
-	 * true if the center of gravity is inside our ground plane.
-	 */
-	private boolean inside;
-
-	private Plane3d groundPlane;
+	private boolean inside = true;
 
 	public LegConfig(
 			final Hexapod hexapod,
+			final Terrain terrain,
 			final int[] index) {
 		this.hexapod = hexapod;
+		this.terrain = terrain;
 		this.index = index;
 
 		assert (index.length == 3);
 
-		Vector3d p1 = getP4(index[0]);
-		Vector3d p2 = getP4(index[1]);
-		Vector3d p3 = getP4(index[2]);
+		var center = hexapod.center();
 
-		groundPlane = new Plane3d(p1, p2, p3);
-
-		Vector2d a = new Vector2d(p1.x(), p1.y());
-		Vector2d b = new Vector2d(p2.x(), p2.y());
-		Vector2d c = new Vector2d(p3.x(), p3.y());
-
-		Plane2d p2d = new Plane2d(a, b, c);
-		Vector3d planec = groundPlane.project(hexapod.center());
-		Vector2d z = new Vector2d(planec.x(), planec.y());
-
-		inside = p2d.inside(z);
+		inside = terrain.height(center.x(), center.y()) >= 25;
 	}
 
 	public int countStable() {
@@ -78,11 +66,8 @@ public class LegConfig {
 	}
 
 	public double getDistance(int idx) {
-		return groundPlane.distance(getP4(idx));
-	}
-
-	public Plane3d getGroundPlane() {
-		return groundPlane;
+		Vector3d p4 = getP4(idx);
+		return p4.z() - terrain.height(p4.x(), p4.y());
 	}
 
 	private Vector3d getP4(int idx) {

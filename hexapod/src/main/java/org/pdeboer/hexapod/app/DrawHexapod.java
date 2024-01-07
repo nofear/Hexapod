@@ -39,7 +39,7 @@ class DrawHexapod {
 		g.popMatrix();
 	}
 
-	private static void translate(
+	static void translate(
 			final PApplet g,
 			final Vector3d v) {
 		g.translate((float) v.x(), (float) v.y(), (float) v.z());
@@ -219,27 +219,6 @@ class DrawHexapod {
 		}
 		g.endShape();
 
-		Vector3d c = hexapod.center();
-		Vector3d t = hexapod.calculateLegConfig().getGroundPlane().project(c);
-
-		translate(g, t);
-		g.fill(Color.yellow.getRGB());
-		g.sphere(4);
-
-		g.popMatrix();
-	}
-
-	void drawPlane(final PApplet g) {
-		Plane3d plane = hexapod.calculateLegConfig().getGroundPlane();
-		double[] r = Rotation3D.getAngles(plane.n);
-
-		g.pushMatrix();
-		g.rotateZ((float) r[0]);
-		g.rotateY((float) r[1]);
-		g.rotateX((float) r[2]);
-		g.translate(0, 0, (float) plane.D + 1);
-		g.fill(150, 150, 100);
-		g.rect(-300, -300, 600, 600);
 		g.popMatrix();
 	}
 
