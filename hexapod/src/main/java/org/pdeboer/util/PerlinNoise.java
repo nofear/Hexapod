@@ -46,7 +46,8 @@ public class PerlinNoise {
 		int BA = permutation[B];
 		int BB = permutation[B + 1];
 
-		return lerp(v, lerp(u, grad(permutation[AA], x, y), grad(permutation[BA], x - 1, y)),
+		return lerp(v,
+					lerp(u, grad(permutation[AA], x, y), grad(permutation[BA], x - 1, y)),
 					lerp(u, grad(permutation[AB], x, y - 1), grad(permutation[BB], x - 1, y - 1)));
 	}
 
@@ -75,5 +76,7 @@ public class PerlinNoise {
 		return (grad * x) + (h < 4 ? 0 : h == 12 || h == 14 ? y : 0);
 	}
 
-	private PerlinNoise() {}
+	private PerlinNoise() {
+
+	}
 }

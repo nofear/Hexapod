@@ -5,36 +5,34 @@ import processing.core.*;
 
 import static processing.core.PConstants.*;
 
-public class DrawTerrain {
+class DrawTerrain {
 
 	private final Terrain terrain;
 
-	public DrawTerrain(final Terrain terrain) {
+	DrawTerrain(final Terrain terrain) {
 		this.terrain = terrain;
 	}
 
 	void draw(final PApplet g) {
-		int meshSize = Terrain.MESH_SIZE;
-		int resX = terrain.resX;
-		int resY = terrain.resY;
 
-		double[][] val = terrain.data();
+		int width2 = 1000 / 2;
+		int meshSize = 20;
 
 		g.pushMatrix();
-		g.translate(-resX / 2 * meshSize, -resY / 2 * meshSize);
 
-		//g.background(0);
+		for (int x1 = -width2; x1 < width2; x1 += meshSize) {
+			for (int y1 = -width2; y1 < width2; y1 += meshSize) {
 
-		for (int x = 0; x < resX - 1; x++) {
-			for (int y = 0; y < resY - 1; y++) {
+				int x2 = x1 + meshSize;
+				int y2 = y1 + meshSize;
+
+				g.fill(100, 150 + (float) terrain.height(x1, y1), 50);
+
 				g.beginShape();
-				g.fill(0, 150 + (float) val[x][y], 0);
-
-				g.vertex(x * meshSize, y * meshSize, (float) val[x][y]);
-				g.vertex((x + 1) * meshSize, y * meshSize, (float) val[x + 1][y]);
-				g.vertex((x + 1) * meshSize, (y + 1) * meshSize, (float) val[x + 1][y + 1]);
-				g.vertex(x * meshSize, (y + 1) * meshSize, (float) val[x][y + 1]);
-
+				g.vertex(x1, y1, (float) terrain.height(x1, y1));
+				g.vertex(x2, y1, (float) terrain.height(x2, y1));
+				g.vertex(x2, y2, (float) terrain.height(x2, y2));
+				g.vertex(x1, y2, (float) terrain.height(x1, y2));
 				g.endShape(CLOSE);
 			}
 		}

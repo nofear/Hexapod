@@ -56,7 +56,7 @@ public class App extends PApplet {
 		frameRate(FRAME_RATE);
 
 		hexapod = new Hexapod();
-		terrain = new Terrain(0.01);
+		terrain = new Terrain(0.0005);
 	}
 
 	@Override
