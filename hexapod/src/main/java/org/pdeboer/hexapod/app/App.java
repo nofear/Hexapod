@@ -1,5 +1,6 @@
 package org.pdeboer.hexapod.app;
 
+import org.pdeboer.*;
 import org.pdeboer.hexapod.*;
 import org.pdeboer.util.*;
 import processing.core.*;
@@ -41,9 +42,7 @@ public class App extends PApplet {
 
 	private Hexapod hexapod;
 
-	private Vector3d speed = new Vector3d();
-
-	private static int stepIndex = 0;
+	private Terrain terrain;
 
 	// ************************* GLOBAL VARIABLES **************************
 
@@ -57,6 +56,7 @@ public class App extends PApplet {
 		frameRate(FRAME_RATE);
 
 		hexapod = new Hexapod();
+		terrain = new Terrain(0.01);
 	}
 
 	@Override
@@ -142,97 +142,34 @@ public class App extends PApplet {
 		}
 
 		switch (keyCode) {
-		case UP -> speed = speed.add(new Vector3d(0.1, 0, 0));
-		case DOWN -> speed = speed.add(new Vector3d(-0.1, 0, 0));
-		case RIGHT -> speed = speed.add(new Vector3d(0, 0.1, 0));
-		case LEFT -> speed = speed.add(new Vector3d(0, -0.1, 0));
+		case UP -> hexapod.execute(Action.MOVE_FORWARD);
+		case DOWN -> hexapod.execute(Action.MOVE_BACKWARD);
+		case RIGHT -> hexapod.execute(Action.MOVE_RIGHT);
+		case LEFT -> hexapod.execute(Action.MOVE_LEFT);
 		}
 
 		switch (key) {
-		case '.':
-			speed = new Vector3d();
-			break;
-
-		case '0':
-			hexapod.init();
-			speed = new Vector3d();
-			break;
-
-		case '1':
-		case '2':
-		case '3':
-		case '4':
-		case '5':
-		case '6':
-			controlLegIndex = key - '1';
-			break;
-		case 'w':
-			hexapod.execute(Action.FORWARD);
-			break;
-		case 's':
-			hexapod.execute(Action.BACKWARD);
-			break;
-		case 'a':
-			hexapod.execute(Action.LEFT);
-			break;
-		case 'd':
-			hexapod.execute(Action.RIGHT);
-			break;
-		case 'q':
-			hexapod.execute(Action.UP);
-			break;
-		case 'e':
-			hexapod.execute(Action.DOWN);
-			break;
-
-		case 'j':
-			hexapod.execute(Action.ROLL_PLUS);
-			break;
-		case 'l':
-			hexapod.execute(Action.ROLL_MIN);
-			break;
-
-		case 'i':
-			hexapod.execute(Action.YAW_PLUS);
-			break;
-		case 'k':
-			hexapod.execute(Action.YAW_MIN);
-			break;
-
-		case 'u':
-			hexapod.execute(Action.PITCH_MIN);
-			break;
-		case 'o':
-			hexapod.execute(Action.PITCH_PLUS);
-			break;
-
-		case '-':
-			hexapod.updateInverse();
-			break;
-
-		case ' ':
-			stabilise();
-			break;
-
+		case '.' -> hexapod.execute(Action.STOP);
+		case '0' -> hexapod.init();
+		case '1', '2', '3', '4', '5', '6' -> controlLegIndex = key - '1';
+		case 'w' -> hexapod.execute(Action.FORWARD);
+		case 's' -> hexapod.execute(Action.BACKWARD);
+		case 'a' -> hexapod.execute(Action.LEFT);
+		case 'd' -> hexapod.execute(Action.RIGHT);
+		case 'q' -> hexapod.execute(Action.UP);
+		case 'e' -> hexapod.execute(Action.DOWN);
+		case 'j' -> hexapod.execute(Action.ROLL_PLUS);
+		case 'l' -> hexapod.execute(Action.ROLL_MIN);
+		case 'i' -> hexapod.execute(Action.YAW_PLUS);
+		case 'k' -> hexapod.execute(Action.YAW_MIN);
+		case 'u' -> hexapod.execute(Action.PITCH_MIN);
+		case 'o' -> hexapod.execute(Action.PITCH_PLUS);
 		}
 	}
 
 	@Override
 	public void draw() {
 		checkKeyPressed();
-
-		hexapod.setSpeed(speed);
-
-		stepIndex++;
-
-		stepIndex %= Leg.STEP_COUNT * 6;
-
-		if (stepIndex % Leg.STEP_COUNT == 0) {
-			int legIndex = stepIndex / Leg.STEP_COUNT;
-
-			var leg = hexapod.getLeg(legIndex);
-			leg.startMoving(speed);
-		}
 
 		hexapod.update();
 
@@ -301,12 +238,15 @@ public class App extends PApplet {
 		rotateX((float) -rb + PI / 2);
 		rotateZ((float) -ra);
 
-		fill(100, 150, 100);
-		rect(-400, -400, 800, 800);
+		var dt = new DrawTerrain(terrain);
+		dt.draw(this);
+
+		// fill(100, 150, 100);
+		// rect(-400, -400, 800, 800);
 
 		var ds = new DrawHexapod(hexapod);
 		ds.draw(this);
-		ds.drawPlane(this);
+		// ds.drawPlane(this);
 		ds.drawLegFrame(this);
 	}
 

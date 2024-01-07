@@ -16,10 +16,21 @@ public class Hexapod {
 	public static final int PITCH = 1;
 	public static final int YAW = 2;
 
+	public enum State {
+		STOP,
+		WALK
+	}
+
 	public enum Action {
+		STOP,
+
+		MOVE_FORWARD, MOVE_BACKWARD,
+		MOVE_LEFT, MOVE_RIGHT,
+
 		FORWARD, BACKWARD,
 		LEFT, RIGHT,
 		UP, DOWN,
+
 		PITCH_PLUS, PITCH_MIN,
 		YAW_PLUS, YAW_MIN,
 		ROLL_PLUS, ROLL_MIN
@@ -50,14 +61,21 @@ public class Hexapod {
 
 	private final Leg[] legs;
 
+	private State state;
 	private Vector3d speed;
 
 	private int legIndex;
 
+	private int stepIndex;
+
 	public Hexapod() {
+
 		this.legs = Stream.of(Leg.Id.values())
 				.map(Leg::new)
 				.toArray(Leg[]::new);
+
+		this.legIndex = -1;
+		this.stepIndex = 0;
 
 		init();
 	}
@@ -65,20 +83,59 @@ public class Hexapod {
 	public void init() {
 		this.center = new Vector3d(-50, 0, 75);
 		this.rotation = new double[] { 0, 0, 0 };
+
+		this.state = State.STOP;
 		this.speed = new Vector3d();
 
 		initLeg();
 	}
 
 	public void startMoving(final Vector3d speed) {
+		this.state = State.WALK;
 		this.speed = speed;
 		this.legIndex = 0;
 
 	}
 
 	public void update() {
-		if (speed.length() == 0) {
-			return;
+		switch (state) {
+		case STOP -> updateIdle();
+		case WALK -> updateWalk();
+		}
+	}
+
+	private void updateIdle() {
+
+		boolean update = false;
+		for (Leg leg : legs) {
+			if (leg.p4.z() <= 0) {
+				continue;
+			}
+
+			leg.p4 = leg.p4.sub(new Vector3d(0, 0, 0.1));
+
+			if (leg.p4.z() < 0) {
+				leg.p4 = new Vector3d(leg.p4.x(), leg.p4.y(), 0);
+			}
+
+			update = true;
+		}
+
+		if (update) {
+			updateInverse();
+		}
+	}
+
+	private void updateWalk() {
+		stepIndex++;
+
+		stepIndex %= Leg.STEP_COUNT * 6;
+
+		if (stepIndex % Leg.STEP_COUNT == 0) {
+			int legIndex = stepIndex / Leg.STEP_COUNT;
+
+			var leg = getLeg(legIndex);
+			leg.startMoving(speed);
 		}
 
 		center = center.add(speed);
@@ -94,12 +151,19 @@ public class Hexapod {
 
 	public void execute(final Action action) {
 		switch (action) {
+		case STOP -> setSpeed(new Vector3d());
+		case MOVE_FORWARD -> setSpeed(speed.add(new Vector3d(0.1, 0, 0)));
+		case MOVE_BACKWARD -> setSpeed(speed.add(new Vector3d(-0.1, 0, 0)));
+		case MOVE_RIGHT -> setSpeed(speed.add(new Vector3d(0, 0.1, 0)));
+		case MOVE_LEFT -> setSpeed(speed.add(new Vector3d(0, -0.1, 0)));
+
 		case FORWARD -> center = new Vector3d(center.x() + 1, center.y(), center.z());
 		case BACKWARD -> center = new Vector3d(center.x() - 1, center.y(), center.z());
 		case LEFT -> center = new Vector3d(center.x(), center.y() + 1, center.z());
 		case RIGHT -> center = new Vector3d(center.x(), center.y() - 1, center.z());
 		case UP -> center = new Vector3d(center.x(), center.y(), center.z() + 1);
 		case DOWN -> center = new Vector3d(center.x(), center.y(), center.z() - 1);
+
 		case ROLL_MIN -> rotation[ROLL] -= 0.01;
 		case ROLL_PLUS -> rotation[ROLL] += 0.01;
 		case PITCH_MIN -> rotation[PITCH] -= 0.01;
@@ -121,6 +185,9 @@ public class Hexapod {
 
 	public void setSpeed(final Vector3d speed) {
 		this.speed = speed;
+		this.state = speed.lengthSquared() > 0
+					 ? State.WALK
+					 : State.STOP;
 	}
 
 	public Vector3d speed() {
