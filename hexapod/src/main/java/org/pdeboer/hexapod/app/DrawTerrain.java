@@ -16,7 +16,7 @@ class DrawTerrain {
 	void draw(final PApplet g) {
 
 		int width2 = 1000 / 2;
-		int meshSize = 20;
+		int meshSize = 50;
 
 		g.pushMatrix();
 
@@ -26,13 +26,19 @@ class DrawTerrain {
 				int x2 = x1 + meshSize;
 				int y2 = y1 + meshSize;
 
-				g.fill(100, 150 + (float) terrain.height(x1, y1), 50);
+				float shade = 150 + (float) terrain.height(x1, y1) / 2;
+				g.fill(shade, shade, shade);
 
 				g.beginShape();
 				g.vertex(x1, y1, (float) terrain.height(x1, y1));
 				g.vertex(x2, y1, (float) terrain.height(x2, y1));
 				g.vertex(x2, y2, (float) terrain.height(x2, y2));
+				g.endShape(CLOSE);
+
+				g.beginShape();
+				g.vertex(x1, y1, (float) terrain.height(x1, y1));
 				g.vertex(x1, y2, (float) terrain.height(x1, y2));
+				g.vertex(x2, y2, (float) terrain.height(x2, y2));
 				g.endShape(CLOSE);
 			}
 		}

@@ -1,5 +1,6 @@
 package org.pdeboer.hexapod;
 
+import org.pdeboer.*;
 import org.pdeboer.hexapod.Leg.*;
 import org.pdeboer.util.*;
 
@@ -68,7 +69,10 @@ public class Hexapod {
 
 	private int stepIndex;
 
-	public Hexapod() {
+	private final Terrain terrain;
+
+	public Hexapod(final Terrain terrain) {
+		this.terrain = terrain;
 
 		this.legs = Stream.of(Leg.Id.values())
 				.map(Leg::new)
@@ -108,14 +112,22 @@ public class Hexapod {
 
 		boolean update = false;
 		for (Leg leg : legs) {
-			if (leg.p4.z() <= 0) {
+
+			double x = leg.p4.x();
+			double y = leg.p4.y();
+			double z = terrain.height(x, y);
+
+			if (Math.abs(leg.p4.z() - z) < 0.1) {
+				leg.p4 = new Vector3d(leg.p4.x(), leg.p4.y(), z);
 				continue;
 			}
 
-			leg.p4 = leg.p4.sub(new Vector3d(0, 0, 0.1));
+			if (leg.p4.z() < z) {
+				leg.p4 = leg.p4.add(new Vector3d(0, 0, 0.1));
+			}
 
-			if (leg.p4.z() < 0) {
-				leg.p4 = new Vector3d(leg.p4.x(), leg.p4.y(), 0);
+			if (leg.p4.z() > z) {
+				leg.p4 = leg.p4.sub(new Vector3d(0, 0, 0.1));
 			}
 
 			update = true;
@@ -216,7 +228,6 @@ public class Hexapod {
 
 		int x = 0;
 		int y = 80;
-		int z = 0;
 
 		int off = 50;
 		double[][] o = new double[][] {
@@ -228,8 +239,9 @@ public class Hexapod {
 				{ x + off, -y } };
 		for (int i = 0; i < LEG_COUNT; ++i) {
 			var p1 = center.add(offset[i]);
-
-			legs[i].init(p1, o[i][0], o[i][1], z);
+			double x1 = o[i][0];
+			double y1 = o[i][1];
+			legs[i].init(p1, x1, y1, terrain.height(x1, y1));
 		}
 	}
 

@@ -16,7 +16,7 @@ class HexapodTest {
 
 	@Test
 	void test_init() {
-		var hexapod = new Hexapod();
+		var hexapod = new Hexapod((x, y) -> 0);
 		assertLegsOnGround(hexapod);
 
 		hexapod.updateForward();
@@ -26,7 +26,7 @@ class HexapodTest {
 	@ParameterizedTest
 	@EnumSource(Action.class)
 	void test_action(final Action action) {
-		var hexapod = new Hexapod();
+		var hexapod = new Hexapod((x, y) -> 0);
 		hexapod.execute(action);
 
 		assertLegsOnGround(hexapod);
@@ -39,7 +39,7 @@ class HexapodTest {
 	@ParameterizedTest
 	@MethodSource("test_walk_provider")
 	void test_walk(final Vector3d speed) {
-		var hexapod = new Hexapod();
+		var hexapod = new Hexapod((x, y) -> 0);
 		hexapod.setSpeed(speed);
 
 		for (int i = 0; i < LEG_COUNT * Leg.STEP_COUNT; ++i) {
@@ -57,7 +57,7 @@ class HexapodTest {
 
 		Vector3d offset = speed.multiply(LEG_COUNT * Leg.STEP_COUNT);
 
-		var hexapod0 = new Hexapod();
+		var hexapod0 = new Hexapod((x, y) -> 0);
 		assertEqualsVector3D(hexapod0.center().add(offset),
 							 hexapod.center());
 		for (int i = 0; i < LEG_COUNT; ++i) {
