@@ -100,18 +100,23 @@ public class Hexapod {
 	public void update() {
 		updateP1();
 
+//		double angle = Math.atan2(speed.y(), speed.x());
+//		double diffYaw = rotation[YAW] - angle;
+//		diffYaw = Math.abs(diffYaw) > 1 ? Math.signum(diffYaw) * 0.01 : 0.0;
+
 		double frontHeight = getAvgHeight(Id.RIGHT_FRONT, Id.LEFT_FRONT);
 		double backHeight = getAvgHeight(Id.RIGHT_BACK, Id.LEFT_BACK);
 		double diffPitch = backHeight - frontHeight;
-		diffPitch = Math.abs(diffPitch) > 5 ? Math.signum(diffPitch) * 0.01 : 0.0;
+		diffPitch = Math.abs(diffPitch) > 1 ? Math.signum(diffPitch) * 0.01 : 0.0;
 
 		double leftHeight = getAvgHeight(Id.LEFT_FRONT, Id.LEFT_BACK);
 		double rightHeight = getAvgHeight(Id.RIGHT_FRONT, Id.RIGHT_BACK);
 		double diffRoll = leftHeight - rightHeight;
-		diffRoll = Math.abs(diffRoll) > 5 ? Math.signum(diffRoll) * 0.01 : 0.0;
+		diffRoll = Math.abs(diffRoll) > 1 ? Math.signum(diffRoll) * 0.01 : 0.0;
 
+		//rotation[YAW] += diffYaw;
 		rotation[PITCH] += diffPitch;
-		rotation[ROLL] += diffRoll;
+		rotation[ROLL] -= diffRoll;
 
 		double diffCenter = getHeight(center) - centerHeight;
 		if (Math.abs(diffCenter) > 5) {

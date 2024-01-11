@@ -48,16 +48,15 @@ class DrawHexapod {
 	private void drawEye(
 			final PApplet g,
 			final double offsetY) {
-		Vector3d c = hexapod.center();
-
-		float eyeY = (float) (c.y() + offsetY);
-		float eyeX = (float) c.x() + Hexapod.length / 2;
-		float eyeZ = (float) c.z() + Hexapod.height / 2;
-
 		g.pushMatrix();
+
+		translate(g, hexapod.center());
 
 		rotate(g);
 
+		float eyeY = (float) offsetY;
+		float eyeX = (float) Hexapod.length / 2;
+		float eyeZ = (float) Hexapod.height / 2;
 		g.translate(eyeX, eyeY, eyeZ);
 
 		g.fill(Color.blue.getRGB());

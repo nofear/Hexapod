@@ -13,18 +13,23 @@ class DrawTerrain {
 		this.terrain = terrain;
 	}
 
-	void draw(final PApplet g) {
+	void draw(
+			final PApplet g,
+			final double xoff,
+			final double yoff) {
 
-		int width2 = 2000 / 2;
+		int width = 2000;
 		int meshSize = 50;
 
 		g.pushMatrix();
 
-		for (int x1 = -width2; x1 < width2; x1 += meshSize) {
-			for (int y1 = -width2; y1 < width2; y1 += meshSize) {
+		for (int x0 = 0; x0 < width; x0 += meshSize) {
+			for (int y0 = 0; y0 < width; y0 += meshSize) {
 
-				int x2 = x1 + meshSize;
-				int y2 = y1 + meshSize;
+				float x1 = (float) (x0 - width / 2 + xoff);
+				float y1 = (float) (y0 - width / 2 + yoff);
+				float x2 = x1 + meshSize;
+				float y2 = y1 + meshSize;
 
 				float shade = 150 + (float) terrain.height(x1, y1) / 2;
 				g.fill(shade, shade, shade);

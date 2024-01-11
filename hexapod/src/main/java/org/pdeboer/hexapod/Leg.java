@@ -199,10 +199,10 @@ public class Leg {
 		rb = PI - (a1 + a2 - rco);
 		rc = PI - b1;
 
-		System.out.printf("ra=%f, rb=%f, rc=%f%n", ra, rb, rc);
+		// System.out.printf("ra=%f, rb=%f, rc=%f%n", ra, rb, rc);
 	}
 
-	public void updateInverse(double[] rotation) {
+	void updateInverse(double[] rotation) {
 		var dst = new Vector3d(p4);
 
 		update(rotation);
@@ -215,7 +215,7 @@ public class Leg {
 		int count = 0;
 		double distance = p4.distanceSquared(dst);
 
-		while (distance > 1E-16) {
+		while (distance > 1E-14 && temp >= 1E-14) {
 			int idx = rnd.nextInt(3);
 			double[] anglesTmp = angles.clone();
 			anglesTmp[idx] += rnd.nextDouble(-temp, temp);

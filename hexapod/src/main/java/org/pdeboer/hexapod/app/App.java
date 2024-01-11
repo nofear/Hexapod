@@ -46,6 +46,9 @@ public class App extends PApplet {
 	private double mx0 = 0;
 	private double my0 = 0;
 
+	private double xoff = 0;
+	private double yoff = 0;
+
 	private final int backColor = color(250, 250, 250);
 
 	private Hexapod hexapod;
@@ -165,7 +168,12 @@ public class App extends PApplet {
 
 		switch (key) {
 		case '.' -> hexapod.execute(Action.STOP);
-		case '0' -> hexapod.init();
+		case '0' -> {
+			hexapod.init();
+
+			xoff = 0;
+			yoff = 0;
+		}
 		case '1', '2', '3', '4', '5', '6' -> controlLegIndex = key - '1';
 		case 'w' -> hexapod.execute(Action.FORWARD);
 		case 's' -> hexapod.execute(Action.BACKWARD);
@@ -193,6 +201,61 @@ public class App extends PApplet {
 		hexapod.update();
 
 		draw(hexapod);
+	}
+
+	private void draw(final Hexapod hexapod) {
+		double[] r = hexapod.rotation();
+		LegConfig lc = hexapod.calculateLegConfig();
+
+		lights();
+		background(backColor);
+
+		fill(Color.black.getRGB());
+
+		int x0 = 10;
+		textAlign(PApplet.LEFT);
+		text("center: " + hexapod.center(), x0, 20);
+		text("rotation: " + Arrays.toString(hexapod.rotation()), x0, 40);
+		text("speed:    " + hexapod.speed(), 10, 60);
+
+		if (false) {
+			float leg_x0 = 250;
+			// float leg_y0 = 120;
+			float leg_d = 180;
+			for (int i = 0; i < LEG_COUNT; ++i) {
+				Leg leg = hexapod.getLeg(i);
+				text("leg " + i, leg_x0 + i * leg_d, 20);
+				text("ra " + fmtAngle(leg.getRa()), leg_x0 + i * leg_d, 40);
+				text("rb " + fmtAngle(leg.getRb()), leg_x0 + i * leg_d, 60);
+				text("rc " + fmtAngle(leg.getRc()), leg_x0 + i * leg_d, 80);
+				text("d  " + fmt(lc.getDistance(i)), leg_x0 + i * leg_d, 100);
+				text("p1 " + leg.p1.toString(), leg_x0 + i * leg_d, 120);
+				text("p4 " + leg.p4.toString(), leg_x0 + i * leg_d, 140);
+			}
+		}
+
+		translate(MID_X, MID_Y + 50);
+		rotateX((float) -rb + PI / 2);
+		rotateZ((float) -ra);
+
+		translate(-(float) xoff, -(float) yoff);
+
+		var dt = new DrawTerrain(terrain);
+		dt.draw(this, xoff, yoff);
+
+		var ds = new DrawHexapod(hexapod);
+		ds.draw(this);
+		ds.drawLegFrame(this);
+
+		Vector3d c = hexapod.center();
+		Vector3d t = new Vector3d(c.x(), c.y(), terrain.height(c.x(), c.y()));
+
+		DrawHexapod.translate(this, t);
+		g.fill(Color.yellow.getRGB());
+		g.sphere(4);
+
+		xoff += hexapod.speed().x();
+		yoff += hexapod.speed().y();
 	}
 
 	private void process_controller() {
@@ -259,57 +322,6 @@ public class App extends PApplet {
 
 		ra += ra_speed;
 		rb += rb_speed;
-	}
-
-	private void draw(final Hexapod hexapod) {
-		Vector3d center = hexapod.center();
-		double[] r = hexapod.rotation();
-		LegConfig lc = hexapod.calculateLegConfig();
-
-		lights();
-		background(backColor);
-
-		fill(Color.black.getRGB());
-
-		int x0 = 10;
-		textAlign(PApplet.LEFT);
-		text("center: " + hexapod.center(), x0, 20);
-		text("rotation: " + Arrays.toString(hexapod.rotation()), x0, 40);
-		text("speed:    " + hexapod.speed(), 10, 60);
-
-		if (false) {
-			float leg_x0 = 250;
-			// float leg_y0 = 120;
-			float leg_d = 180;
-			for (int i = 0; i < LEG_COUNT; ++i) {
-				Leg leg = hexapod.getLeg(i);
-				text("leg " + i, leg_x0 + i * leg_d, 20);
-				text("ra " + fmtAngle(leg.getRa()), leg_x0 + i * leg_d, 40);
-				text("rb " + fmtAngle(leg.getRb()), leg_x0 + i * leg_d, 60);
-				text("rc " + fmtAngle(leg.getRc()), leg_x0 + i * leg_d, 80);
-				text("d  " + fmt(lc.getDistance(i)), leg_x0 + i * leg_d, 100);
-				text("p1 " + leg.p1.toString(), leg_x0 + i * leg_d, 120);
-				text("p4 " + leg.p4.toString(), leg_x0 + i * leg_d, 140);
-			}
-		}
-
-		translate(MID_X, HEIGHT / 2 + 50);
-		rotateX((float) -rb + PI / 2);
-		rotateZ((float) -ra);
-
-		var dt = new DrawTerrain(terrain);
-		dt.draw(this);
-
-		var ds = new DrawHexapod(hexapod);
-		ds.draw(this);
-		ds.drawLegFrame(this);
-
-		Vector3d c = hexapod.center();
-		Vector3d t = new Vector3d(c.x(), c.y(), terrain.height(c.x(), c.y()));
-
-		DrawHexapod.translate(this, t);
-		g.fill(Color.yellow.getRGB());
-		g.sphere(4);
 	}
 
 	private static String fmt(final double v) {
