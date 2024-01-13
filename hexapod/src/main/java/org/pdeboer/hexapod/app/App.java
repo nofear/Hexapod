@@ -15,7 +15,8 @@ import static org.pdeboer.hexapod.Hexapod.*;
 
 public class App extends PApplet {
 
-	private static final String CONTROLLER_NAME = "DualSense Wireless Controller";
+	private static final Set<String> CONTROLLER_NAMES = Set.of("DualSense Wireless Controller",
+															   "DUALSHOCK 4 Wireless Controller");
 
 	public static void main(String[] args) {
 		PApplet.main(new String[] { App.class.getName() });
@@ -68,11 +69,11 @@ public class App extends PApplet {
 		smooth();
 		frameRate(FRAME_RATE);
 
-		terrain = new TerrainImpl(0.0012);
+		terrain = new TerrainImpl(0.001);
 		hexapod = new Hexapod(terrain);
 
 		controller = Stream.of(ControllerEnvironment.getDefaultEnvironment().getControllers())
-				.filter(ctrl -> ctrl.getName().compareToIgnoreCase(CONTROLLER_NAME) == 0)
+				.filter(ctrl -> CONTROLLER_NAMES.contains(ctrl.getName()))
 				.findFirst()
 				.orElse(null);
 	}
@@ -245,7 +246,7 @@ public class App extends PApplet {
 
 		var ds = new DrawHexapod(hexapod);
 		ds.draw(this);
-		ds.drawLegFrame(this);
+		// ds.drawLegFrame(this);
 
 		Vector3d c = hexapod.center();
 		Vector3d t = new Vector3d(c.x(), c.y(), terrain.height(c.x(), c.y()));

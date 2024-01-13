@@ -7,6 +7,7 @@ import processing.core.*;
 import java.awt.*;
 
 import static org.pdeboer.hexapod.Hexapod.*;
+import static org.pdeboer.hexapod.Leg.*;
 import static processing.core.PConstants.*;
 
 class DrawHexapod {
@@ -133,19 +134,20 @@ class DrawHexapod {
 	}
 
 	private void drawLegs(final PApplet g) {
-		LegConfig lc = hexapod.calculateLegConfig();
 		for (int i = 0; i < LEG_COUNT; ++i) {
-			g.fill((lc.touchGround(i) ? Color.green : Color.orange).getRGB());
+			Leg leg = hexapod.getLeg(i);
 
-			drawJoints(g, i);
-			drawLeg(g, i);
+			drawLegCircle(g, leg);
+			drawJoints(g, leg);
+			drawLeg(g, leg);
 		}
 	}
 
 	private void drawJoints(
 			final PApplet g,
-			final int index) {
-		Leg leg = hexapod.getLeg(index);
+			final Leg leg) {
+
+		g.fill((leg.touchGround() ? Color.green : Color.orange).getRGB());
 
 		g.noStroke();
 		g.pushMatrix();
@@ -168,9 +170,9 @@ class DrawHexapod {
 
 	private void drawLeg(
 			final PApplet g,
-			final int index) {
-		Leg leg = hexapod.getLeg(index);
-		double[] r = hexapod.rotation();
+			final Leg leg) {
+		g.noStroke();
+		g.fill((leg.touchGround() ? Color.green : Color.orange).getRGB());
 
 		g.pushMatrix();
 		translate(g, leg.p1);
@@ -198,6 +200,39 @@ class DrawHexapod {
 		g.box(lengthTibia, 4, 6);
 
 		g.popMatrix();
+	}
+
+	private void drawLegCircle(
+			final PApplet g,
+			final Leg leg) {
+		// float shade = 150 + (float) leg.moveEnd().z() / 2;
+		Vector3d s = leg.moveStart();
+		Vector3d e = leg.moveEnd();
+
+		g.noFill();
+		g.stroke(Color.lightGray.getRGB());
+
+		if (leg.isMoving()) {
+			g.line((float) s.x(), (float) s.y(), (float) s.z(),
+				   (float) e.x(), (float) e.y(), (float) e.z());
+		}
+
+		double radius = hexapod.speed().length() * STEP_COUNT * 6;
+		if (radius > 0) {
+			g.pushMatrix();
+			translate(g, leg.isMoving() ? s : leg.p4);
+
+			//rotate(g);
+			g.circle((float) 0, (float) 0, (float) radius * 2);
+			g.popMatrix();
+
+			g.pushMatrix();
+			translate(g, e);
+			// rotate(g);
+			g.fill(Color.darkGray.getRGB());
+			g.sphere(4);
+			g.popMatrix();
+		}
 	}
 
 	void drawLegFrame(final PApplet g) {

@@ -57,6 +57,24 @@ public class Vector3d implements Serializable {
 		return new Vector3d(x * val, y * val, z * val);
 	}
 
+	public static Vector3d lerp(
+			final Vector3d v1,
+			final Vector3d v2,
+			final double t) {
+		var x = lerp(v1.x, v2.x, t);
+		var y = lerp(v1.y, v2.y, t);
+		var z = lerp(v1.z, v2.z, t);
+
+		return Vector3d.of(x, y, z);
+	}
+
+	public static double lerp(
+			final double start,
+			final double stop,
+			final double amt) {
+		return start + (stop - start) * amt;
+	}
+
 	public double angle(final Vector3d v1) {
 		double vDot = dot(v1) / (length() * v1.length());
 		if (vDot < -1.0) {

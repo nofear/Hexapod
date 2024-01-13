@@ -26,8 +26,8 @@ class DrawTerrain {
 		for (int x0 = 0; x0 < width; x0 += meshSize) {
 			for (int y0 = 0; y0 < width; y0 += meshSize) {
 
-				float x1 = (float) (x0 - width / 2 + xoff);
-				float y1 = (float) (y0 - width / 2 + yoff);
+				float x1 = (float) (x0 - width / 2 + Math.floor(xoff / meshSize) * meshSize);
+				float y1 = (float) (y0 - width / 2 + Math.floor(yoff / meshSize) * meshSize);
 				float x2 = x1 + meshSize;
 				float y2 = y1 + meshSize;
 

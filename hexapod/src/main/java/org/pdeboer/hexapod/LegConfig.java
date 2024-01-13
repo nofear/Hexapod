@@ -6,13 +6,13 @@ import org.pdeboer.util.*;
 import java.util.stream.*;
 
 import static org.pdeboer.hexapod.Hexapod.*;
+import static org.pdeboer.hexapod.Leg.*;
 
 /**
  * Helper class to calculate if a particular leg configuration is stable.
  */
 public class LegConfig {
 
-	private static final double GROUND_EPSILON = 1E-06;
 
 	private final Hexapod hexapod;
 
@@ -23,9 +23,9 @@ public class LegConfig {
 	 */
 	private final int[] index;
 
-	private boolean inside = true;
+	private boolean inside;
 
-	public LegConfig(
+	LegConfig(
 			final Hexapod hexapod,
 			final Terrain terrain,
 			final int[] index) {

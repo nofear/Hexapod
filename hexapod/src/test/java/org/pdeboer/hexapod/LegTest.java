@@ -24,9 +24,9 @@ class LegTest {
 
 		double x0 = 0;
 
-		var leg = new Leg(RIGHT_FRONT, lengthCoxa, lengthFemur, lengthTibia);
+		var leg = new Leg(RIGHT_FRONT, (x, y) -> offsetZ, lengthCoxa, lengthFemur, lengthTibia);
 		double y1 = sqrt(lengthTibia * lengthTibia + lengthFemur * lengthFemur) + lengthCoxa;
-		leg.init(new Vector3d(x0, 0, offsetZ), 0, y1, offsetZ);
+		leg.init(new Vector3d(x0, 0, offsetZ), 0, y1);
 
 		assertEqualsVector3D(new Vector3d(x0, lengthCoxa, offsetZ), leg.p2);
 		assertEqualsVector3D(new Vector3d(x0, 280, 240 + offsetZ), leg.p3);
@@ -44,9 +44,9 @@ class LegTest {
 
 		double x0 = -10;
 
-		var leg = new Leg(LEFT_FRONT, lengthCoxa, lengthFemur, lengthTibia);
+		var leg = new Leg(LEFT_FRONT, (x, y) -> offsetZ, lengthCoxa, lengthFemur, lengthTibia);
 		double y1 = sqrt(lengthTibia * lengthTibia + lengthFemur * lengthFemur) + lengthCoxa;
-		leg.init(new Vector3d(x0, 0, offsetZ), 0, -y1, offsetZ);
+		leg.init(new Vector3d(x0, 0, offsetZ), 0, -y1);
 
 		assertEqualsVector3D(new Vector3d(x0, -lengthCoxa, offsetZ), leg.p2);
 		assertEqualsVector3D(new Vector3d(x0, -280, 240 + offsetZ), leg.p3);
@@ -63,7 +63,7 @@ class LegTest {
 		var y1 = sqrt(100 * 100 * 2) + offsetY;
 
 		var leg = new Leg(RIGHT_FRONT, 0, 100, 100);
-		leg.init(new Vector3d(x0, 0, 0), 0, y1, 0);
+		leg.init(new Vector3d(x0, 0, 0), 0, y1);
 
 		assertEqualsVector3D(new Vector3d(x0, 0, 0), leg.p1);
 		assertEqualsVector3D(new Vector3d(x0, y1, 0), leg.p4);
@@ -75,7 +75,7 @@ class LegTest {
 		var y1 = sqrt(100 * 100 * 2);
 
 		var leg = new Leg(RIGHT_FRONT, 0, 100, 100);
-		leg.init(new Vector3d(), offsetX, y1, 0);
+		leg.init(new Vector3d(), offsetX, y1);
 
 		assertEqualsVector3D(new Vector3d(), leg.p1);
 		assertEqualsVector3D(new Vector3d(offsetX, y1, 0), leg.p4);
@@ -91,7 +91,7 @@ class LegTest {
 		var y1 = sign * 200;
 
 		var leg = new Leg(RIGHT_FRONT, 100, tf, tf);
-		leg.init(new Vector3d(), x1, y1, 0);
+		leg.init(new Vector3d(), x1, y1);
 		assertEqualsVector3D(new Vector3d(x1, y1, 0), leg.p4);
 
 		double[] r0 = { roll, 0, 0 };
@@ -112,7 +112,7 @@ class LegTest {
 		var x1 = sign * (sqrt(100 * 100 * 2) + 100);
 
 		var leg = new Leg(RIGHT_FRONT, 100, tf, tf);
-		leg.init(new Vector3d(), x1, y1, 0);
+		leg.init(new Vector3d(), x1, y1);
 		assertEqualsVector3D(new Vector3d(x1, y1, 0), leg.p4);
 
 		double[] r0 = { 0, pitch, 0 };
@@ -133,7 +133,7 @@ class LegTest {
 		var y1 = sign * (sqrt(r * r * 2) + 100);
 
 		var leg = new Leg(RIGHT_FRONT, r, r, r);
-		leg.init(new Vector3d(), x1, y1, 0);
+		leg.init(new Vector3d(), x1, y1);
 		assertEqualsVector3D(new Vector3d(x1, y1, 0), leg.p4);
 
 		double[] r0 = { 0, 0, yaw };
@@ -184,14 +184,14 @@ class LegTest {
 		int y1 = 100;
 
 		var leg = new Leg(RIGHT_FRONT, 20, 70, 100);
-		leg.init(new Vector3d(0, 0, 50), x1, y1, 0);
+		leg.init(new Vector3d(0, 0, 50), x1, y1);
 		assertEqualsVector3D(new Vector3d(x1, y1, 0), leg.p4);
 
 		Vector3d speed = new Vector3d(0.5, 0.25, 0);
 		leg.startMoving(speed);
 
 		for (int i = 0; i < Leg.STEP_COUNT; ++i) {
-			leg.update(speed.multiply(6));
+			leg.update();
 		}
 
 		assertEqualsVector3D(new Vector3d(30, 115, 0), leg.p4);

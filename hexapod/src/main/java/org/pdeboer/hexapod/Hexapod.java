@@ -4,6 +4,7 @@ import org.pdeboer.*;
 import org.pdeboer.hexapod.Leg.*;
 import org.pdeboer.util.*;
 
+import java.util.*;
 import java.util.stream.*;
 
 import static java.util.Comparator.*;
@@ -100,9 +101,9 @@ public class Hexapod {
 	public void update() {
 		updateP1();
 
-//		double angle = Math.atan2(speed.y(), speed.x());
-//		double diffYaw = rotation[YAW] - angle;
-//		diffYaw = Math.abs(diffYaw) > 1 ? Math.signum(diffYaw) * 0.01 : 0.0;
+		//		double angle = Math.atan2(speed.y(), speed.x());
+		//		double diffYaw = rotation[YAW] - angle;
+		//		diffYaw = Math.abs(diffYaw) > 1 ? Math.signum(diffYaw) * 0.01 : 0.0;
 
 		double frontHeight = getAvgHeight(Id.RIGHT_FRONT, Id.LEFT_FRONT);
 		double backHeight = getAvgHeight(Id.RIGHT_BACK, Id.LEFT_BACK);
@@ -194,20 +195,20 @@ public class Hexapod {
 
 		updateP1();
 
-		for (Leg leg : legs) {
-			leg.update(speed.multiply(6));
-		}
+		List.of(legs).forEach(Leg::update);
 
 		updateInverse();
 	}
 
 	public void execute(final Action action) {
+		double accelerate = 0.05;
+
 		switch (action) {
 		case STOP -> setSpeed(new Vector3d());
-		case MOVE_FORWARD -> setSpeed(speed.add(new Vector3d(0.1, 0, 0)));
-		case MOVE_BACKWARD -> setSpeed(speed.add(new Vector3d(-0.1, 0, 0)));
-		case MOVE_RIGHT -> setSpeed(speed.add(new Vector3d(0, 0.1, 0)));
-		case MOVE_LEFT -> setSpeed(speed.add(new Vector3d(0, -0.1, 0)));
+		case MOVE_FORWARD -> setSpeed(speed.addX(accelerate));
+		case MOVE_BACKWARD -> setSpeed(speed.addX(-accelerate));
+		case MOVE_RIGHT -> setSpeed(speed.addY(accelerate));
+		case MOVE_LEFT -> setSpeed(speed.addY(-accelerate));
 
 		case FORWARD -> setCenter(center.addX(1));
 		case BACKWARD -> setCenter(center.addX(-1));
@@ -242,6 +243,10 @@ public class Hexapod {
 	}
 
 	public void setSpeed(final Vector3d speed) {
+		if (speed.length() > 1.8) {
+			return;
+		}
+
 		this.speed = speed;
 		this.state = speed.lengthSquared() > 0
 					 ? State.WALK
@@ -289,10 +294,7 @@ public class Hexapod {
 				{ x + off, -y } };
 		for (int i = 0; i < LEG_COUNT; ++i) {
 			var p1 = center.add(offset[i]);
-			double x1 = o[i][0];
-			double y1 = o[i][1];
-
-			legs[i].init(p1, x1, y1, terrain.height(p1.x() + x1, p1.y() + y1));
+			legs[i].init(p1, o[i][0], o[i][1]);
 		}
 	}
 

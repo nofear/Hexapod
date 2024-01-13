@@ -10,6 +10,8 @@ import static org.pdeboer.hexapod.Hexapod.*;
 
 public class Leg {
 
+	static final double GROUND_EPSILON = 1E-06;
+
 	public enum Id {
 		RIGHT_FRONT, RIGHT_MID, RIGHT_BACK,
 		LEFT_BACK, LEFT_MID, LEFT_FRONT
@@ -37,9 +39,13 @@ public class Leg {
 	private double rb = 0;
 	private double rc = 0;
 
+	private double xoffset = 0;
+	private double yoffset = 0;
+
 	private boolean isMoving;
 	private int moveIndex;
-	private Vector3d moveSource;
+	private Vector3d moveStart;
+	private Vector3d moveEnd;
 
 	Leg(
 			final Id id,
@@ -55,7 +61,7 @@ public class Leg {
 		this(id, (x, y) -> 0, lengthCoxa, lengthFemur, lengthTibia);
 	}
 
-	private Leg(
+	Leg(
 			final Id id,
 			final Terrain terrain,
 			final double lengthCoxa,
@@ -73,31 +79,63 @@ public class Leg {
 		p2 = new Vector3d();
 		p3 = new Vector3d();
 		p4 = new Vector3d();
+
+		moveStart = p4;
+		moveEnd = p4;
 	}
 
 	public Id id() {
 		return id;
 	}
 
+	public boolean touchGround() {
+		double distance = p4.z() - terrain.height(p4.x(), p4.y());
+		return distance <= GROUND_EPSILON;
+	}
+
+	public Vector3d moveStart() {
+		return moveStart;
+	}
+
+	public Vector3d moveEnd() {
+		return moveEnd;
+	}
+
+	public boolean isMoving() {
+		return isMoving;
+	}
+
 	public void startMoving(final Vector3d speed) {
 		moveIndex = 0;
-		moveSource = new Vector3d(p4);
+		moveStart = new Vector3d(p4);
+
+		Vector3d distance = speed.multiply(STEP_COUNT).multiply(6);
+
+		var tmp = p1.add(Vector3d.of(xoffset, yoffset, 0))
+				.add(distance);
+
+		moveEnd = new Vector3d(tmp.x(), tmp.y(), terrain.height(tmp.x(), tmp.y()));
+
 		isMoving = true;
 	}
 
-	public void update(final Vector3d speed) {
+	public void update() {
 		if (!isMoving) {
 			return;
 		}
 
+		var mid = Vector3d.lerp(moveStart, moveEnd, 0.5);
+		mid = new Vector3d(mid.x(), mid.y(), mid.z() + 40);
+
 		moveIndex++;
-		isMoving = moveIndex < STEP_COUNT;
+		double t = (double) moveIndex / STEP_COUNT;
 
-		double x = p4.x() + speed.x();
-		double y = p4.y() + speed.y();
-		double z = Math.sin(PI * moveIndex / STEP_COUNT) * 20;
+		var p1 = Vector3d.lerp(moveStart, mid, t);
+		var p2 = Vector3d.lerp(mid, moveEnd, t);
 
-		p4 = new Vector3d(x, y, terrain.height(x, y) + z);
+		p4 = Vector3d.lerp(p1, p2, t);
+
+		isMoving = !touchGround();
 
 		System.out.println(String.format("leg=%s, p4=%s", id, p4));
 	}
@@ -114,21 +152,18 @@ public class Leg {
 		return lengthTibia;
 	}
 
-	/**
-	 * Initialize leg start/end points.
-	 *
-	 * @param v start point
-	 * @param x x offset for end point
-	 * @param y y offset for end point
-	 * @param z z for end point
-	 */
 	public void init(
 			final Vector3d v,
 			final double x,
-			final double y,
-			final double z) {
+			final double y) {
+		xoffset = x;
+		yoffset = y;
+
 		p1 = new Vector3d(v);
-		p4 = new Vector3d(v.x() + x, v.y() + y, z);
+
+		double x1 = v.x() + x;
+		double y1 = v.y() + y;
+		p4 = new Vector3d(x1, y1, terrain.height(x1, y1));
 
 		double[] rotation = { 0, 0, 0 };
 		updateInverseIK(rotation);
@@ -161,7 +196,7 @@ public class Leg {
 	 * Inverse kinematic calculation of the leg. Given the start and end point
 	 * of the leg, calculate the angles of the three servos.
 	 */
-	public void updateInverseIK(double[] bodyRotation) {
+	private void updateInverseIK(double[] bodyRotation) {
 
 		double dx = p4.x() - p1.x();
 		double dy = p4.y() - p1.y();
