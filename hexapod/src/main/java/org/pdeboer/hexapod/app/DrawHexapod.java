@@ -217,7 +217,7 @@ class DrawHexapod {
 				   (float) e.x(), (float) e.y(), (float) e.z());
 		}
 
-		double radius = hexapod.speed().length() * STEP_COUNT * 6;
+		double radius = leg.moveEnd().sub(leg.moveStart()).length();
 		if (radius > 0) {
 			g.pushMatrix();
 			translate(g, leg.isMoving() ? s : leg.p4);
@@ -243,10 +243,9 @@ class DrawHexapod {
 		g.fill(200, 200, 50);
 
 		g.beginShape();
-		LegConfig lc = hexapod.calculateLegConfig();
 		for (int i = 0; i < LEG_COUNT; ++i) {
 			Leg leg = hexapod.getLeg(i);
-			if (lc.touchGround(i)) {
+			if (leg.touchGround()) {
 				vertex(g, leg.p4, o);
 			}
 		}

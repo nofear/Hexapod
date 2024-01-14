@@ -28,7 +28,7 @@ public class App extends PApplet {
 	private final static int HEIGHT = 800;
 	private final static int MID_X = WIDTH / 2;
 	private final static int MID_Y = HEIGHT / 2;
-	private final static int FRAME_RATE = 60;
+	private final static int FRAME_RATE = 50;
 
 	private double ra = -PI / 4;
 	private double rb = PI / 8;
@@ -246,7 +246,7 @@ public class App extends PApplet {
 
 		var ds = new DrawHexapod(hexapod);
 		ds.draw(this);
-		// ds.drawLegFrame(this);
+		ds.drawLegFrame(this);
 
 		Vector3d c = hexapod.center();
 		Vector3d t = new Vector3d(c.x(), c.y(), terrain.height(c.x(), c.y()));

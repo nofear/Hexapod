@@ -17,7 +17,7 @@ public class Leg {
 		LEFT_BACK, LEFT_MID, LEFT_FRONT
 	}
 
-	public final static int STEP_COUNT = 10;
+	final static int STEP_COUNT = 10;
 	private final static int LENGTH_COXA = 27;
 	private final static int LENGTH_FEMUR = 77;
 	private final static int LENGTH_TIBIA = 107;
@@ -38,9 +38,6 @@ public class Leg {
 	private double ra = PI / 2;
 	private double rb = 0;
 	private double rc = 0;
-
-	private double xoffset = 0;
-	private double yoffset = 0;
 
 	private boolean isMoving;
 	private int moveIndex;
@@ -84,7 +81,7 @@ public class Leg {
 		moveEnd = p4;
 	}
 
-	public Id id() {
+	Id id() {
 		return id;
 	}
 
@@ -105,21 +102,20 @@ public class Leg {
 		return isMoving;
 	}
 
-	public void startMoving(final Vector3d speed) {
+	void startMoving(final Vector3d speed) {
 		moveIndex = 0;
 		moveStart = new Vector3d(p4);
 
-		Vector3d distance = speed.multiply(STEP_COUNT).multiply(6);
+		Vector3d distance = speed.multiply(STEP_COUNT);
 
-		var tmp = p1.add(Vector3d.of(xoffset, yoffset, 0))
-				.add(distance);
+		var tmp = moveStart.add(distance);
 
 		moveEnd = new Vector3d(tmp.x(), tmp.y(), terrain.height(tmp.x(), tmp.y()));
 
 		isMoving = true;
 	}
 
-	public void update() {
+	void update() {
 		if (!isMoving) {
 			return;
 		}
@@ -137,7 +133,7 @@ public class Leg {
 
 		isMoving = !touchGround();
 
-		System.out.println(String.format("leg=%s, p4=%s", id, p4));
+		// System.out.println(String.format("leg=%s, p4=%s", id, p4));
 	}
 
 	public double lengthCoxa() {
@@ -156,8 +152,6 @@ public class Leg {
 			final Vector3d v,
 			final double x,
 			final double y) {
-		xoffset = x;
-		yoffset = y;
 
 		p1 = new Vector3d(v);
 

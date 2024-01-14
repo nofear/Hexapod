@@ -20,7 +20,7 @@ public class Hexapod {
 
 	public enum State {
 		STOP,
-		WALK
+		MOVE
 	}
 
 	public enum Action {
@@ -121,15 +121,35 @@ public class Hexapod {
 
 		double diffCenter = getHeight(center) - centerHeight;
 		if (Math.abs(diffCenter) > 5) {
-			Vector3d diff = new Vector3d(0, 0, 0.5).multiply(Math.signum(diffCenter));
+			var centerSpeed = Math.min(0.5, speed.length() * 2);
+
+			Vector3d diff = new Vector3d(0, 0, centerSpeed).multiply(Math.signum(diffCenter));
 			setCenter(center.sub(diff));
 		}
 
 		updateInverse();
 
+		var state = speed.lengthSquared() > 0
+					? State.MOVE
+					: State.STOP;
+		setState(state);
+
 		switch (state) {
 		case STOP -> updateIdle();
-		case WALK -> updateWalk();
+		case MOVE -> updateMove();
+		}
+	}
+
+	private void setState(final State state) {
+		if (this.state == state) {
+			return;
+		}
+
+		this.state = state;
+
+		if (state == State.MOVE) {
+			gaitIndex = 0;
+			stepIndex = 0;
 		}
 	}
 
@@ -179,27 +199,6 @@ public class Hexapod {
 		return p.z() - terrain.height(p.x(), p.y());
 	}
 
-	private void updateWalk() {
-		stepIndex++;
-
-		stepIndex %= Leg.STEP_COUNT * 6;
-
-		if (stepIndex % Leg.STEP_COUNT == 0) {
-			int legIndex = stepIndex / Leg.STEP_COUNT;
-
-			var leg = getLeg(legIndex);
-			leg.startMoving(speed);
-		}
-
-		center = center.add(speed);
-
-		updateP1();
-
-		List.of(legs).forEach(Leg::update);
-
-		updateInverse();
-	}
-
 	public void execute(final Action action) {
 		double accelerate = 0.05;
 
@@ -216,11 +215,11 @@ public class Hexapod {
 		case RIGHT -> setCenter(center.addY(-1));
 		case UP -> {
 			centerHeight++;
-			center = center.addZ(1);
+			setCenter(center.addZ(1));
 		}
 		case DOWN -> {
 			centerHeight--;
-			center = center.addZ(-1);
+			setCenter(center.addZ(-1));
 		}
 
 		case ROLL_MIN -> rotation[ROLL] -= 0.01;
@@ -235,6 +234,10 @@ public class Hexapod {
 	}
 
 	public void setCenter(final Vector3d center) {
+		if (center.z() < terrain.height(center.x(), center.y())) {
+			return;
+		}
+
 		this.center = center;
 	}
 
@@ -243,14 +246,11 @@ public class Hexapod {
 	}
 
 	public void setSpeed(final Vector3d speed) {
-		if (speed.length() > 1.8) {
+		if (speed.length() > 6) {
 			return;
 		}
 
 		this.speed = speed;
-		this.state = speed.lengthSquared() > 0
-					 ? State.WALK
-					 : State.STOP;
 	}
 
 	public Vector3d speed() {
@@ -298,7 +298,78 @@ public class Hexapod {
 		}
 	}
 
-	public void updateForward() {
+	private int gaitIndex = 0;
+
+	private static int[][] waveGait = {
+			{ 1, 0, 0, 0, 0, 0 },
+			{ 0, 1, 0, 0, 0, 0 },
+			{ 0, 0, 1, 0, 0, 0 },
+			{ 0, 0, 0, 1, 0, 0 },
+			{ 0, 0, 0, 0, 1, 0 },
+			{ 0, 0, 0, 0, 0, 1 }
+	};
+
+	// LF+RB
+	// LB+RM
+	// LM+RF
+	private static int[][] rippleGait = {
+			{ 0, 0, 1 },
+			{ 0, 1, 0 },
+			{ 1, 0, 0 },
+			{ 0, 1, 0 },
+			{ 0, 0, 1 },
+			{ 1, 0, 0 }
+	};
+
+	private static int[][] tripodGait = {
+			{ 1, 0 },
+			{ 0, 1 },
+			{ 1, 0 },
+			{ 0, 1 },
+			{ 1, 0 },
+			{ 0, 1 }
+	};
+
+	//	public enum Id {
+	//		RIGHT_FRONT=0, RIGHT_MID=1, RIGHT_BACK=2,
+	//		LEFT_BACK=3, LEFT_MID=4, LEFT_FRONT=5
+	//	}
+
+	private void updateMove() {
+		var gait = tripodGait;
+
+		if (stepIndex == 0) {
+
+			int countMoving = IntStream.range(0, LEG_COUNT).map(i -> gait[i][gaitIndex]).sum();
+			var legSpeed = speed.multiply(6.0 / countMoving);
+
+			for (int i = 0; i < LEG_COUNT; ++i) {
+				if (gait[i][gaitIndex] == 1) {
+					var leg = getLeg(i);
+					leg.startMoving(legSpeed);
+				}
+			}
+		}
+
+		stepIndex++;
+		if (stepIndex >= Leg.STEP_COUNT) {
+			stepIndex = 0;
+			gaitIndex++;
+			if (gaitIndex >= gait[0].length) {
+				gaitIndex = 0;
+			}
+		}
+
+		center = center.add(speed);
+
+		updateP1();
+
+		List.of(legs).forEach(Leg::update);
+
+		updateInverse();
+	}
+
+	void updateForward() {
 		updateP1();
 
 		for (Leg leg : legs) {
@@ -306,7 +377,7 @@ public class Hexapod {
 		}
 	}
 
-	public void updateP1() {
+	private void updateP1() {
 		var rotation = rotationMatrix();
 		for (int i = 0; i < LEG_COUNT; ++i) {
 			Vector3d p = rotation.apply(offset[i]);

@@ -15,6 +15,15 @@ import static org.pdeboer.hexapod.Leg.Id.*;
 
 class LegTest {
 
+	void test_leg() {
+		var leg = new Leg(RIGHT_FRONT, 10, 20, 30);
+
+		assertEquals(RIGHT_FRONT, leg.id());
+		assertEquals(10, leg.lengthCoxa());
+		assertEquals(20, leg.lengthFemur());
+		assertEquals(30, leg.lengthTibia());
+	}
+
 	@ParameterizedTest
 	@ValueSource(doubles = { -50, 0, 50 })
 	void test_update_inverse_right_leg(final double offsetZ) {
@@ -188,7 +197,7 @@ class LegTest {
 		assertEqualsVector3D(new Vector3d(x1, y1, 0), leg.p4);
 
 		Vector3d speed = new Vector3d(0.5, 0.25, 0);
-		leg.startMoving(speed);
+		leg.startMoving(speed.multiply(6));
 
 		for (int i = 0; i < Leg.STEP_COUNT; ++i) {
 			leg.update();
