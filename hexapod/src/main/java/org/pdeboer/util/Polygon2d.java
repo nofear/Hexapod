@@ -2,6 +2,7 @@ package org.pdeboer.util;
 
 import java.util.*;
 
+@SuppressWarnings("WeakerAccess")
 public class Polygon2d {
 
 	private final List<Vector2d> points;
@@ -10,7 +11,7 @@ public class Polygon2d {
 	private Vector2d centroid;
 
 	public Polygon2d() {
-		this(new ArrayList<Vector2d>());
+		this(new ArrayList<>());
 	}
 
 	public Polygon2d(final Vector2d[] points) {
@@ -26,7 +27,7 @@ public class Polygon2d {
 	}
 
 	public Vector2d[] getPoints() {
-		return points.toArray(new Vector2d[points.size()]);
+		return points.toArray(new Vector2d[0]);
 	}
 
 	public Line2d getEdge(int idx) {

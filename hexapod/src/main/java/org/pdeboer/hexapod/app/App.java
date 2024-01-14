@@ -69,7 +69,7 @@ public class App extends PApplet {
 		smooth();
 		frameRate(FRAME_RATE);
 
-		terrain = new TerrainImpl(0.001);
+		terrain = new TerrainImpl(0.0015);
 		hexapod = new Hexapod(terrain);
 
 		controller = Stream.of(ControllerEnvironment.getDefaultEnvironment().getControllers())
@@ -244,7 +244,7 @@ public class App extends PApplet {
 		var dt = new DrawTerrain(terrain);
 		dt.draw(this, xoff, yoff);
 
-		var ds = new DrawHexapod(hexapod);
+		var ds = new DrawHexapod(hexapod, terrain);
 		ds.draw(this);
 		ds.drawLegFrame(this);
 

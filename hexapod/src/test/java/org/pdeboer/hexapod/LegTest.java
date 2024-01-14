@@ -15,6 +15,7 @@ import static org.pdeboer.hexapod.Leg.Id.*;
 
 class LegTest {
 
+	@Test
 	void test_leg() {
 		var leg = new Leg(RIGHT_FRONT, 10, 20, 30);
 

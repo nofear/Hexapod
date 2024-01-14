@@ -101,31 +101,13 @@ public class Hexapod {
 	public void update() {
 		updateP1();
 
-		//		double angle = Math.atan2(speed.y(), speed.x());
-		//		double diffYaw = rotation[YAW] - angle;
-		//		diffYaw = Math.abs(diffYaw) > 1 ? Math.signum(diffYaw) * 0.01 : 0.0;
+		double diffPitch = stabilisePitch();
+		double diffRoll = stabiliseRoll();
 
-		double frontHeight = getAvgHeight(Id.RIGHT_FRONT, Id.LEFT_FRONT);
-		double backHeight = getAvgHeight(Id.RIGHT_BACK, Id.LEFT_BACK);
-		double diffPitch = backHeight - frontHeight;
-		diffPitch = Math.abs(diffPitch) > 1 ? Math.signum(diffPitch) * 0.01 : 0.0;
-
-		double leftHeight = getAvgHeight(Id.LEFT_FRONT, Id.LEFT_BACK);
-		double rightHeight = getAvgHeight(Id.RIGHT_FRONT, Id.RIGHT_BACK);
-		double diffRoll = leftHeight - rightHeight;
-		diffRoll = Math.abs(diffRoll) > 1 ? Math.signum(diffRoll) * 0.01 : 0.0;
-
-		//rotation[YAW] += diffYaw;
+		rotation[ROLL] += diffRoll;
 		rotation[PITCH] += diffPitch;
-		rotation[ROLL] -= diffRoll;
 
-		double diffCenter = getHeight(center) - centerHeight;
-		if (Math.abs(diffCenter) > 5) {
-			var centerSpeed = Math.min(0.5, speed.length() * 2);
-
-			Vector3d diff = new Vector3d(0, 0, centerSpeed).multiply(Math.signum(diffCenter));
-			setCenter(center.sub(diff));
-		}
+		stabiliseCenter();
 
 		updateInverse();
 
@@ -138,6 +120,33 @@ public class Hexapod {
 		case STOP -> updateIdle();
 		case MOVE -> updateMove();
 		}
+	}
+
+	private void stabiliseCenter() {
+		double diffCenter = getHeight(center) - centerHeight;
+		if (Math.abs(diffCenter) <= 5) {
+			return;
+		}
+
+		var centerSpeed = Math.min(0.5, speed.length() * 2);
+
+		Vector3d diff = new Vector3d(0, 0, centerSpeed).multiply(Math.signum(diffCenter));
+		setCenter(center.sub(diff));
+	}
+
+	private double stabiliseRoll() {
+		double leftHeight = getAvgHeight(Id.LEFT_FRONT, Id.LEFT_BACK);
+		double rightHeight = getAvgHeight(Id.RIGHT_FRONT, Id.RIGHT_BACK);
+		double diffRoll = rightHeight - leftHeight;
+		return Math.abs(diffRoll) <= 1 ? 0 : Math.signum(diffRoll) * 0.01;
+
+	}
+
+	private double stabilisePitch() {
+		double frontHeight = getAvgHeight(Id.RIGHT_FRONT, Id.LEFT_FRONT);
+		double backHeight = getAvgHeight(Id.RIGHT_BACK, Id.LEFT_BACK);
+		double diffPitch = backHeight - frontHeight;
+		return Math.abs(diffPitch) <= 1 ? 0 : Math.signum(diffPitch) * 0.01;
 	}
 
 	private void setState(final State state) {

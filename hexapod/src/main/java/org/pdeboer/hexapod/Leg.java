@@ -162,6 +162,9 @@ public class Leg {
 		double[] rotation = { 0, 0, 0 };
 		updateInverseIK(rotation);
 		update(rotation);
+
+		moveStart = p4;
+		moveEnd = p4;
 	}
 
 	void setAngles(final double[] r) {
@@ -244,7 +247,7 @@ public class Leg {
 		int count = 0;
 		double distance = p4.distanceSquared(dst);
 
-		while (distance > 1E-14 && temp >= 1E-14) {
+		while (distance > 1E-12 && temp >= 1E-12) {
 			int idx = rnd.nextInt(3);
 			double[] anglesTmp = angles.clone();
 			anglesTmp[idx] += rnd.nextDouble(-temp, temp);
@@ -259,12 +262,12 @@ public class Leg {
 			}
 
 			count++;
-			if (count % 256 == 0) {
+			if (count % 200 == 0) {
 				temp /= 2;
 			}
 		}
 
-		// System.out.printf("ra=%f, rb=%f, rc=%f, count=%d%n", ra, rb, rc, count);
+		System.out.printf("ra=%f, rb=%f, rc=%f, count=%d%n", ra, rb, rc, count);
 	}
 
 	public void update(final double[] bodyRotation) {

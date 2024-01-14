@@ -20,4 +20,7 @@ public class TerrainImpl implements Terrain {
 		return noise(xoff, yoff) * 50;
 	}
 
+
+
+
 }

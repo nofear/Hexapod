@@ -1,5 +1,6 @@
 package org.pdeboer.hexapod.app;
 
+import org.pdeboer.*;
 import org.pdeboer.hexapod.*;
 import org.pdeboer.util.*;
 import processing.core.*;
@@ -7,7 +8,6 @@ import processing.core.*;
 import java.awt.*;
 
 import static org.pdeboer.hexapod.Hexapod.*;
-import static org.pdeboer.hexapod.Leg.*;
 import static processing.core.PConstants.*;
 
 class DrawHexapod {
@@ -15,9 +15,13 @@ class DrawHexapod {
 	private static final int jointSize = 6;
 
 	private final Hexapod hexapod;
+	private final Terrain terrain;
 
-	DrawHexapod(final Hexapod hexapod) {
+	DrawHexapod(
+			final Hexapod hexapod,
+			final Terrain terrain) {
 		this.hexapod = hexapod;
+		this.terrain = terrain;
 	}
 
 	public void draw(final PApplet g) {
@@ -205,7 +209,6 @@ class DrawHexapod {
 	private void drawLegCircle(
 			final PApplet g,
 			final Leg leg) {
-		// float shade = 150 + (float) leg.moveEnd().z() / 2;
 		Vector3d s = leg.moveStart();
 		Vector3d e = leg.moveEnd();
 
@@ -218,21 +221,27 @@ class DrawHexapod {
 		}
 
 		double radius = leg.moveEnd().sub(leg.moveStart()).length();
-		if (radius > 0) {
-			g.pushMatrix();
-			translate(g, leg.isMoving() ? s : leg.p4);
-
-			//rotate(g);
-			g.circle((float) 0, (float) 0, (float) radius * 2);
-			g.popMatrix();
-
-			g.pushMatrix();
-			translate(g, e);
-			// rotate(g);
-			g.fill(Color.darkGray.getRGB());
-			g.sphere(4);
-			g.popMatrix();
+		if (radius <= 0) {
+			return;
 		}
+
+		g.pushMatrix();
+
+		Vector3d v = leg.isMoving() ? s : leg.p4;
+		translate(g, v.addZ(5));
+
+		var angles = terrain.angle(v.x(), v.y());
+		g.rotateX((float) angles[ROLL]);
+		g.rotateY((float) -angles[PITCH]);
+
+		g.circle((float) 0, (float) 0, (float) radius * 2);
+		g.popMatrix();
+
+		g.pushMatrix();
+		translate(g, e);
+		g.fill(Color.darkGray.getRGB());
+		g.sphere(4);
+		g.popMatrix();
 	}
 
 	void drawLegFrame(final PApplet g) {
