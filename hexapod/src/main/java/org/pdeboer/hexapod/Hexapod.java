@@ -1,14 +1,15 @@
 package org.pdeboer.hexapod;
 
 import org.pdeboer.*;
-import org.pdeboer.hexapod.Leg.*;
 import org.pdeboer.util.*;
 
 import java.util.*;
 import java.util.stream.*;
 
 import static java.util.Comparator.*;
+import static org.pdeboer.hexapod.Leg.*;
 
+@SuppressWarnings("WeakerAccess")
 public class Hexapod {
 
 	public static final double EPSILON = 1E-12;
@@ -25,6 +26,8 @@ public class Hexapod {
 
 	public enum Action {
 		STOP,
+
+		ROTATE_LEFT, ROTATE_RIGHT,
 
 		MOVE_FORWARD, MOVE_BACKWARD,
 		MOVE_LEFT, MOVE_RIGHT,
@@ -48,13 +51,17 @@ public class Hexapod {
 	public final static Vector3d[] offset;
 
 	static {
-		offset = new Vector3d[LEG_COUNT];
-		offset[0] = new Vector3d(length / 2, +width / 2, -height / 2);
-		offset[1] = new Vector3d(0, +widthMiddle / 2, -height / 2);
-		offset[2] = new Vector3d(-length / 2, +width / 2, -height / 2);
-		offset[3] = new Vector3d(-length / 2, -width / 2, -height / 2);
-		offset[4] = new Vector3d(0, -widthMiddle / 2, -height / 2);
-		offset[5] = new Vector3d(length / 2, -width / 2, -height / 2);
+		double l2 = length / 2.0;
+		double h2 = -height / 2.0;
+		double w2 = width / 2.0;
+		double wm2 = widthMiddle / 2.0;
+		offset = new Vector3d[] {
+				new Vector3d(l2, w2, h2),
+				new Vector3d(0, wm2, h2),
+				new Vector3d(-l2, w2, h2),
+				new Vector3d(-l2, -w2, h2),
+				new Vector3d(0, -wm2, h2),
+				new Vector3d(l2, -w2, h2) };
 	}
 
 	private Vector3d center;
@@ -66,6 +73,7 @@ public class Hexapod {
 
 	private State state;
 	private Vector3d speed;
+	private double directionSpeed;
 
 	private int centerHeight;
 
@@ -94,6 +102,8 @@ public class Hexapod {
 
 		this.state = State.STOP;
 		this.speed = new Vector3d();
+		// this.direction = 0;
+		this.directionSpeed = 0;
 
 		initLeg();
 	}
@@ -111,7 +121,7 @@ public class Hexapod {
 
 		updateInverse();
 
-		var state = speed.lengthSquared() > 0
+		var state = speed.lengthSquared() > 0 || Math.abs(directionSpeed) > 0
 					? State.MOVE
 					: State.STOP;
 		setState(state);
@@ -231,6 +241,9 @@ public class Hexapod {
 			setCenter(center.addZ(-1));
 		}
 
+		case ROTATE_RIGHT -> directionSpeed += 0.01;
+		case ROTATE_LEFT -> directionSpeed -= 0.01;
+
 		case ROLL_MIN -> rotation[ROLL] -= 0.01;
 		case ROLL_PLUS -> rotation[ROLL] += 0.01;
 		case PITCH_MIN -> rotation[PITCH] -= 0.01;
@@ -347,21 +360,32 @@ public class Hexapod {
 	private void updateMove() {
 		var gait = tripodGait;
 
+		int countMoving = IntStream.range(0, LEG_COUNT).map(i -> gait[i][gaitIndex]).sum();
+
 		if (stepIndex == 0) {
 
-			int countMoving = IntStream.range(0, LEG_COUNT).map(i -> gait[i][gaitIndex]).sum();
 			var legSpeed = speed.multiply(6.0 / countMoving);
+			var distance = legSpeed.multiply(STEP_COUNT);
 
 			for (int i = 0; i < LEG_COUNT; ++i) {
 				if (gait[i][gaitIndex] == 1) {
 					var leg = getLeg(i);
-					leg.startMoving(legSpeed);
+
+					var xx = leg.p4.sub(center);
+					var r = Rotation3D.of(0, 0, directionSpeed);
+					var yy = r.apply(xx);
+					var distanceRot = yy.sub(xx);
+
+					var tmp = leg.p4.add(distance).add(distanceRot);
+					var dst = new Vector3d(tmp.x(), tmp.y(), terrain.height(tmp.x(), tmp.y()));
+
+					leg.startMoving(dst);
 				}
 			}
 		}
 
 		stepIndex++;
-		if (stepIndex >= Leg.STEP_COUNT) {
+		if (stepIndex >= STEP_COUNT) {
 			stepIndex = 0;
 			gaitIndex++;
 			if (gaitIndex >= gait[0].length) {
@@ -370,6 +394,9 @@ public class Hexapod {
 		}
 
 		center = center.add(speed);
+		// direction += directionSpeed;
+
+		rotation[YAW] -= directionSpeed / ((6.0 / countMoving) * STEP_COUNT);
 
 		updateP1();
 

@@ -11,6 +11,7 @@ import java.util.stream.*;
 import static java.lang.Math.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.params.provider.Arguments.*;
+import static org.pdeboer.hexapod.Leg.*;
 import static org.pdeboer.hexapod.Leg.Id.*;
 
 class LegTest {
@@ -197,8 +198,11 @@ class LegTest {
 		leg.init(new Vector3d(0, 0, 50), x1, y1);
 		assertEqualsVector3D(new Vector3d(x1, y1, 0), leg.p4);
 
-		Vector3d speed = new Vector3d(0.5, 0.25, 0);
-		leg.startMoving(speed.multiply(6));
+		var speed = new Vector3d(0.5, 0.25, 0);
+		var distance = speed.multiply(6).multiply(STEP_COUNT);
+		var dst = leg.p4.add(distance);
+
+		leg.startMoving(dst);
 
 		for (int i = 0; i < Leg.STEP_COUNT; ++i) {
 			leg.update();

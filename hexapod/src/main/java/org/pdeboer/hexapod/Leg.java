@@ -102,15 +102,10 @@ public class Leg {
 		return isMoving;
 	}
 
-	void startMoving(final Vector3d speed) {
+	void startMoving(final Vector3d dst) {
 		moveIndex = 0;
 		moveStart = new Vector3d(p4);
-
-		Vector3d distance = speed.multiply(STEP_COUNT);
-
-		var tmp = moveStart.add(distance);
-
-		moveEnd = new Vector3d(tmp.x(), tmp.y(), terrain.height(tmp.x(), tmp.y()));
+		moveEnd = dst;
 
 		isMoving = true;
 	}
@@ -267,7 +262,7 @@ public class Leg {
 			}
 		}
 
-		System.out.printf("ra=%f, rb=%f, rc=%f, count=%d%n", ra, rb, rc, count);
+		// System.out.printf("ra=%f, rb=%f, rc=%f, count=%d%n", ra, rb, rc, count);
 	}
 
 	public void update(final double[] bodyRotation) {

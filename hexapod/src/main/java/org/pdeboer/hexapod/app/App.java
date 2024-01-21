@@ -69,7 +69,7 @@ public class App extends PApplet {
 		smooth();
 		frameRate(FRAME_RATE);
 
-		terrain = new TerrainImpl(0.0015);
+		terrain = new TerrainImpl(0.0005);
 		hexapod = new Hexapod(terrain);
 
 		controller = Stream.of(ControllerEnvironment.getDefaultEnvironment().getControllers())
@@ -163,8 +163,8 @@ public class App extends PApplet {
 		switch (keyCode) {
 		case UP -> hexapod.execute(Action.MOVE_FORWARD);
 		case DOWN -> hexapod.execute(Action.MOVE_BACKWARD);
-		case RIGHT -> hexapod.execute(Action.MOVE_RIGHT);
-		case LEFT -> hexapod.execute(Action.MOVE_LEFT);
+		case RIGHT -> hexapod.execute(Action.ROTATE_RIGHT);
+		case LEFT -> hexapod.execute(Action.ROTATE_LEFT);
 		}
 
 		switch (key) {
@@ -214,6 +214,7 @@ public class App extends PApplet {
 		fill(Color.black.getRGB());
 
 		int x0 = 10;
+		int y0 = 20;
 		textAlign(PApplet.LEFT);
 		text("center: " + hexapod.center(), x0, 20);
 		text("rotation: " + Arrays.toString(hexapod.rotation()), x0, 40);
@@ -298,22 +299,22 @@ public class App extends PApplet {
 			case "y" -> {
 				var speed = hexapod.speed();
 				float val = -event.getValue();
-				hexapod.setSpeed(new Vector3d(Math.abs(val) >= 0.02 ? val : 0, speed.y(), 0));
+				hexapod.setSpeed(new Vector3d(Math.abs(val) >= DEAD_ZONE ? val : 0, speed.y(), 0));
 			}
 
 			case "x" -> {
 				var speed = hexapod.speed();
 				float val = event.getValue();
-				hexapod.setSpeed(new Vector3d(speed.x(), Math.abs(val) >= 0.02 ? val : 0, 0));
+				hexapod.setSpeed(new Vector3d(speed.x(), Math.abs(val) >= DEAD_ZONE ? val : 0, 0));
 			}
 
 			case "z" -> {
 				float val = event.getValue();
-				ra_speed = Math.abs(val) >= 0.02 ? val * 0.05 : 0;
+				ra_speed = Math.abs(val) >= DEAD_ZONE ? val * 0.05 : 0;
 			}
 			case "rz" -> {
 				float val = event.getValue();
-				rb_speed = Math.abs(val) >= 0.02 ? val * 0.05 : 0;
+				rb_speed = Math.abs(val) >= DEAD_ZONE ? val * 0.05 : 0;
 			}
 
 			}
@@ -333,4 +334,5 @@ public class App extends PApplet {
 		return String.format("%.1f", v * 180 / PI);
 	}
 
+	private static final double DEAD_ZONE = 0.03;
 }
