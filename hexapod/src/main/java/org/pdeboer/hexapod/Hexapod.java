@@ -72,8 +72,8 @@ public class Hexapod {
 	private final Leg[] legs;
 
 	private State state;
-	private Vector3d speed;
-	private double directionSpeed;
+	private double speed;
+	private double rotationSpeed;
 
 	private int centerHeight;
 
@@ -101,9 +101,8 @@ public class Hexapod {
 		this.rotation = new double[] { 0, 0, 0 };
 
 		this.state = State.STOP;
-		this.speed = new Vector3d();
-		// this.direction = 0;
-		this.directionSpeed = 0;
+		this.speed = 0;
+		this.rotationSpeed = 0;
 
 		initLeg();
 	}
@@ -111,17 +110,16 @@ public class Hexapod {
 	public void update() {
 		updateP1();
 
-		double diffPitch = stabilisePitch();
-		double diffRoll = stabiliseRoll();
+		double[] angles = terrain.angle(center.x(), center.y());
 
-		rotation[ROLL] += diffRoll;
-		rotation[PITCH] += diffPitch;
+		rotation[ROLL] = angles[0];
+		rotation[PITCH] = angles[1];
 
 		stabiliseCenter();
 
 		updateInverse();
 
-		var state = speed.lengthSquared() > 0 || Math.abs(directionSpeed) > 0
+		var state = Math.abs(speed) > 0 || Math.abs(rotationSpeed) > 0
 					? State.MOVE
 					: State.STOP;
 		setState(state);
@@ -138,7 +136,7 @@ public class Hexapod {
 			return;
 		}
 
-		var centerSpeed = Math.min(0.5, speed.length() * 2);
+		var centerSpeed = Math.min(0.5, speed * 2);
 
 		Vector3d diff = new Vector3d(0, 0, centerSpeed).multiply(Math.signum(diffCenter));
 		setCenter(center.sub(diff));
@@ -222,11 +220,14 @@ public class Hexapod {
 		double accelerate = 0.05;
 
 		switch (action) {
-		case STOP -> setSpeed(new Vector3d());
-		case MOVE_FORWARD -> setSpeed(speed.addX(accelerate));
-		case MOVE_BACKWARD -> setSpeed(speed.addX(-accelerate));
-		case MOVE_RIGHT -> setSpeed(speed.addY(accelerate));
-		case MOVE_LEFT -> setSpeed(speed.addY(-accelerate));
+		case STOP -> {
+			setSpeed(0);
+			setRotationSpeed(0);
+		}
+		case MOVE_FORWARD -> setSpeed(speed + accelerate);
+		case MOVE_BACKWARD -> setSpeed(speed - accelerate);
+		case MOVE_RIGHT -> setRotationSpeed(rotationSpeed + accelerate);
+		case MOVE_LEFT -> setRotationSpeed(rotationSpeed - accelerate);
 
 		case FORWARD -> setCenter(center.addX(1));
 		case BACKWARD -> setCenter(center.addX(-1));
@@ -241,8 +242,8 @@ public class Hexapod {
 			setCenter(center.addZ(-1));
 		}
 
-		case ROTATE_RIGHT -> directionSpeed += 0.01;
-		case ROTATE_LEFT -> directionSpeed -= 0.01;
+		case ROTATE_RIGHT -> setRotationSpeed(rotationSpeed + 0.01);
+		case ROTATE_LEFT -> setRotationSpeed(rotationSpeed - 0.01);
 
 		case ROLL_MIN -> rotation[ROLL] -= 0.01;
 		case ROLL_PLUS -> rotation[ROLL] += 0.01;
@@ -267,16 +268,31 @@ public class Hexapod {
 		return center;
 	}
 
-	public void setSpeed(final Vector3d speed) {
-		if (speed.length() > 6) {
+	public void setSpeed(final double speed) {
+		if (speed > 6) {
 			return;
 		}
 
 		this.speed = speed;
 	}
 
-	public Vector3d speed() {
+	public double speed() {
 		return speed;
+	}
+
+	public Vector3d speedV() {
+		return Rotation3D.of(0, 0, -rotation[YAW])
+				.apply(Vector3d.of(speed, 0, 0));
+	}
+
+	public double rotationSpeed() {
+		return rotationSpeed;
+	}
+
+	public void setRotationSpeed(double rotationSpeed) {
+		this.rotationSpeed = Math.abs(rotationSpeed) > 0.01
+							 ? rotationSpeed :
+							 0.0;
 	}
 
 	public void setRotation(double[] r) {
@@ -362,9 +378,12 @@ public class Hexapod {
 
 		int countMoving = IntStream.range(0, LEG_COUNT).map(i -> gait[i][gaitIndex]).sum();
 
+		var sp = Rotation3D.of(0, 0, -rotation[YAW])
+				.apply(Vector3d.of(speed, 0, 0));
+
 		if (stepIndex == 0) {
 
-			var legSpeed = speed.multiply(6.0 / countMoving);
+			var legSpeed = sp.multiply(6.0 / countMoving);
 			var distance = legSpeed.multiply(STEP_COUNT);
 
 			for (int i = 0; i < LEG_COUNT; ++i) {
@@ -372,7 +391,7 @@ public class Hexapod {
 					var leg = getLeg(i);
 
 					var xx = leg.p4.sub(center);
-					var r = Rotation3D.of(0, 0, directionSpeed);
+					var r = Rotation3D.of(0, 0, rotationSpeed);
 					var yy = r.apply(xx);
 					var distanceRot = yy.sub(xx);
 
@@ -393,10 +412,9 @@ public class Hexapod {
 			}
 		}
 
-		center = center.add(speed);
-		// direction += directionSpeed;
+		center = center.add(sp);
 
-		rotation[YAW] -= directionSpeed / ((6.0 / countMoving) * STEP_COUNT);
+		rotation[YAW] -= rotationSpeed / ((6.0 / countMoving) * STEP_COUNT);
 
 		updateP1();
 

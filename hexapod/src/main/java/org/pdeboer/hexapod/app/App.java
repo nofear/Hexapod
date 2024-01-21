@@ -69,7 +69,7 @@ public class App extends PApplet {
 		smooth();
 		frameRate(FRAME_RATE);
 
-		terrain = new TerrainImpl(0.0005);
+		terrain = new TerrainImpl(0.0012);
 		hexapod = new Hexapod(terrain);
 
 		controller = Stream.of(ControllerEnvironment.getDefaultEnvironment().getControllers())
@@ -216,9 +216,10 @@ public class App extends PApplet {
 		int x0 = 10;
 		int y0 = 20;
 		textAlign(PApplet.LEFT);
-		text("center: " + hexapod.center(), x0, 20);
-		text("rotation: " + Arrays.toString(hexapod.rotation()), x0, 40);
-		text("speed:    " + hexapod.speed(), 10, 60);
+		text("center:         " + hexapod.center(), x0, 20);
+		text("rotation:       " + Arrays.toString(hexapod.rotation()), x0, 40);
+		text("rotationSpeed:  " + hexapod.rotationSpeed(), x0, 60);
+		text("speed:          " + hexapod.speed(), x0, 80);
 
 		if (false) {
 			float leg_x0 = 250;
@@ -256,8 +257,9 @@ public class App extends PApplet {
 		g.fill(Color.yellow.getRGB());
 		g.sphere(4);
 
-		xoff += hexapod.speed().x();
-		yoff += hexapod.speed().y();
+		var sp = hexapod.speedV();
+		xoff += sp.x();
+		yoff += sp.y();
 	}
 
 	private void process_controller() {
@@ -297,15 +299,13 @@ public class App extends PApplet {
 
 			// left-stick
 			case "y" -> {
-				var speed = hexapod.speed();
 				float val = -event.getValue();
-				hexapod.setSpeed(new Vector3d(Math.abs(val) >= DEAD_ZONE ? val : 0, speed.y(), 0));
+				hexapod.setSpeed(Math.abs(val) >= DEAD_ZONE ? val : 0);
 			}
 
 			case "x" -> {
-				var speed = hexapod.speed();
 				float val = event.getValue();
-				hexapod.setSpeed(new Vector3d(speed.x(), Math.abs(val) >= DEAD_ZONE ? val : 0, 0));
+				hexapod.setRotationSpeed(Math.abs(val) >= DEAD_ZONE ? val : 0.0);
 			}
 
 			case "z" -> {
