@@ -219,7 +219,7 @@ public class App extends PApplet {
 		text("center:         " + hexapod.center(), x0, 20);
 		text("rotation:       " + Arrays.toString(hexapod.rotation()), x0, 40);
 		text("rotationSpeed:  " + hexapod.rotationSpeed(), x0, 60);
-		text("speed:          " + hexapod.speed(), x0, 80);
+		text("speed:          " + hexapod.speedV(), x0, 80);
 
 		if (false) {
 			float leg_x0 = 250;
@@ -299,8 +299,9 @@ public class App extends PApplet {
 
 			// left-stick
 			case "y" -> {
+				var speed = hexapod.speed();
 				float val = -event.getValue();
-				hexapod.setSpeed(Math.abs(val) >= DEAD_ZONE ? val : 0);
+				hexapod.setSpeed(speed.addX(Math.abs(val) >= DEAD_ZONE ? val : 0));
 			}
 
 			case "x" -> {
@@ -334,5 +335,5 @@ public class App extends PApplet {
 		return String.format("%.1f", v * 180 / PI);
 	}
 
-	private static final double DEAD_ZONE = 0.03;
+	private static final double DEAD_ZONE = 0.05;
 }

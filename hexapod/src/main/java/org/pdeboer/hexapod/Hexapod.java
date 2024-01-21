@@ -72,7 +72,7 @@ public class Hexapod {
 	private final Leg[] legs;
 
 	private State state;
-	private double speed;
+	private Vector3d speed;
 	private double rotationSpeed;
 
 	private int centerHeight;
@@ -101,7 +101,7 @@ public class Hexapod {
 		this.rotation = new double[] { 0, 0, 0 };
 
 		this.state = State.STOP;
-		this.speed = 0;
+		this.speed = new Vector3d();
 		this.rotationSpeed = 0;
 
 		initLeg();
@@ -110,16 +110,7 @@ public class Hexapod {
 	public void update() {
 		updateP1();
 
-		double[] angles = terrain.angle(center.x(), center.y());
-
-		rotation[ROLL] = angles[0];
-		rotation[PITCH] = angles[1];
-
-		stabiliseCenter();
-
-		updateInverse();
-
-		var state = Math.abs(speed) > 0 || Math.abs(rotationSpeed) > 0
+		var state = speed.length() > 0 || Math.abs(rotationSpeed) > 0
 					? State.MOVE
 					: State.STOP;
 		setState(state);
@@ -128,33 +119,6 @@ public class Hexapod {
 		case STOP -> updateIdle();
 		case MOVE -> updateMove();
 		}
-	}
-
-	private void stabiliseCenter() {
-		double diffCenter = getHeight(center) - centerHeight;
-		if (Math.abs(diffCenter) <= 5) {
-			return;
-		}
-
-		var centerSpeed = Math.min(0.5, speed * 2);
-
-		Vector3d diff = new Vector3d(0, 0, centerSpeed).multiply(Math.signum(diffCenter));
-		setCenter(center.sub(diff));
-	}
-
-	private double stabiliseRoll() {
-		double leftHeight = getAvgHeight(Id.LEFT_FRONT, Id.LEFT_BACK);
-		double rightHeight = getAvgHeight(Id.RIGHT_FRONT, Id.RIGHT_BACK);
-		double diffRoll = rightHeight - leftHeight;
-		return Math.abs(diffRoll) <= 1 ? 0 : Math.signum(diffRoll) * 0.01;
-
-	}
-
-	private double stabilisePitch() {
-		double frontHeight = getAvgHeight(Id.RIGHT_FRONT, Id.LEFT_FRONT);
-		double backHeight = getAvgHeight(Id.RIGHT_BACK, Id.LEFT_BACK);
-		double diffPitch = backHeight - frontHeight;
-		return Math.abs(diffPitch) <= 1 ? 0 : Math.signum(diffPitch) * 0.01;
 	}
 
 	private void setState(final State state) {
@@ -203,15 +167,6 @@ public class Hexapod {
 
 	}
 
-	private double getAvgHeight(
-			final Leg.Id legId1,
-			final Leg.Id legId2) {
-		var leg1 = getLeg(legId1);
-		var leg2 = getLeg(legId2);
-
-		return (getHeight(leg1.p1) + getHeight(leg2.p1)) / 2;
-	}
-
 	private double getHeight(final Vector3d p) {
 		return p.z() - terrain.height(p.x(), p.y());
 	}
@@ -221,13 +176,13 @@ public class Hexapod {
 
 		switch (action) {
 		case STOP -> {
-			setSpeed(0);
+			setSpeed(new Vector3d());
 			setRotationSpeed(0);
 		}
-		case MOVE_FORWARD -> setSpeed(speed + accelerate);
-		case MOVE_BACKWARD -> setSpeed(speed - accelerate);
-		case MOVE_RIGHT -> setRotationSpeed(rotationSpeed + accelerate);
-		case MOVE_LEFT -> setRotationSpeed(rotationSpeed - accelerate);
+		case MOVE_FORWARD -> setSpeed(speed.addX(accelerate));
+		case MOVE_BACKWARD -> setSpeed(speed.addX(-accelerate));
+		case MOVE_RIGHT -> setSpeed(speed.addY(accelerate));
+		case MOVE_LEFT -> setSpeed(speed.addY(-accelerate));
 
 		case FORWARD -> setCenter(center.addX(1));
 		case BACKWARD -> setCenter(center.addX(-1));
@@ -268,21 +223,21 @@ public class Hexapod {
 		return center;
 	}
 
-	public void setSpeed(final double speed) {
-		if (speed > 6) {
+	public void setSpeed(final Vector3d speed) {
+		if (speed.length() > 6) {
 			return;
 		}
 
 		this.speed = speed;
 	}
 
-	public double speed() {
+	public Vector3d speed() {
 		return speed;
 	}
 
 	public Vector3d speedV() {
 		return Rotation3D.of(0, 0, -rotation[YAW])
-				.apply(Vector3d.of(speed, 0, 0));
+				.apply(speed);
 	}
 
 	public double rotationSpeed() {
@@ -290,7 +245,7 @@ public class Hexapod {
 	}
 
 	public void setRotationSpeed(double rotationSpeed) {
-		this.rotationSpeed = Math.abs(rotationSpeed) > 0.01
+		this.rotationSpeed = Math.abs(rotationSpeed) >= 0.01
 							 ? rotationSpeed :
 							 0.0;
 	}
@@ -374,12 +329,13 @@ public class Hexapod {
 	//	}
 
 	private void updateMove() {
+		stabilise();
+
 		var gait = tripodGait;
 
 		int countMoving = IntStream.range(0, LEG_COUNT).map(i -> gait[i][gaitIndex]).sum();
 
-		var sp = Rotation3D.of(0, 0, -rotation[YAW])
-				.apply(Vector3d.of(speed, 0, 0));
+		var sp = speedV();
 
 		if (stepIndex == 0) {
 
@@ -419,6 +375,18 @@ public class Hexapod {
 		updateP1();
 
 		List.of(legs).forEach(Leg::update);
+
+		updateInverse();
+	}
+
+	private void stabilise() {
+		double[] angles = terrain.angle(center.x(), center.y());
+
+		rotation[ROLL] = angles[0];
+		rotation[PITCH] = angles[1];
+
+		var z = terrain.height(center.x(), center.y()) + centerHeight;
+		center = new Vector3d(center.x(), center.y(), z);
 
 		updateInverse();
 	}
