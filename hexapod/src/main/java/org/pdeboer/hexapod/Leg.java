@@ -8,6 +8,7 @@ import java.util.*;
 import static java.lang.Math.*;
 import static org.pdeboer.hexapod.Hexapod.*;
 
+@SuppressWarnings("WeakerAccess")
 public class Leg {
 
 	static final double GROUND_EPSILON = 1E-06;
@@ -30,6 +31,8 @@ public class Leg {
 	private final double lengthFemur;
 	private final double lengthTibia;
 
+	private Vector3d offset;
+
 	public Vector3d p1;
 	public Vector3d p2;
 	public Vector3d p3;
@@ -38,6 +41,8 @@ public class Leg {
 	private double ra = PI / 2;
 	private double rb = 0;
 	private double rc = 0;
+
+	private final double[][] angleRange;
 
 	private boolean isMoving;
 	private int moveIndex;
@@ -71,6 +76,10 @@ public class Leg {
 		this.lengthTibia = lengthTibia;
 		this.isMoving = false;
 		this.moveIndex = 0;
+
+		this.angleRange = new double[][] { { -2 * PI, 2 * PI },
+										   { -2 * PI, 2 * PI },
+										   { -2 * PI, 2 * PI } };
 
 		p1 = new Vector3d();
 		p2 = new Vector3d();
@@ -143,15 +152,23 @@ public class Leg {
 		return lengthTibia;
 	}
 
-	public void init(
-			final Vector3d v,
-			final double x,
-			final double y) {
+	public void setOffset(final Vector3d offset) {
+		this.offset = offset;
+	}
 
+	public void setAngelRange(
+			final int idx,
+			final double min,
+			final double max) {
+		angleRange[idx][0] = Math.toRadians(min);
+		angleRange[idx][1] = Math.toRadians(max);
+	}
+
+	public void init(final Vector3d v) {
 		p1 = new Vector3d(v);
 
-		double x1 = v.x() + x;
-		double y1 = v.y() + y;
+		double x1 = v.x() + offset.x();
+		double y1 = v.y() + offset.y();
 		p4 = new Vector3d(x1, y1, terrain.height(x1, y1));
 
 		double[] rotation = { 0, 0, 0 };
@@ -162,10 +179,30 @@ public class Leg {
 		moveEnd = p4;
 	}
 
-	void setAngles(final double[] r) {
+	public void initTest(
+			final Vector3d v,
+			final double x,
+			final double y) {
+		setOffset(Vector3d.of(x, y, 0));
+		init(v);
+	}
+
+	void setAngles2(final double[] r) {
 		this.ra = r[0];
 		this.rb = r[1];
 		this.rc = r[2];
+	}
+
+	void setAngles(final double[] r) {
+		this.ra = limitRange(0, r[0]);
+		this.rb = limitRange(1, r[1]);
+		this.rc = limitRange(2, r[2]);
+	}
+
+	private double limitRange(
+			final int idx,
+			final double angle) {
+		return Math.min(Math.max(angle, angleRange[idx][0]), angleRange[idx][1]);
 	}
 
 	double[] getAngles() {

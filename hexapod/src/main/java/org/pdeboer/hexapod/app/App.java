@@ -216,10 +216,10 @@ public class App extends PApplet {
 		int x0 = 10;
 		int y0 = 20;
 		textAlign(PApplet.LEFT);
-		text("center:         " + hexapod.center(), x0, 20);
-		text("rotation:       " + Arrays.toString(hexapod.rotation()), x0, 40);
-		text("rotationSpeed:  " + hexapod.rotationSpeed(), x0, 60);
-		text("speed:          " + hexapod.speedV(), x0, 80);
+		text("center:         " + hexapod.center(), x0, y0 += 20);
+		text("rotation:       " + Arrays.toString(hexapod.rotation()), x0, y0 += 20);
+		text("rotationSpeed:  " + hexapod.rotationSpeed(), x0, y0 += 20);
+		text("speed:          " + hexapod.speedV(), x0, y0 += 20);
 
 		if (false) {
 			float leg_x0 = 250;

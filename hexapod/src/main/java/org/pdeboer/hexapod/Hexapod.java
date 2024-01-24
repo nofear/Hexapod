@@ -88,15 +88,27 @@ public class Hexapod {
 				.map(legId -> new Leg(legId, terrain))
 				.toArray(Leg[]::new);
 
-		this.stepIndex = 0;
+		this.legs[0].setAngelRange(0, -60, 120);
+		this.legs[1].setAngelRange(0, -70, 70);
+		this.legs[2].setAngelRange(0, -120, 60);
+		this.legs[3].setAngelRange(0, -210, -40);
+		this.legs[4].setAngelRange(0, 110, 250);
+		this.legs[5].setAngelRange(0, 120, 300);
 
+		for (Leg leg : legs) {
+			leg.setAngelRange(1, 0, 180);
+			leg.setAngelRange(2, 0, 150);
+		}
+
+		this.stepIndex = 0;
 		this.centerHeight = 75;
 
+		initOffset();
 		init();
 	}
 
 	public void init() {
-		Vector3d c = new Vector3d(-50, 0, 0);
+		var c = new Vector3d(-50, 0, 0);
 		this.center = c.addZ(terrain.height(c.x(), c.y()) + centerHeight);
 		this.rotation = new double[] { 0, 0, 0 };
 
@@ -104,7 +116,10 @@ public class Hexapod {
 		this.speed = new Vector3d();
 		this.rotationSpeed = 0;
 
-		initLeg();
+		for (int i = 0; i < LEG_COUNT; ++i) {
+			var p1 = center.add(offset[i]);
+			legs[i].init(p1);
+		}
 	}
 
 	public void update() {
@@ -165,10 +180,6 @@ public class Hexapod {
 			updateInverse();
 		}
 
-	}
-
-	private double getHeight(final Vector3d p) {
-		return p.z() - terrain.height(p.x(), p.y());
 	}
 
 	public void execute(final Action action) {
@@ -268,11 +279,7 @@ public class Hexapod {
 		return legs[index];
 	}
 
-	public Leg getLeg(Leg.Id legId) {
-		return legs[legId.ordinal()];
-	}
-
-	private void initLeg() {
+	private void initOffset() {
 
 		int x = 0;
 		int y = 80;
@@ -286,8 +293,7 @@ public class Hexapod {
 				{ x, -y * 1.25 },
 				{ x + off, -y } };
 		for (int i = 0; i < LEG_COUNT; ++i) {
-			var p1 = center.add(offset[i]);
-			legs[i].init(p1, o[i][0], o[i][1]);
+			legs[i].setOffset(Vector3d.of(o[i][0], o[i][1], 0));
 		}
 	}
 
