@@ -5,7 +5,7 @@ package org.pdeboer.genetic.model;
  * based on a given chromosome.
  *
  * @param <T> Phenotype.
- * @author Patrick
+ * @author Patrick de Boer
  */
 public interface IPhenotypeFactory<T extends IPhenotype> {
 

@@ -11,7 +11,7 @@ import org.pdeboer.genetic.model.*;
  * 
  * 
  * 
- * @author Patrick
+ * @author Patrick de Boer
  * 
  */
 public class Gait2 implements IPhenotype {
