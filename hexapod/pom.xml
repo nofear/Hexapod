@@ -106,11 +106,27 @@
                 <executions>
                     <execution>
                         <id>unpacknatives</id>
+                        <phase>generate-resources</phase>
                         <goals>
                             <goal>copy</goal>
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.5.0</version>
+                <configuration>
+                    <executable>java</executable>
+                    <arguments>
+                        <argument>-Djava.library.path=${project.build.directory}/natives</argument>
+                        <argument>-classpath</argument>
+                        <classpath/>
+                        <argument>org.pdeboer.hexapod.app.App</argument>
+                    </arguments>
+                </configuration>
             </plugin>
         </plugins>
     </build>

@@ -1,6 +1,7 @@
 .metadata
 .DS_Store
 *.class
+/.idea/
 
 # Package Files #
 *.jar
